@@ -1,5 +1,5 @@
 # colortex0
-Framebuffer. Stores the colour of the pixel throughout the pipeline.
+Framebuffer. Stores the main colour of the screen throughout the pipeline.
 
 Format: RGBA16F.
 
@@ -7,7 +7,7 @@ Notes:
 * colortex0 is a HDR colour buffer, and as such contains values > 1.0.
 
 # colortex1
-First gbuffer. Stores information regarding to the surfaces in the scene.
+First gbuffer. Stores information pertaining to the surfaces in the scene.
 
 Format: RGB32F.
 
@@ -20,7 +20,7 @@ Notes:
 * Before transparent programs, gbuffers both contain information for opaque blocks behind transparent blocks. After transparent programs, information for opaque blocks behind transparent blocks is lost, overwritten by information for transparent blocks.
 
 # colortex2
-Second gbuffer. Stores information regarding to the surfaces in the scene.
+Second gbuffer. Stores information pertaining to the surfaces in the scene.
 
 Format: RGB32F.
 
@@ -44,7 +44,7 @@ Channels:
 * A: Free.
 
 # colortex4
-Working buffer 0. Used to pass data between programs, usually for filtering. Any stored data can change through the pipeline.
+Working buffer 0. Used to pass data between programs, usually for filtering. Any stored data can change throughout the pipeline.
 
 Format: RGBA16F.
 
@@ -58,7 +58,7 @@ Notes:
 * colortex4 is a HDR buffer, and as such contains values > 1.0.
 
 # colortex5
-Working buffer 1. Used to pass data between programs, usually for filtering. Any stored data can change through the pipeline.
+Working buffer 1. Used to pass data between programs, usually for filtering. Any stored data can change throughout the pipeline.
 
 Format: RGBA16.
 
@@ -66,5 +66,7 @@ Buffer/Channel Usage:
 * composite -> composite1: volumetric clouds stored in RGBA.
 
 # colortex6
+Free.
 
 # colortex7
+Free.
