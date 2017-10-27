@@ -22,8 +22,8 @@ flat(float) material;
 varying float dist;
 
 // UNIFORM
-attr(vec4) at_tangent;
-attr(vec4) mc_Entity;
+attribute vec4 at_tangent;
+attribute vec4 mc_Entity;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -32,6 +32,7 @@ uniform vec3 cameraPosition;
 
 // ARBITRARY
 // INCLUDED FILES
+// FUNCTIONS
 // MAIN
 void main() {
   colour = gl_Color;

@@ -36,9 +36,9 @@ varying vec4 colour;
 flat(float) material;
 
 // UNIFORM
-attr(vec4) at_tangent;
-attr(vec4) mc_midTexCoord;
-attr(vec4) mc_Entity;
+attribute vec4 at_tangent;
+attribute vec4 mc_midTexCoord;
+attribute vec4 mc_Entity;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -47,6 +47,7 @@ uniform vec3 cameraPosition;
 
 // ARBITRARY
 // INCLUDED FILES
+// FUNCTIONS
 // MAIN
 void main() {
   colour = gl_Color;
@@ -67,8 +68,8 @@ void main() {
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
     vec2 mid = (gl_TextureMatrix[0] * mc_midTexCoord).xy;
     vec2 uvMinusMid = gl_MultiTexCoord0.xy - mid;
-    parallax.xy = min(uvCoord, mid - uvMinusMid);
     parallax.zw = abs(uvMinusMid) * 2.0;
+    parallax.xy = min(uvCoord, mid - uvMinusMid);
 
     uvCoord = sign(uvMinusMid) * 0.5 + 0.5;
   #endif
@@ -88,13 +89,13 @@ void main() {
   #endif
 
   #if PROGRAM != GBUFFERS_BASIC && PROGRAM != GBUFFERS_SKYBASIC && PROGRAM != GBUFFERS_SKYTEXTURED
-    normal = fnormalize(gl_NormalMatrix * gl_Normal);
+    normal = normalize(gl_NormalMatrix * gl_Normal);
 
     vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
     ttn = mat3(0.0);
 
-    ttn[0] = fnormalize(gl_NormalMatrix * at_tangent.xyz);
+    ttn[0] = normalize(gl_NormalMatrix * at_tangent.xyz);
     ttn[1] = cross(ttn[0], normal);
     ttn[2] = normal;
   #endif

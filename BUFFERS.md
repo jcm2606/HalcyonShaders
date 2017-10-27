@@ -49,7 +49,6 @@ Working buffer 0. Used to pass data between programs, usually for filtering. Any
 Format: RGBA16F.
 
 Buffer/Channel Usage:
-* deferred -> deferred1: AO stored in R.
 * gbuffers_water -> composite: transparent reflections stored in RGB.
 * composite -> composite1: volumetrics stored in RGBA.
 * composite4 -> final: bloom stored in RGB.
@@ -63,6 +62,7 @@ Working buffer 1. Used to pass data between programs, usually for filtering. Any
 Format: RGBA16.
 
 Buffer/Channel Usage:
+* deferred -> deferred1: AO stored in R.
 * composite -> composite1: volumetric clouds stored in RGBA.
 
 # colortex6

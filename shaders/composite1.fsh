@@ -14,14 +14,31 @@
 
 // CONST
 // USED BUFFERS
+#define IN_TEX0
+
 // VARYING
 varying vec2 screenCoord;
 
 // UNIFORM
+uniform sampler2D colortex0;
+
 // STRUCT
+#include "/lib/common/struct/StructBuffer.glsl"
+
 // ARBITRARY
 // INCLUDED FILES
+// FUNCTIONS
 // MAIN
 void main() {
-  /* DRAWBUFFERS:0 */
+  // CREATE STRUCTS
+  NewBufferObject(buffers);
+
+  // POPULATE STRUCTS
+  populateBufferObject(buffers, screenCoord);
+
+  // DRAW VOLUMETRICS
+  // DRAW VOLUMETRIC CLOUDS
+  // POPULATE OUTGOING BUFFERS
+/* DRAWBUFFERS:0 */
+  gl_FragData[0] = buffers.tex0;
 }

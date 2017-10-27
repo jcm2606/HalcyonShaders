@@ -58,6 +58,7 @@ flat(float) material;
   #define textureSample(tex, coord) texture2D(tex, coord)
 #endif
 
+// FUNCTIONS
 // MAIN
 void main() {
   // CREATE GBUFFER OBJECT
@@ -74,7 +75,7 @@ void main() {
 
       #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
         // GENERATE VIEW VECTOR
-        vec3 view = fnormalize(vertex * tbn);
+        vec3 view = normalize(tbn * vertex);
       #endif
     #endif
 
@@ -96,6 +97,10 @@ void main() {
     gbuffer.albedo = colour;
   #else
     gbuffer.albedo = textureSample(texture, uv) * colour;
+
+    #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+    gbuffer.albedo.rgb *= vec3(1.0, 0.1, 0.0) * 0.1 * pow2(lmCoord.x) + (vec3(1.0, 1.0, 1.0) * pow4(lmCoord.y));
+    #endif
   #endif
 
   // POPULATE BUFFERS IN GBUFFER OBJECT
@@ -104,7 +109,7 @@ void main() {
   gbuffer.workingBuffer = gbuffer.albedo;
 
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:012 */
+/* DRAWBUFFERS:012 */
   gl_FragData[0] = gbuffer.workingBuffer;
   gl_FragData[1] = gbuffer.gbuffer0;
   gl_FragData[2] = gbuffer.gbuffer1;

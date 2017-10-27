@@ -14,7 +14,6 @@
   #define cRCP(type, name) const type name##RCP = 1.0 / name
 
   #define flat(type) flat varying type
-  #define attr(type) attribute type
 
   #define clamp01(x) clamp(x, 0.0, 1.0)
   #define max0(x) max(x, 0.0)

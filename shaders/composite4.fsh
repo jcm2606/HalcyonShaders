@@ -18,10 +18,24 @@
 varying vec2 screenCoord;
 
 // UNIFORM
+uniform sampler2D colortex0;
+
 // STRUCT
+#include "/lib/common/struct/StructBuffer.glsl"
+
 // ARBITRARY
 // INCLUDED FILES
+// FUNCTIONS
 // MAIN
 void main() {
-  /* DRAWBUFFERS:0 */
+  // CREATE STRUCTS
+  NewBufferObject(buffers);
+
+  // POPULATE STRUCTS
+  populateBufferObject(buffers, screenCoord);
+
+  // GENERATE BLOOM TILES
+  // POPULATE OUTGOING BUFFERS
+/* DRAWBUFFERS:4 */
+  gl_FragData[0] = buffers.tex4;
 }

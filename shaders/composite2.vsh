@@ -21,6 +21,7 @@ varying vec2 screenCoord;
 // STRUCT
 // ARBITRARY
 // INCLUDED FILES
+// FUNCTIONS
 // MAIN
 void main() {
   gl_Position = reprojectVertex(gl_ModelViewMatrix, gl_Vertex.xyz);

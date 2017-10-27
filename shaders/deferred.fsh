@@ -19,9 +19,21 @@ varying vec2 screenCoord;
 
 // UNIFORM
 // STRUCT
+#include "/lib/common/struct/StructBuffer.glsl"
+
 // ARBITRARY
 // INCLUDED FILES
+// FUNCTIONS
 // MAIN
 void main() {
-  /* DRAWBUFFERS:0 */
+  // CREATE STRUCTS
+  NewBufferObject(buffers);
+
+  // POPULATE STRUCTS
+  populateBufferObject(buffers, screenCoord);
+
+  // GENERATE AO
+  // POPULATE OUTGOING BUFFERS
+/* DRAWBUFFERS:5 */
+  gl_FragData[0] = buffers.tex5;
 }

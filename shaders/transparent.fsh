@@ -12,7 +12,8 @@ varying vec2 lmCoord;
 // UNIFORM
 // ARBITRARY
 // INCLUDED FILES
+// FUNCTIONS
 // MAIN
 void main() {
-  /* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:0 */
 }

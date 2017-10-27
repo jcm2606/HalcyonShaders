@@ -7,6 +7,18 @@
 #ifndef INTERNAL_INCLUDED_SETTINGS
   #define INTERNAL_INCLUDED_SETTINGS
 
+  // BUFFER OPTIONS
+  /*
+    const int colortex0Format = RGBA16F;
+    const int colortex1Format = RGB32F;
+    const int colortex2Format = RGB32F;
+    const int colortex3Format = RGBA16;
+    const int colortex4Format = RGBA16F;
+    const int colortex5Format = RGBA16;
+
+    const bool colortex3Clear = false;
+  */
+
   // OPTIFINE OPTIONS
   const int shadowMapResolution = 2048; // [512 1024 2048 3072 4096 8192]
 
