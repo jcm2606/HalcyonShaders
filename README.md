@@ -1,6 +1,8 @@
-Halcyon shaders for Minecraft; Java Edition, using Optifine.
+Halcyon shaders for Minecraft: Java Edition, using Optifine.
 
-This is an upcoming pack that will be using the new forward programs that will soon be added to Optifine, and due to the sheer magnitude of changes that will take place to fully support the new forward programs, I think it's best to just start a new pack.
+Halcyon will be heavily relying on the new deferred programs that have been added into Optifine, which opens up new avenues for development.
+
+There will be some files in the root directory, that go over the specifics of the shader, as well as explains some of the more technical details that go into shader development.
 
 # shaderLABs
 Halycon, like its predecessors, Sapphire & Serenity, will be featured on the shaderLABs network.
