@@ -44,7 +44,7 @@ Channels:
 * A: Free.
 
 # colortex4
-Working buffer 0. Used to pass data between programs, usually for filtering. The data stores changes throughout the pipeline.
+Working buffer 0. Used to pass data between programs, usually for filtering. Any stored data can change through the pipeline.
 
 Format: RGBA16F.
 
@@ -58,7 +58,7 @@ Notes:
 * colortex4 is a HDR buffer, and as such contains values > 1.0.
 
 # colortex5
-Working buffer 1. Used to pass data between programs, usually for filtering. The data stores changes throughout the pipeline.
+Working buffer 1. Used to pass data between programs, usually for filtering. Any stored data can change through the pipeline.
 
 Format: RGBA16.
 
