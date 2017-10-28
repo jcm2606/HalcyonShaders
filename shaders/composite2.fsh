@@ -21,6 +21,8 @@ const bool colortex0MipmapEnabled = true;
 // VARYING
 varying vec2 screenCoord;
 
+flat(vec4) timeVector;
+
 // UNIFORM
 uniform sampler2D colortex0;
 uniform sampler2D colortex3;
@@ -40,7 +42,7 @@ vec3 computeCameraExposure(io BufferObject buffers) {
 
   buffers.tex3.r = avgLuma;
 
-  return buffers.tex0.rgb * (EXPOSURE / avgLuma);
+  return buffers.tex0.rgb * (EXPOSURE / max(avgLuma, mix(0.00001, 0.02, timeNight)));
 }
 
 // MAIN

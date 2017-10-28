@@ -25,8 +25,8 @@
   
   #define getLandMask(x) (x < 1.0 - near / far / far)
 
-  #define getSunVector()   ( sunVector   = fnormalize( sunPosition) )
-  #define getMoonVector()  ( moonVector  = fnormalize(-sunPosition) )
+  #define getSunVector()   ( sunVector   = normalize( sunPosition) )
+  #define getMoonVector()  ( moonVector  = normalize(-sunPosition) )
   #define getLightVector() ( lightVector = (sunAngle > 0.5) ? moonVector : sunVector )
 
   #define getSmoothedMoonPhase() ( (float(moonPhase) * 24000.0 + float(worldTime)) * 0.00000595238095238 )

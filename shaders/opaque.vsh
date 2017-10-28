@@ -33,7 +33,7 @@
 
 varying vec4 colour;
 
-flat(float) material;
+flat(float) objectID;
 
 // UNIFORM
 attribute vec4 at_tangent;
@@ -55,7 +55,7 @@ void main() {
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
     entity = mc_Entity.xz;
   #endif
-  //#include "/lib/gbuffer/Materials.glsl"
+  #include "/lib/gbuffer/ObjectIDs.glsl"
 
   #if PROGRAM != GBUFFERS_BASIC && PROGRAM != GBUFFERS_SKYBASIC
     uvCoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;

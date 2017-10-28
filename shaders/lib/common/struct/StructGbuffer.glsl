@@ -31,9 +31,9 @@
 
   void populateGbufferObject(io GbufferObject gbuffer, io BufferObject buffers) {
     // RAW DATA
-    gbuffer.albedo = decodeColour(buffers.tex1.x);
-    gbuffer.lightmap = decode2x8(buffers.tex1.y);
-    gbuffer.objectID = buffers.tex1.z;
+    gbuffer.albedo = toLinear(decodeColour(buffers.tex1.x));
+    gbuffer.lightmap = toLinear(decode2x8(buffers.tex1.y));
+    gbuffer.objectID = buffers.tex1.z * objectIDRange;
 
     gbuffer.normal = decodeNormal(buffers.tex2.x);
     gbuffer.material0 = decode2x8(buffers.tex2.y);

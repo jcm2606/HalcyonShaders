@@ -33,7 +33,7 @@
 
 varying vec4 colour;
 
-flat(float) material;
+flat(float) objectID;
 
 // UNIFORM
 #if PROGRAM != GBUFFERS_BASIC && PROGRAM != GBUFFERS_SKYBASIC
@@ -83,13 +83,22 @@ void main() {
     vec2 uv = uvCoord;
 
     #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+      // SAMPLE NORMAL MAP (NO PARALLAX)
+      mat2x4 normalMap = mat2x4(0.0);
+
+      normalMap[0] = texture2D(normals, uv * parallax.zw + parallax.xy);
+
+      // GENERATE PARALLAX COORDINATE
       uv = getParallaxCoord(view);
+
+      // SAMPLE NORMAL MAP (PARALLAX)
+      normalMap[1] = textureSample(normals, uv);
     #endif
   #endif
 
   // GENERATE GBUFFER DATA
   // ALBEDO
-  #if PROGRAM == GBUFFERS_BASIC
+  #if   PROGRAM == GBUFFERS_BASIC
     gbuffer.albedo = vec4(0.0, 0.0, 0.0, 1.0);
   #elif PROGRAM == GBUFFERS_WEATHER
     gbuffer.albedo = vec4(0.8, 0.9, 1.0, 1.0);
@@ -97,11 +106,93 @@ void main() {
     gbuffer.albedo = colour;
   #else
     gbuffer.albedo = textureSample(texture, uv) * colour;
-
-    #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
-    gbuffer.albedo.rgb *= vec3(1.0, 0.1, 0.0) * 0.1 * pow2(lmCoord.x) + (vec3(1.0, 1.0, 1.0) * pow4(lmCoord.y));
-    #endif
   #endif
+
+  // LIGHTMAPS
+  #if PROGRAM == GBUFFERS_TEXTURED_LIT || PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_ENTITIES || PROGRAM == GBUFFERS_ITEM || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_WEATHER
+    gbuffer.lightmap = toGamma(pow2(lmCoord));
+  #endif
+
+  // OBJECT ID
+  gbuffer.objectID = objectID * objectIDRangeRCP;
+
+  // NORMAL
+  #if   PROGRAM == GBUFFERS_TERRAIN
+    float normalMaxAngle = mix(NORMAL_ANGLE_OPAQUE, NORMAL_ANGLE_WET, 0.0);
+
+    vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
+  #elif PROGRAM == GBUFFERS_HAND
+    c(float) normalMaxAngle = NORMAL_ANGLE_OPAQUE;
+
+    vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
+  #elif PROGRAM != GBUFFERS_BASIC && PROGRAM!= GBUFFERS_SKYBASIC && PROGRAM != GBUFFERS_SKYTEXTURED
+    vec3 surfaceNormal = normal;
+  #else
+    vec3 surfaceNormal = vec3(0.0, 0.0, 1.0);
+  #endif
+
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+    surfaceNormal  = surfaceNormal * vec3(normalMaxAngle) + vec3(0.0, 0.0, 1.0 - normalMaxAngle);
+    surfaceNormal *= tbn;
+    surfaceNormal  = normalize(surfaceNormal);
+  #endif
+
+  gbuffer.normal = surfaceNormal;
+
+  // MATERIAL
+  vec4 materialVector = MATERIAL_DEFAULT;
+
+  #define smoothness materialVector.x
+  #define f0 materialVector.y
+  #define emission materialVector.z
+  #define materialPlaceholder materialVector.w
+
+  #if   PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+    vec4 specularMap = textureSample(specular, uv);
+
+    // TODO: When I add object masks in, correct these.
+
+    #if   RESOURCE_FORMAT == 1
+      smoothness = specularMap.x;
+      f0 = 0.02;
+      emission = 0.0;
+      materialPlaceholder = 0.0;
+    #elif RESOURCE_FORMAT == 2
+      smoothness = specularMap.x;
+      f0 = mix(0.02, 0.8, specularMap.y);
+      emission = 0.0;
+      materialPlaceholder = 0.0;
+    #elif RESOURCE_FORMAT == 3
+      smoothness = specularMap.x;
+      f0 = mix(0.02, 0.8, specularMap.y);
+      emission = specularMap.z;
+      materialPlaceholder = 0.0;
+    #elif RESOURCE_FORMAT == 4
+      smoothness = specularMap.z;
+      f0 = specularMap.x;
+      emission = 1.0 - specularMap.a;
+      materialPlaceholder = 0.0;
+    #endif
+  #elif PROGRAM == GBUFFERS_ENTITIES
+    smoothness = 0.1;
+    f0 = 0.02;
+    emission = 0.0;
+    materialPlaceholder = 0.0;
+  #else
+    smoothness = 0.0;
+    f0 = 0.02;
+    emission = 0.0;
+    materialPlaceholder = 0.0;
+  #endif
+
+  smoothness = 1.0 - smoothness;
+
+  #undef smoothness
+  #undef f0
+  #undef emission
+  #undef materialPlaceholder
+
+  gbuffer.material = materialVector;
 
   // POPULATE BUFFERS IN GBUFFER OBJECT
   populateBuffers(gbuffer);

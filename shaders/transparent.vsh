@@ -18,7 +18,7 @@ varying vec4 colour;
 
 varying mat3 ttn;
 
-flat(float) material;
+flat(float) objectID;
 varying float dist;
 
 // UNIFORM
@@ -38,7 +38,7 @@ void main() {
   colour = gl_Color;
 
   entity = mc_Entity.xz;
-  //#include "/lib/gbuffer/Materials.glsl"
+  #include "/lib/gbuffer/ObjectIDs.glsl"
 
   uvCoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
   lmCoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
@@ -50,13 +50,13 @@ void main() {
 
   gl_Position = reprojectVertex(gbufferModelView, position);
 
-  normal = fnormalize(gl_NormalMatrix * gl_Normal);
+  normal = normalize(gl_NormalMatrix * gl_Normal);
 
   vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
   ttn = mat3(0.0);
 
-  ttn[0] = fnormalize(gl_NormalMatrix * at_tangent.xyz);
+  ttn[0] = normalize(gl_NormalMatrix * at_tangent.xyz);
   ttn[1] = cross(ttn[0], normal);
   ttn[2] = normal;
 
