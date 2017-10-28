@@ -77,9 +77,7 @@
 
     blockerWeight = clamp01(floor(blockerWeight * 256.0));
     blockerWeight.x = 1.0;
-
-    shadowObject.difference = blockerWeight.y; return;
-
+    
     // SAMPLE SHADOWS WITH PERCENTAGE-CLOSER FILTER
     c(float) lightDistance = 32.0;
     cRCP(float, lightDistance);

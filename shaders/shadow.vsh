@@ -52,11 +52,14 @@ void main() {
   uvCoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
   //lmCoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 
+  entity = mc_Entity.xz;
+  #include "/lib/gbuffer/ObjectIDs.glsl"
+
   vec3 position = deprojectVertex(shadowModelViewInverse, gl_ModelViewMatrix, gl_Vertex.xyz);
   world = position + cameraPosition;
 
-  entity = mc_Entity.xz;
-  #include "/lib/gbuffer/ObjectIDs.glsl"
+  // ADD-IN POINT: Vertex deformation.
+  // ADD-IN POINT: Waving terrain.
 
   gl_Position = reprojectVertex(shadowModelView, position);
 

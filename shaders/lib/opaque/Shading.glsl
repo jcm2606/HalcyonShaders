@@ -19,9 +19,7 @@
     NewShadowObject(shadowObject);
 
     getShadows(gbuffer, mask, position, shadowObject, screenCoord);
-
-    return vec3(shadowObject.difference);
-
+  
     vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * getDirectShading(mask, gbuffer.normal);
     vec3 ambient = atmosphereLighting[1] * pow4(gbuffer.skyLight);
     vec3 block = vec3(1.0, 0.1, 0.0) * pow6(gbuffer.blockLight);
