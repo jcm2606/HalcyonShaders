@@ -21,30 +21,56 @@
 // VARYING
 varying vec2 screenCoord;
 
+flat(vec3) sunVector;
+flat(vec3) moonVector;
+flat(vec3) lightVector;
+
 // UNIFORM
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 
+uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
+
+uniform mat4 gbufferProjection;
+uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+
+uniform int isEyeInWater;
+
+uniform float near;
+uniform float far;
+
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
 #include "/lib/common/struct/StructGbuffer.glsl"
+#include "/lib/common/struct/StructPosition.glsl"
 
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/common/Reflections.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
   // CREATE STRUCTS
   NewBufferObject(buffers);
   NewGbufferObject(gbuffer);
+  NewPositionObject(position);
 
   // POPULATE STRUCTS
   populateBufferObject(buffers, screenCoord);
   populateGbufferObject(gbuffer, buffers);
+  populateDepths(position, screenCoord);
+  populateViewPositions(position, screenCoord);
 
   // DRAW REFLECTIONS
+  buffers.tex0.rgb = (getLandMask(position.depthBack)) ? drawReflectionOnSurface(buffers.tex0.rgb, colortex0, position.viewPositionBack, screenCoord, position.depthBack, gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0) : buffers.tex0.rgb;
+
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:07 */
   gl_FragData[0] = buffers.tex0;
+  gl_FragData[1] = buffers.tex0;
 }

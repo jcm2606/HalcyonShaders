@@ -9,7 +9,7 @@
 
   c(float) atmosphereHeight = 8000.0;
   c(float) earthRadius = 6371000.0;
-  c(float) mieMultiplier = 1.0;
+  c(float) mieMultiplier = 1.3;
   c(float) ozoneMultiplier = 1.0;
   c(float) rayleighDistribution = 8.0;
   cRCP(float, rayleighDistribution);

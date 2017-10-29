@@ -9,6 +9,9 @@
 
   #define RESOURCE_FORMAT 2 // [0 1 2 3 4]
 
-  #define MATERIAL_DEFAULT vec4(0.0, 0.0, 0.0, 0.0)
+  /* smoothness, f0, emission, materialPlaceholder */
+
+  #define MATERIAL_DEFAULT vec4(0.0, 0.02, 0.0, 0.0)
+  #define MATERIAL_WATER vec4(0.82, 0.05, 0.0, 0.0)
 
 #endif /* INTERNAL_INCLUDED_OPTION_MATERIAL */

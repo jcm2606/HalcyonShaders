@@ -25,7 +25,7 @@
     #endif
 
     vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference) * getDirectShading(mask, gbuffer.normal);
-    vec3 ambient = atmosphereLighting[1] * pow4(gbuffer.lightmap.y) * max0(dot(gbuffer.normal, upVector) * 0.45 + 0.65);
+    vec3 ambient = atmosphereLighting[1] * pow5(gbuffer.lightmap.y) * max0(dot(gbuffer.normal, upVector) * 0.45 + 0.65);
     vec3 block = blockLightColour * max(((mask.emissive) ? 32.0 : 1.0) * gbuffer.emission, pow6(gbuffer.lightmap.x));
 
     return albedo * (direct + ambient + block);

@@ -18,7 +18,7 @@
     atmosphereLighting[0] = drawSky(lightVector, 1) * 0.03;
 
     // AMBIENT
-    atmosphereLighting[1] = drawSky(upVector, 1) * 2.0;
+    atmosphereLighting[1] = drawSky(upVector, 1) * 3.0;
 
     return atmosphereLighting;
   }

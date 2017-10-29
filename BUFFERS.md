@@ -63,10 +63,19 @@ Format: RGBA16.
 
 Buffer/Channel Usage:
 * deferred -> deferred1: AO stored in R.
+* gbuffers_water -> composite: surface -> eye water absorption stored in RGB.
 * composite -> composite1: volumetric clouds stored in RGBA.
 
 # colortex6
 Free.
 
 # colortex7
-Free.
+Water reflections duplicate buffer. Temporarily used by gbuffers_water, where the raytracer samples this buffer.
+
+Format: RGBA16F
+
+Buffer/Channel Usage:
+* deferred2 -> gbuffers_water: frame stored in RGB.
+
+Notes:
+* colortex7 is a HDR buffer, and as such contains values > 1.0.

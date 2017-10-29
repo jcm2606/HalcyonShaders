@@ -13,6 +13,7 @@ varying vec2 lmCoord;
 varying vec3 normal;
 varying vec3 vertex;
 varying vec3 world;
+varying vec3 vView;
 
 varying vec4 colour;
 
@@ -20,6 +21,10 @@ varying mat3 ttn;
 
 flat(float) objectID;
 varying float dist;
+
+flat(vec3) sunVector;
+flat(vec3) moonVector;
+flat(vec3) lightVector;
 
 // UNIFORM
 attribute vec4 at_tangent;
@@ -29,6 +34,10 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
 uniform vec3 cameraPosition;
+
+uniform vec3 sunPosition;
+
+uniform float sunAngle;
 
 // ARBITRARY
 // INCLUDED FILES
@@ -48,6 +57,8 @@ void main() {
 
   // ADD-IN POINT: Waving water.
 
+  vView = transMAD(gbufferModelView, position);
+
   gl_Position = reprojectVertex(gbufferModelView, position);
 
   normal = normalize(gl_NormalMatrix * gl_Normal);
@@ -61,4 +72,8 @@ void main() {
   ttn[2] = normal;
 
   dist = flength(vertex);
+
+  getSunVector();
+  getMoonVector();
+  getLightVector();
 }

@@ -71,6 +71,7 @@
         blockerFront += texture2DLod(shadowtex0, distortShadowPosition(offset + shadowPositionBack.xy, 1), blockerSearchLOD).x;
         blockerBack += blockerDepth;
 
+        // EDGE PREDICTION
         blockerWeight.y += (blockerDepth - centerDepth < 0.007) ? (max0(blockerDepth - centerDepth) + max0(centerDepth - blockerDepth)) : 1.0;
       }
     }
@@ -79,11 +80,12 @@
     blocker *= iterRCP;
     blockerWeight *= iterRCP;
 
+    // EDGE PREDICTION
     blockerWeight = clamp01(floor(blockerWeight * 256.0));
     blockerWeight.x = 1.0;
 
     shadowObject.edgePrediction = blockerWeight.y;
-    
+
     // SAMPLE SHADOWS WITH PERCENTAGE-CLOSER FILTER
     c(float) lightDistance = LIGHT_SOURCE_DISTANCE;
     cRCP(float, lightDistance);

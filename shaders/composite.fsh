@@ -15,12 +15,14 @@
 // CONST
 // USED BUFFERS
 #define IN_TEX0
+#define IN_TEX4
 
 // VARYING
 varying vec2 screenCoord;
 
 // UNIFORM
 uniform sampler2D colortex0;
+uniform sampler2D colortex4;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
@@ -38,8 +40,12 @@ void main() {
 
   // GENERATE VOLUMETRICS
   // GENERATE VOLUMETRIC CLOUDS
-  // DRAW SURFACE -> EYE WATER ABSORPTION
+  // DRAW TRANSPARENT ALBEDO
+  buffers.tex0.rgb  = 
+
   // DRAW TRANSPARENT REFLECTIONS
+  buffers.tex0.rgb += buffers.tex4.rgb;
+
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:045 */
   gl_FragData[0] = buffers.tex0;
