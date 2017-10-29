@@ -103,7 +103,7 @@ void main() {
 
   // PERFORM SHADING
   buffers.tex0.rgb = (getLandMask(position.depthBack)) ? getFinalShading(gbuffer, mask, position, screenCoord, buffers.tex0.rgb, atmosphereLighting) : buffers.tex0.rgb;
-
+  
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:0 */
   gl_FragData[0] = buffers.tex0;

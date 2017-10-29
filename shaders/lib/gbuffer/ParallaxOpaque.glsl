@@ -52,6 +52,12 @@
         discard;
       }
       
+      if(entity.x == GRASS.x) {
+        if(coord.y > 1.0) {
+          coord.y = 1.0 - coord.y;
+        }
+      }
+
       uv = mix(fract(coord.xy) * parallax.zw + parallax.xy, uv, clamp01((dist - minOcclusionDistance) * occlusionDistanceRCP));
       
       return uv;

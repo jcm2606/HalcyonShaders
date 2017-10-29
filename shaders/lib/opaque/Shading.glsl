@@ -19,10 +19,14 @@
     NewShadowObject(shadowObject);
 
     getShadows(gbuffer, mask, position, shadowObject, screenCoord);
-  
-    vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * getDirectShading(mask, gbuffer.normal);
-    vec3 ambient = atmosphereLighting[1] * pow4(gbuffer.skyLight);
-    vec3 block = vec3(1.0, 0.1, 0.0) * pow6(gbuffer.blockLight);
+
+    #ifdef VISUALISE_PCSS_EDGE_PREDICTION
+      if(screenCoord.x > 0.5) return vec3(shadowObject.edgePrediction);
+    #endif
+
+    vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference) * getDirectShading(mask, gbuffer.normal);
+    vec3 ambient = atmosphereLighting[1] * pow4(gbuffer.lightmap.y) * max0(dot(gbuffer.normal, upVector) * 0.45 + 0.65);
+    vec3 block = blockLightColour * max(((mask.emissive) ? 32.0 : 1.0) * gbuffer.emission, pow6(gbuffer.lightmap.x));
 
     return albedo * (direct + ambient + block);
   }

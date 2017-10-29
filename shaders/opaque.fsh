@@ -50,9 +50,11 @@ flat(float) objectID;
 
 // ARBITRARY
 // INCLUDED FILES
-#include "/lib/gbuffer/ParallaxOpaque.glsl"
-
 #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+  #include "/lib/gbuffer/ParallaxOpaque.glsl"
+
+  #include "/lib/gbuffer/DirectionalLightmap.glsl"
+
   #define textureSample(tex, coord) texture2DGradARB(tex, coord, parallaxDerivatives[0], parallaxDerivatives[1])
 #else
   #define textureSample(tex, coord) texture2D(tex, coord)
@@ -108,37 +110,6 @@ void main() {
     gbuffer.albedo = textureSample(texture, uv) * colour;
   #endif
 
-  // LIGHTMAPS
-  #if PROGRAM == GBUFFERS_TEXTURED_LIT || PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_ENTITIES || PROGRAM == GBUFFERS_ITEM || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_WEATHER
-    gbuffer.lightmap = toGamma(pow2(lmCoord));
-  #endif
-
-  // OBJECT ID
-  gbuffer.objectID = objectID * objectIDRangeRCP;
-
-  // NORMAL
-  #if   PROGRAM == GBUFFERS_TERRAIN
-    float normalMaxAngle = mix(NORMAL_ANGLE_OPAQUE, NORMAL_ANGLE_WET, 0.0);
-
-    vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
-  #elif PROGRAM == GBUFFERS_HAND
-    c(float) normalMaxAngle = NORMAL_ANGLE_OPAQUE;
-
-    vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
-  #elif PROGRAM != GBUFFERS_BASIC && PROGRAM!= GBUFFERS_SKYBASIC && PROGRAM != GBUFFERS_SKYTEXTURED
-    vec3 surfaceNormal = normal;
-  #else
-    vec3 surfaceNormal = vec3(0.0, 0.0, 1.0);
-  #endif
-
-  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
-    surfaceNormal  = surfaceNormal * vec3(normalMaxAngle) + vec3(0.0, 0.0, 1.0 - normalMaxAngle);
-    surfaceNormal *= tbn;
-    surfaceNormal  = normalize(surfaceNormal);
-  #endif
-
-  gbuffer.normal = surfaceNormal;
-
   // MATERIAL
   vec4 materialVector = MATERIAL_DEFAULT;
 
@@ -193,6 +164,41 @@ void main() {
   #undef materialPlaceholder
 
   gbuffer.material = materialVector;
+
+  // NORMAL
+  #if   PROGRAM == GBUFFERS_TERRAIN
+    float normalMaxAngle = mix(NORMAL_ANGLE_OPAQUE, NORMAL_ANGLE_WET, 0.0);
+
+    vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
+  #elif PROGRAM == GBUFFERS_HAND
+    c(float) normalMaxAngle = NORMAL_ANGLE_OPAQUE;
+
+    vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
+  #elif PROGRAM != GBUFFERS_BASIC && PROGRAM!= GBUFFERS_SKYBASIC && PROGRAM != GBUFFERS_SKYTEXTURED
+    vec3 surfaceNormal = normal;
+  #else
+    vec3 surfaceNormal = vec3(0.0, 0.0, 1.0);
+  #endif
+
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+    surfaceNormal  = surfaceNormal * vec3(normalMaxAngle) + vec3(0.0, 0.0, 1.0 - normalMaxAngle);
+    surfaceNormal *= tbn;
+    surfaceNormal  = normalize(surfaceNormal);
+  #endif
+
+  gbuffer.normal = surfaceNormal;
+
+  // LIGHTMAPS
+  #if PROGRAM == GBUFFERS_TEXTURED_LIT || PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_ENTITIES || PROGRAM == GBUFFERS_ITEM || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_WEATHER
+    gbuffer.lightmap = ((lmCoord
+      #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+        * getLightmapShading(lmCoord, surfaceNormal, view, materialVector.x, 0.5)
+      #endif
+    ));
+  #endif
+
+  // OBJECT ID
+  gbuffer.objectID = objectID * objectIDRangeRCP;
 
   // POPULATE BUFFERS IN GBUFFER OBJECT
   populateBuffers(gbuffer);

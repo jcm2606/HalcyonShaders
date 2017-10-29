@@ -34,6 +34,19 @@
         false
       )
     ) objectID = OBJECT_FOLIAGE;
+
+    if(
+      entity.x == TORCH.x ||
+      entity.x == FIRE.x ||
+      entity.x == GLOWSTONE.x ||
+      entity.x == REDSTONE_LAMP_LIT.x ||
+      entity.x == BEACON.x ||
+      entity.x == SEA_LANTERN.x ||
+      entity.x == END_ROD.x ||
+      (
+        false
+      )
+    ) objectID = OBJECT_EMISSIVE;
   #elif PROGRAM == GBUFFERS_HAND
     objectID = OBJECT_HAND;
   #elif PROGRAM == GBUFFERS_WATER
