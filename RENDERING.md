@@ -54,7 +54,7 @@ So, with that, your shadows should now be nice and soft, however they are the sa
 
 All PCSS does is it makes the radius of our filter depend on the distance from the object casting the shadow, and the surface receiving the shadow. PCSS is broken up into three stages:
 
-1. Blocker search. We search a small area of the shadow map using a very small penumbra, often only 3x3, centered on the point we wish to shadow, getting the average depth for that area.
+1. Blocker search. We search a small area of the shadow map using a very small filter, often only 3x3, centered on the point we wish to shadow, getting the average depth for that area.
 
 2. Penumbra size estimation. Now that we have the average depth, we can estimate what our radius for our main filter should be. The simplest function for this is simply `radius = (surface - blocker) * lightDistance`, where `surface` is the calculated distance, or depth, for the surface, `blocker` is the average depth we acquired through the blocker search, and `lightDistance` is some constant that determines how quickly our shadows soften. This function works fine in situations where the shadows are drawn in an orthographic fashion, such as a directional light (like the sun/moon), however in situations where they're drawn in a perspective fashion, such as a point/spot light, `radius = (surface - blocker) * lightDistance / blocker` is the recommended function to use, instead.
 
