@@ -103,7 +103,7 @@ void main() {
   #if   PROGRAM == GBUFFERS_BASIC
     gbuffer.albedo = vec4(0.0, 0.0, 0.0, 1.0);
   #elif PROGRAM == GBUFFERS_WEATHER
-    gbuffer.albedo = vec4(0.8, 0.9, 1.0, 1.0);
+    gbuffer.albedo = vec4(0.8, 0.9, 1.0, 1.0) * textureSample(texture, uv).a;
   #elif PROGRAM == GBUFFERS_SKYBASIC
     gbuffer.albedo = colour;
   #else
@@ -144,6 +144,8 @@ void main() {
       emission = 1.0 - specularMap.a;
       materialPlaceholder = 0.0;
     #endif
+
+    materialVector = (objectID == OBJECT_FOLIAGE) ? MATERIAL_FOLIAGE : materialVector;
   #elif PROGRAM == GBUFFERS_ENTITIES
     smoothness = 0.1;
     f0 = 0.02;

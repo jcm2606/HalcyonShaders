@@ -9,7 +9,7 @@
 
   objectID = OBJECT_FALLBACK;
 
-  #if PROGRAM == GBUFFERS_TERRAIN
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == SHADOW
     objectID = OBJECT_TERRAIN;
 
     if(
@@ -47,17 +47,25 @@
         false
       )
     ) objectID = OBJECT_EMISSIVE;
-  #elif PROGRAM == GBUFFERS_HAND
+  #endif
+  #if PROGRAM == GBUFFERS_HAND
     objectID = OBJECT_HAND;
-  #elif PROGRAM == GBUFFERS_WATER
+  #endif
+  #if PROGRAM == GBUFFERS_WATER || PROGRAM == SHADOW
     objectID = OBJECT_TRANSPARENT;
-  #elif PROGRAM == GBUFFERS_BEACON_BEAM
+
+    objectID = (entity.x == WATER.x || entity.x == WATER.y) ? OBJECT_WATER : objectID;
+  #endif
+  #if PROGRAM == GBUFFERS_BEACON_BEAM
     objectID = OBJECT_BEAM;
-  #elif PROGRAM == GBUFFERS_ENTITIES
+  #endif
+  #if PROGRAM == GBUFFERS_ENTITIES
     objectID = OBJECT_ENTITY;
-  #elif PROGRAM == GBUFFERS_TEXTURED_LIT
+  #endif
+  #if PROGRAM == GBUFFERS_TEXTURED_LIT
     objectID = OBJECT_PARTICLE;
-  #elif PROGRAM == GBUFFERS_WEATHER
+  #endif
+  #if PROGRAM == GBUFFERS_WEATHER
     objectID = OBJECT_WEATHER;
   #endif
   

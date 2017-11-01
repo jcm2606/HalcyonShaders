@@ -19,6 +19,7 @@
   #define deprojectVertex(mat1, mat2, v) (transMAD(mat1, transMAD(mat2, v)))
   #define reprojectVertex(mat, v) (transMAD(mat, v).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3])
 
+  #define rot2(x) mat2(cos(x), -sin(x), sin(x), cos(x))
   mat2 rotate2(in float angle) { float a = sin(angle); float b = cos(angle); return mat2(b, -a, a, b); }
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_MATRIX */

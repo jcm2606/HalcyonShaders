@@ -21,12 +21,15 @@ varying vec2 screenCoord;
 
 // UNIFORM
 uniform sampler2D colortex0;
+uniform sampler2D colortex4;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
 
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/deferred/Volumetrics.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
@@ -37,6 +40,8 @@ void main() {
   populateBufferObject(buffers, screenCoord);
 
   // DRAW VOLUMETRICS
+  buffers.tex0.rgb = drawVolumetrics(buffers.tex0.rgb, screenCoord, vec2(0.0));
+
   // DRAW VOLUMETRIC CLOUDS
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:0 */

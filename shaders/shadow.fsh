@@ -30,12 +30,31 @@ varying float dist;
 // UNIFORM
 uniform sampler2D texture;
 
+uniform sampler2D noisetex;
+
+uniform float frameTimeCounter;
+
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/common/TransparentNormals.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
   vec4 albedo = texture2D(texture, uvCoord) * colour;
+  
+  // GENERATE OBJECT MASKS
+  bool water = (entity.x == WATER.x || entity.y == WATER.y);
 
-  gl_FragData[0] = albedo;
+  if(water) {
+    vec3 nworld = normalize(world);
+    vec3 refractPos = refract(nworld, getNormal(world, objectID), refractInterfaceAirWater);
+    float caustic = pow(( flength(dFdx(world)) * flength(dFdy(world)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.2);
+
+    albedo.rgb = vec3(mix(0.25, 1.0, caustic));
+  }
+
+/* DRAWBUFFERS:01 */
+  gl_FragData[0] = toShadowLDR(albedo);
+  gl_FragData[1] = vec4(vec3(0.0), objectID * objectIDRangeRCP);
 }

@@ -96,15 +96,18 @@ void main() {
   buffers.tex0.rgb = toLinear(buffers.tex0.rgb);
 
   // DRAW SKY
-  buffers.tex0.rgb = (!getLandMask(position.depthBack)) ? drawSky(position.viewPositionBack, 0) : buffers.tex0.rgb;
+  buffers.tex0.rgb = (!getLandMask(position.depthBack) && !mask.weather) ? drawSky(position.viewPositionBack, 0) : buffers.tex0.rgb;
 
   // CALCULATE ATMOSPHERE LIGHTING
   mat2x3 atmosphereLighting = getAtmosphereLighting();
 
   // PERFORM SHADING
-  buffers.tex0.rgb = (getLandMask(position.depthBack)) ? getFinalShading(gbuffer, mask, position, screenCoord, buffers.tex0.rgb, atmosphereLighting) : buffers.tex0.rgb;
+  vec4 highlightTint = vec4(0.0);
+  buffers.tex0.rgb = (getLandMask(position.depthBack)) ? getFinalShading(highlightTint, gbuffer, mask, position, screenCoord, buffers.tex0.rgb, atmosphereLighting) : buffers.tex0.rgb;
+  buffers.tex5 = highlightTint;
   
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:05 */
   gl_FragData[0] = buffers.tex0;
+  gl_FragData[1] = buffers.tex5;
 }

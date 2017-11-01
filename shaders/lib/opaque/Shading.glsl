@@ -15,10 +15,12 @@
     return (mask.foliage) ? 1.0 : max0(dot(normal, lightVector));
   }
 
-  vec3 getFinalShading(io GbufferObject gbuffer, io MaskObject mask, io PositionObject position, in vec2 screenCoord, in vec3 albedo, in mat2x3 atmosphereLighting) {
+  vec3 getFinalShading(out vec4 highlightTint, io GbufferObject gbuffer, io MaskObject mask, io PositionObject position, in vec2 screenCoord, in vec3 albedo, in mat2x3 atmosphereLighting) {
     NewShadowObject(shadowObject);
 
     getShadows(gbuffer, mask, position, shadowObject, screenCoord);
+
+    highlightTint = vec4(shadowObject.colour, shadowObject.occlusionBack);
 
     #ifdef VISUALISE_PCSS_EDGE_PREDICTION
       if(screenCoord.x > 0.5) return vec3(shadowObject.edgePrediction);

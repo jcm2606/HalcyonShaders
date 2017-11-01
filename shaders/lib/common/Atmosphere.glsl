@@ -64,7 +64,7 @@
     vec3 absorbS = absorb(getThickness(sunVector) * atmosphereStepsRCP) * getEarth(sunVector) * sunBrightness;
     vec3 absorbM = absorb(getThickness(moonVector) * atmosphereStepsRCP) * getEarth(moonVector) * moonBrightness;
 
-    vec3 skyS = mode != 0 ? vec3(0.0) : (sin(max0(pow16(VdotS) - 0.9935) / 0.015 * pi) * absorbS * sunBrightness) * 4096.0 + background;
+    vec3 skyS = mode != 0 ? vec3(0.0) : (sin(max0(pow(VdotS, 24.0 * sunSpotSizeRCP) - 0.9935) / 0.015 * pi) * absorbS * sunBrightness) * (SUN_BRIGHTNESS * 2.0) + background;
     vec3 skyM = mode != 0 ? vec3(0.0) : (sin(max0(pow16(VdotM) - 0.9935) / 0.015 * pi) * absorbM * moonBrightness) * 1200.0 + background;
 
     for(int i = 0; i < atmosphereSteps; i++) {

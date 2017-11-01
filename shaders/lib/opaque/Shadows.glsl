@@ -7,6 +7,10 @@
 #ifndef INTERNAL_INCLUDED_OPAQUE_SHADOWS
   #define INTERNAL_INCLUDED_OPAQUE_SHADOWS
 
+  #ifndef INTERNAL_INCLUDED_COMMON_WATERABSORPTION
+    #include "/lib/common/WaterAbsorption.glsl"
+  #endif
+
   struct ShadowObject {
     float occlusionBack;
     float occlusionFront;
@@ -122,15 +126,23 @@
         texture2DLod(shadowtex1, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).x
       );
 
-      // ADD-IN POINT: Stored depths.
-
       shadowObject.occlusionBack += ceil(compareShadow(depths.x, shadowPositionBack.z));
       shadowObject.occlusionFront += ceil(compareShadow(depths.y, shadowPositionBack.z));
       shadowObject.occlusionSolid += ceil(compareShadow(depths.z, shadowPositionFront.z));
 
       shadowObject.difference += ceil(depths.x - depths.y);
 
-      shadowObject.colour += texture2DLod(shadowcolor0, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).rgb;
+      float objectID = texture2D(shadowcolor1, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1)).a * objectIDRange;
+      float depthDifference = max0(shadowPositionBack.z - depths.y) * shadowDepthBlocks;
+
+      vec3 shadowColour = toShadowHDR(texture2DLod(shadowcolor0, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).rgb);
+      shadowObject.colour += (depths.x > depths.y) ? (
+        (comparef(objectID, OBJECT_WATER, ubyteMaxRCP)) ? interactWater(shadowColour, depthDifference) : shadowColour
+      ) : vec3(1.0);
+
+      /*
+      shadowObject.colour += (depths.x > depths.y) ? texture2DLod(shadowcolor0, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).rgb * ((comparef(objectID, OBJECT_WATER, ubyteMaxRCP)) ? absorbWater(depthDifference) : vec3(1.0)) : vec3(1.0);
+      */
 
       #undef offsetFront
       #undef offsetBack

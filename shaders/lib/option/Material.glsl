@@ -12,6 +12,10 @@
   /* smoothness, f0, emission, materialPlaceholder */
 
   #define MATERIAL_DEFAULT vec4(0.0, 0.02, 0.0, 0.0)
+  
+  #define MATERIAL_FOLIAGE vec4(0.32, 0.02, 0.0, 0.0)
+
   #define MATERIAL_WATER vec4(0.82, 0.05, 0.0, 0.0)
+  #define MATERIAL_STAINED_GLASS vec4(0.87, 0.02, 0.0, 0.0)
 
 #endif /* INTERNAL_INCLUDED_OPTION_MATERIAL */

@@ -18,7 +18,7 @@
   cRCP(float, quality);
   c(int) steps = quality + 4;
 
-  vec4 raytraceClip(in sampler2D tex, in vec3 dir, in vec3 view, in vec2 screenCoord, in float depth) {
+  vec4 raytraceClip(in sampler2D tex, in vec3 dir, in vec3 view) {
     vec3 clip = viewToClip(view);
 
     vec3 direction = normalize(viewToClip(view + dir) - clip);
