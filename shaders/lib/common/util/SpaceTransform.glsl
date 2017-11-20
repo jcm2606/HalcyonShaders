@@ -18,6 +18,10 @@
     return vpos.xyz;
   }
 
+  vec3 clipToView(in vec3 clip) {
+    return clipToView(clip.xy, clip.z);
+  }
+
   vec3 viewToClip(in vec3 view) {
     return projMAD3(gbufferProjection, view) / -view.z * 0.5 + 0.5;
   }

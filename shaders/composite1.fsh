@@ -13,6 +13,8 @@
 #include "/lib/Header.glsl"
 
 // CONST
+const bool colortex4MipmapEnabled = true;
+
 // USED BUFFERS
 #define IN_TEX0
 

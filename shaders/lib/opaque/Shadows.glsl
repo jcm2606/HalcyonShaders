@@ -7,9 +7,7 @@
 #ifndef INTERNAL_INCLUDED_OPAQUE_SHADOWS
   #define INTERNAL_INCLUDED_OPAQUE_SHADOWS
 
-  #ifndef INTERNAL_INCLUDED_COMMON_WATERABSORPTION
-    #include "/lib/common/WaterAbsorption.glsl"
-  #endif
+  #include "/lib/common/WaterAbsorption.glsl"
 
   struct ShadowObject {
     float occlusionBack;
@@ -29,7 +27,7 @@
 
   // TODO: When a depth pre-pass is added to Optifine, fix solid shadows.
 
-  void getShadows(io GbufferObject gbuffer, io MaskObject mask, io PositionObject position, io ShadowObject shadowObject, in vec2 screenCoord) {
+  void getShadows(io ShadowObject shadowObject, in vec3 viewFront, in vec3 viewBack) {
     // GENERATE SHADOW POSITIONS
     mat3 shadowPosition = mat3(0.0);
 
@@ -37,9 +35,9 @@
     #define shadowPositionBack shadowPosition[1]
     #define shadowPositionSolid shadowPosition[2]
 
-    shadowPositionFront = worldToShadow(viewToWorld(position.viewPositionFront));
-    shadowPositionBack = worldToShadow(viewToWorld(position.viewPositionBack));
-    shadowPositionSolid = worldToShadow(viewToWorld(position.viewPositionBack));
+    shadowPositionFront = worldToShadow(viewToWorld(viewFront));
+    shadowPositionBack = worldToShadow(viewToWorld(viewBack));
+    shadowPositionSolid = worldToShadow(viewToWorld(viewFront));
 
     // APPLY DEPTH BIAS
     c(float) shadowBias = -0.0003;
@@ -53,8 +51,11 @@
     mat2 rotation = rotate2(rotAngle);
 
     // FIND BLOCKERS
-    c(float) blockerSearchWidth = 0.002;
-    c(int) blockerSearchLOD = 3;
+    c(int) blockerSteps = 1;
+    cRCP(float, blockerSteps);
+    c(float) blockerSearchWidth = 0.001 * blockerStepsRCP;
+    c(int) blockerSearchLOD = 0;
+    c(float) blockerSearchWeight = 1.0 / pow(float(blockerSteps) * 2.0 + 1.0, 2.0);
 
     vec2 blocker = vec2(0.0);
 
@@ -66,13 +67,13 @@
 
     vec2 blockerWeight = vec2(0.0);
 
-    for(int i = -1; i <= 1; i++) {
-      for(int j = -1; j <= 1; j++) {
+    for(int i = -blockerSteps; i <= blockerSteps; i++) {
+      for(int j = -blockerSteps; j <= blockerSteps; j++) {
         vec2 offset = vec2(i, j) * rotation * blockerSearchWidth;
 
-        blockerDepth = texture2DLod(shadowtex1, distortShadowPosition(offset + shadowPositionSolid.xy, 1), blockerSearchLOD).x;
+        blockerDepth = texture2DLod(shadowtex1, distortShadowPosition(offset + shadowPositionFront.xy, 1), blockerSearchLOD).x;
 
-        blockerFront += texture2DLod(shadowtex0, distortShadowPosition(offset + shadowPositionBack.xy, 1), blockerSearchLOD).x;
+        blockerFront += texture2DLod(shadowtex0, distortShadowPosition(offset + shadowPositionFront.xy, 1), blockerSearchLOD).x;
         blockerBack += blockerDepth;
 
         // EDGE PREDICTION
@@ -80,9 +81,8 @@
       }
     }
 
-    c(float) iterRCP = 1.0 / 9.0;
-    blocker *= iterRCP;
-    blockerWeight *= iterRCP;
+    blocker *= blockerSearchWeight;
+    blockerWeight *= blockerSearchWeight;
 
     // EDGE PREDICTION
     blockerWeight = clamp01(floor(blockerWeight * 256.0));
@@ -100,7 +100,13 @@
     c(float) minWidth = SHADOW_FILTER_MIN_WIDTH;
     c(float) maxWidth = SHADOW_FILTER_MAX_WIDTH;
 
-    vec2 width = clamp((vec2(shadowPositionSolid.z, shadowPositionBack.z) - blocker) * lightDistanceRCP * blockerWeight, vec2(minWidth), vec2(maxWidth)) * shadowQualityRCP;
+    vec2 width = vec2(shadowPositionSolid.z, shadowPositionBack.z) - blocker;
+    width *= lightDistanceRCP;
+    //width *= blockerWeight;
+    //width  = max(vec2(minWidth), width);
+    width  = clamp(width, vec2(minWidth), vec2(maxWidth));
+    width *= shadowQualityRCP;
+    //vec2 width = clamp((vec2(shadowPositionSolid.z, shadowPositionBack.z) - blocker) * lightDistanceRCP, vec2(minWidth), vec2(maxWidth)) * shadowQualityRCP;
 
     mat2 widths = mat2(
       vec2(width.x) * rotation,
@@ -132,7 +138,7 @@
 
       shadowObject.difference += ceil(depths.x - depths.y);
 
-      float objectID = texture2D(shadowcolor1, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1)).a * objectIDRange;
+      float objectID = texture2DLod(shadowcolor1, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).a * objectIDRange;
       float depthDifference = max0(shadowPositionBack.z - depths.y) * shadowDepthBlocks;
 
       vec3 shadowColour = toShadowHDR(texture2DLod(shadowcolor0, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).rgb);

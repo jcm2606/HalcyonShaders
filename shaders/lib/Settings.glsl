@@ -24,6 +24,8 @@
     const bool colortex3Clear = false;
     const bool colortex4Clear = true;
     const bool colortex5Clear = true;
+    const bool colortex6Clear = true;
+    const bool colortex7Clear = true;
   */
 
   // OPTIFINE OPTIONS
@@ -53,7 +55,7 @@
 
   #define MC_SEA_LEVEL 63.0
 
-  #define SUN_BRIGHTNESS 4096.0
+  #define SUN_BRIGHTNESS 32768.0
 
   #define SUN_SIZE 0.25
   #define MOON_SIZE 1.0

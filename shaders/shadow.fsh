@@ -47,11 +47,17 @@ void main() {
   bool water = (entity.x == WATER.x || entity.y == WATER.y);
 
   if(water) {
-    vec3 nworld = normalize(world);
-    vec3 refractPos = refract(nworld, getNormal(world, objectID), refractInterfaceAirWater);
-    float caustic = pow(( flength(dFdx(world)) * flength(dFdy(world)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.2);
+    vec3 customNormal = getNormal(world, objectID);
 
-    albedo.rgb = vec3(mix(0.25, 1.0, caustic));
+    #if 0
+      vec3 nworld = normalize(world);
+      vec3 refractPos = refract(nworld, customNormal, refractInterfaceAirWater);
+      float caustic = pow(( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.125);
+    #else
+      float caustic = mix(0.9, 1.1, pow2(1.0 - customNormal.z));
+    #endif
+
+    albedo.rgb = vec3(caustic);
   }
 
 /* DRAWBUFFERS:01 */

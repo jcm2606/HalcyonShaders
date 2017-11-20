@@ -51,6 +51,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
 uniform mat4 shadowProjection;
+uniform mat4 shadowProjectionInverse;
 uniform mat4 shadowModelView;
 
 uniform int isEyeInWater;
@@ -59,6 +60,7 @@ uniform float near;
 uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float rainStrength;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"

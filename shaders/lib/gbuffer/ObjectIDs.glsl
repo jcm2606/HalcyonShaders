@@ -43,6 +43,7 @@
       entity.x == BEACON.x ||
       entity.x == SEA_LANTERN.x ||
       entity.x == END_ROD.x ||
+      entity.x == LAVA.x || entity.x == LAVA.y ||
       (
         false
       )
@@ -55,6 +56,10 @@
     objectID = OBJECT_TRANSPARENT;
 
     objectID = (entity.x == WATER.x || entity.x == WATER.y) ? OBJECT_WATER : objectID;
+
+    objectID = (entity.x == STAINED_GLASS.x || entity.x == STAINED_GLASS.y) ? OBJECT_STAINED_GLASS : objectID;
+
+    objectID = (entity.x == ICE.x) ? OBJECT_ICE : objectID;
   #endif
   #if PROGRAM == GBUFFERS_BEACON_BEAM
     objectID = OBJECT_BEAM;

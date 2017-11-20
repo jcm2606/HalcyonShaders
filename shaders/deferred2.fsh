@@ -44,6 +44,7 @@ uniform int isEyeInWater;
 
 uniform float near;
 uniform float far;
+uniform float rainStrength;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"

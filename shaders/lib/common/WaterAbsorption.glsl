@@ -11,10 +11,10 @@
 
   vec3 interactWater(in vec3 colour, in float dist) {
     return mix(
-      impurityColour * absorbWater(dist),
-      colour * absorbWater(dist),
+      impurityColour,
+      colour,
       exp2(-dist * 0.35)
-    );
+    ) * absorbWater(dist);
   }
   
 #endif /* INTERNAL_INCLUDED_COMMON_WATERABSORPTION */

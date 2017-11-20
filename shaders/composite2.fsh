@@ -42,7 +42,7 @@ vec3 computeCameraExposure(io BufferObject buffers) {
 
   buffers.tex3.r = avgLuma;
 
-  return buffers.tex0.rgb * (EXPOSURE / max(avgLuma, mix(0.00001, 0.04, timeNight)));
+  return buffers.tex0.rgb * (EXPOSURE / max(avgLuma, mix(0.00001, 0.06, timeNight)));
 }
 
 // MAIN

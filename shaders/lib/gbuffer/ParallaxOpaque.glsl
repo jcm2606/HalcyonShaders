@@ -58,6 +58,10 @@
         }
       }
 
+      if(entity.x == CACTUS.x) {
+        if(coord.x < 0.0 || coord.x > 1.0) discard;
+      }
+
       uv = mix(fract(coord.xy) * parallax.zw + parallax.xy, uv, clamp01((dist - minOcclusionDistance) * occlusionDistanceRCP));
       
       return uv;

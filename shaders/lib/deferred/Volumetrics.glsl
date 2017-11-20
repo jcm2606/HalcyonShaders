@@ -34,7 +34,7 @@
       vec4 volumetrics = vec4(0.0);
 
       // CREATE MIE TAIL
-      float mieTail = dot(normalize(position.viewPositionBack), lightVector) * 0.5 + 0.75;
+      float mieTail = pow2(dot(normalize(position.viewPositionBack), lightVector) * 0.5 + 1.0);
 
       // CREATE EYE BRIGHTNESS SMOOTH
       float ebs = pow(getEBS().y, 6.0);
@@ -50,7 +50,7 @@
 
       // VIEW
       viewRay.start = vec3(0.0);
-      viewRay.end = (!getLandMask(position.depthBack)) ? clipToView(screenCoord, getExpDepth(48.0)) : position.viewPositionBack;
+      viewRay.end = (!getLandMask(position.depthBack)) ? clipToView(screenCoord, getExpDepth(64.0)) : position.viewPositionBack;
       viewRay.dist = distance(viewRay.start, viewRay.end);
       viewRay.incr = getRayIncrement(viewRay);
       viewRay.pos = viewRay.incr * dither + viewRay.start;
@@ -96,15 +96,21 @@
 
         // PARTICIPATING MEDIA
         // HEIGHT FOG
-        visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.05) * 0.1;
+        visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.05) * 0.05;
+
+        // GROUND FOG
+        //visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.2) * 0.1;
         
         // VOLUME FOG
+        // RAIN FOG
+        visibility += rainStrength;
+        
         // WATER
-        visibility  = (occlusionBack - occlusionFront > 0.0 && water) ? vec2(0.5) : visibility;
+        visibility  = (occlusionBack - occlusionFront > 0.0 && water) ? vec2(1.0) : visibility;
 
         // OCCLUDE RAY
         visibility.x *= occlusionBack * mieTail;
-        visibility.y *= mix(ebs, pow6(gbuffer.skyLight), pow4(distance(viewRay.start, viewRay.pos) / viewRay.dist));
+        visibility.y *= occlusionBack;//mix(ebs, pow6(gbuffer.skyLight), pow4(distance(viewRay.start, viewRay.pos) / viewRay.dist));
 
         // BEGIN RAY COLOURING
         vec3 lightColour = atmosphereLighting[0] * visibility.x + (atmosphereLighting[1] * visibility.y);
@@ -119,10 +125,10 @@
         rayColour = (occlusionBack - occlusionFront > 0.0 && water) ? interactWater(rayColour, distSurfaceToRay) : rayColour;
 
         // RAY -> EYE
-        vec3 eyeAbsorptionStart = viewRay.start;
-        vec3 eyeAbsorptionEnd = viewRay.end;
+        vec3 eyeAbsorptionStart = (isEyeInWater == 0) ? position.viewPositionFront : viewRay.start;
+        vec3 eyeAbsorptionEnd = (occlusionBack - occlusionFront <= 0.0 && isEyeInWater == 1 && mask.water) ? position.viewPositionFront : viewRay.pos;
 
-        //rayColour = ((occlusionBack - occlusionFront > 0.0 && water) || (isEyeInWater == 1 && mask.water)) ? interactWater(rayColour, distance(eyeAbsorptionStart, eyeAbsorptionEnd)) : rayColour;
+        rayColour = ((occlusionBack - occlusionFront > 0.0 && water) || (isEyeInWater == 1 && mask.water)) ? interactWater(rayColour, distance(eyeAbsorptionStart, eyeAbsorptionEnd)) : rayColour;
 
         // ACCUMULATE RAYS
         volumetrics.rgb = rayColour * weight + volumetrics.rgb;

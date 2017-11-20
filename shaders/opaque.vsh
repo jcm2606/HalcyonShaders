@@ -16,6 +16,7 @@
   #if PROGRAM != GBUFFERS_SKYTEXTURED
     varying vec3 normal;
     varying vec3 vertex;
+    varying vec3 vView;
 
     varying mat3 ttn;
   #endif
@@ -74,7 +75,7 @@ void main() {
     uvCoord = sign(uvMinusMid) * 0.5 + 0.5;
   #endif
 
-  #if PROGRAM == GBUFFERS_TERRAIN
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
     vec3 position = deprojectVertex(gbufferModelViewInverse, gl_ModelViewMatrix, gl_Vertex.xyz);
     world = position + cameraPosition;
   #endif
@@ -82,7 +83,9 @@ void main() {
   // ADD-IN POINT: Vertex deformation.
   // ADD-IN POINT: Waving terrain.
 
-  #if PROGRAM == GBUFFERS_TERRAIN
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+    vView = transMAD(gbufferModelView, position);
+
     gl_Position = reprojectVertex(gbufferModelView, position);
   #else
     gl_Position = reprojectVertex(gl_ModelViewMatrix, gl_Vertex.xyz);

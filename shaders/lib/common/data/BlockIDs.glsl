@@ -48,6 +48,7 @@
   #define CARROTS vec2(141, 0)
   #define POTATOES vec2(142, 0)
   #define DOUBLE_PLANT vec2(175, 0)
+  #define CACTUS vec2(81, 0)
 
   // EMISSIVE
   #define TORCH vec2(50, 0)

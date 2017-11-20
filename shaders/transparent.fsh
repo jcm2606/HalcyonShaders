@@ -4,6 +4,13 @@
   PLEASE READ "LICENSE.MD" BEFORE EDITING.
 */
 
+/*
+  TODO
+
+  When OptiLad fixes the ping-pong buffers, hopefully adding read-write to the same buffers for gbuffers_water/hand_water, I'll need to rewrite the transparent shader entirely.
+  
+*/
+
 // CONST
 // VARYING
 flat(vec2) entity;
@@ -38,16 +45,27 @@ uniform sampler2D gaux4;
 
 uniform sampler2D noisetex;
 
+uniform sampler2D shadowtex0;
+uniform sampler2D shadowtex1;
+uniform sampler2D shadowcolor0;
+uniform sampler2D shadowcolor1;
+
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+
+uniform mat4 shadowProjection;
+uniform mat4 shadowModelView;
 
 uniform int isEyeInWater;
 
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float frameTimeCounter;
+uniform float rainStrength;
+uniform float near;
+uniform float far;
 
 // STRUCT
 #include "/lib/gbuffer/struct/StructGbuffer.glsl"
@@ -60,18 +78,24 @@ uniform float frameTimeCounter;
 
 #include "/lib/common/TransparentNormals.glsl"
 
+#include "/lib/gbuffer/ParallaxTransparent.glsl"
+
+#include "/lib/common/util/ShadowTransform.glsl"
+#include "/lib/opaque/Shadows.glsl"
+
+#include "/lib/gbuffer/DirectionalLightmap.glsl"
+#include "/lib/common/Lightmaps.glsl"
+
 // FUNCTIONS
-vec4 getTransparentReflections(in vec3 view, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in mat2x3 atmosphereLighting) {
+vec4 getTransparentReflections(in vec3 view, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in mat2x3 atmosphereLighting, in float shadowOcclusion) {
   if(isEyeInWater == 1) return vec4(0.0);
 
-  vec4 reflection = getReflections(gaux4, view, atmosphereLighting, albedo, normal, roughness, f0, vec4(1.0), lmCoord.y);
+  vec4 reflection = getReflections(1, gaux4, vertex, atmosphereLighting, albedo, normal, roughness, f0, vec4(shadowOcclusion), lmCoord.y);
 
   return vec4(reflection.rgb, reflection.a);
 }
 
-vec3 getWaterInteraction(in vec3 colour, in vec2 screenCoord, in vec3 view) {
-  vec3 backView = clipToView(screenCoord, texture2D(depthtex1, screenCoord).x);
-
+vec3 getWaterInteraction(in vec3 colour, in vec2 screenCoord, in vec3 view, in vec3 backView) {
   float dist = distance(view, backView);
 
   return interactWater(colour, dist);
@@ -107,16 +131,13 @@ void main() {
 
   gbuffer.albedo = (water) ? vec4(0.0, 0.0, 0.0, 0.0) : gbuffer.albedo;
 
-  // LIGHTMAPS
-  gbuffer.lightmap = toGamma(pow2(lmCoord));
-
   // OBJECT ID
   gbuffer.objectID = objectID * objectIDRangeRCP;
 
   // NORMAL
   float normalMaxAngle = NORMAL_ANGLE_TRANSPARENT;
 
-  vec3 surfaceNormal = getNormal(world, objectID);
+  vec3 surfaceNormal = getNormal(getParallax(world, view, objectID), objectID);
 
   surfaceNormal  = surfaceNormal * vec3(normalMaxAngle) + vec3(0.0, 0.0, 1.0 - normalMaxAngle);
   surfaceNormal *= tbn;
@@ -157,7 +178,7 @@ void main() {
   #endif
   
   materialVector = (water) ? MATERIAL_WATER : materialVector;
-  materialVector = (entity.x == STAINED_GLASS.x) ? MATERIAL_STAINED_GLASS : materialVector;
+  materialVector = (entity.x == STAINED_GLASS.x || entity.x == STAINED_GLASS.y) ? MATERIAL_STAINED_GLASS : materialVector;
 
   smoothness = 1.0 - smoothness;
 
@@ -168,21 +189,43 @@ void main() {
 
   gbuffer.material = materialVector;
 
+  // LIGHTMAPS
+  gbuffer.lightmap = toGamma(pow2(lmCoord * getLightmapShading(lmCoord, surfaceNormal, view, materialVector.x, tbn)));
+
+  // LIGHTING
+  mat2x3 atmosphereLighting = getAtmosphereLighting();
+
+  NewShadowObject(shadowObject);
+
+  vec3 backView = clipToView(screenCoord, texture2D(depthtex1, screenCoord).x);
+
+  #if 1
+    getShadows(shadowObject, vView, backView);
+  #else
+    shadowObject.occlusionSolid = 0.0;
+  #endif
+
+  vec3 direct = atmosphereLighting[0] * shadowObject.occlusionSolid;
+  vec3 sky = atmosphereLighting[1] * getSkyLightmap(gbuffer.lightmap.y, gbuffer.normal);
+  vec3 block = blockLightColour * getBlockLightmap(gbuffer.lightmap.x);
+
+  vec3 diffuse = gbuffer.albedo.rgb * (direct + sky + block);
+
   // POPULATE BUFFERS IN GBUFFER OBJECT
   populateBuffers(gbuffer);
 
   // DRAW REFLECTIONS
-  vec4 reflection = getTransparentReflections(vView, gbuffer.albedo.xyz, gbuffer.normal, materialVector.x, materialVector.y, getAtmosphereLighting());
+  vec4 reflection = getTransparentReflections(vView, gbuffer.albedo.xyz, gbuffer.normal, materialVector.x, materialVector.y, atmosphereLighting, shadowObject.occlusionSolid);
 
   // DRAW WATER ABSORPTION
   vec3 background = texture2D(gaux4, screenCoord).rgb;
-  vec4 absorbedBackground = (water && isEyeInWater == 0) ? vec4(getWaterInteraction(background, screenCoord, vView), 1.0) : vec4(0.0);
+  vec4 absorbedBackground = (water && isEyeInWater == 0) ? vec4(getWaterInteraction(background, screenCoord, vView, backView), 1.0) : vec4(0.0);
 
   // POPULATE OUTGOING BUFFERS
   /* DRAWBUFFERS:12460 */
   gl_FragData[0] = gbuffer.gbuffer0;
   gl_FragData[1] = gbuffer.gbuffer1;
   gl_FragData[2] = reflection;
-  gl_FragData[3] = gbuffer.albedo;
+  gl_FragData[3] = vec4(diffuse, gbuffer.albedo.a);
   gl_FragData[4] = absorbedBackground;
 }

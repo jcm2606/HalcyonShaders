@@ -58,6 +58,7 @@ uniform float near;
 uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float rainStrength;
 
 uniform ivec2 eyeBrightnessSmooth;
 
@@ -106,7 +107,8 @@ void main() {
   mat2x3 atmosphereLighting = getAtmosphereLighting();
 
   // DRAW TRANSPARENT BLOCKS
-  buffers.tex0.rgb = mix(buffers.tex0.rgb, buffers.tex6.rgb, buffers.tex6.a);
+  buffers.tex0.rgb *= (buffers.tex6.a > 0.0) ? gbuffer.albedo : vec3(1.0);
+  buffers.tex0.rgb  = mix(buffers.tex0.rgb, buffers.tex6.rgb, buffers.tex6.a);
 
   // DRAW UNDERWATER ABSORPTION
   buffers.tex0.rgb = getWaterAbsorption(buffers.tex0.rgb, position);

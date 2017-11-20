@@ -13,6 +13,8 @@
 #include "/lib/Header.glsl"
 
 // CONST
+const bool colortex0MipmapEnabled = true;
+
 // USED BUFFERS
 // VARYING
 varying vec2 screenCoord;
@@ -20,12 +22,18 @@ varying vec2 screenCoord;
 // UNIFORM
 uniform sampler2D colortex0;
 
+uniform float viewWidth;
+uniform float viewHeight;
+uniform float aspectRatio;
+
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
 
 // ARBITRARY
 // INCLUDED FILES
 // FUNCTIONS
+#include "/lib/common/Bloom.glsl"
+
 // MAIN
 void main() {
   // CREATE STRUCTS
@@ -35,6 +43,8 @@ void main() {
   populateBufferObject(buffers, screenCoord);
 
   // GENERATE BLOOM TILES
+  buffers.tex4.rgb = generateBloomTiles(screenCoord);
+
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:4 */
   gl_FragData[0] = buffers.tex4;

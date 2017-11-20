@@ -16,6 +16,7 @@
   #if PROGRAM != GBUFFERS_SKYTEXTURED
     varying vec3 normal;
     varying vec3 vertex;
+    varying vec3 vView;
 
     varying mat3 ttn;
   #endif
@@ -103,7 +104,7 @@ void main() {
   #if   PROGRAM == GBUFFERS_BASIC
     gbuffer.albedo = vec4(0.0, 0.0, 0.0, 1.0);
   #elif PROGRAM == GBUFFERS_WEATHER
-    gbuffer.albedo = vec4(0.8, 0.9, 1.0, 1.0) * textureSample(texture, uv).a;
+    gbuffer.albedo = vec4(0.8, 0.9, 1.0, 0.25) * textureSample(texture, uv).a;
   #elif PROGRAM == GBUFFERS_SKYBASIC
     gbuffer.albedo = colour;
   #else
@@ -126,7 +127,7 @@ void main() {
     #if   RESOURCE_FORMAT == 1
       smoothness = specularMap.x;
       f0 = 0.02;
-      emission = 0.0;
+      emission = (objectID == OBJECT_EMISSIVE) ? 1.0 : 0.0;
       materialPlaceholder = 0.0;
     #elif RESOURCE_FORMAT == 2
       smoothness = specularMap.x;
@@ -194,7 +195,7 @@ void main() {
   #if PROGRAM == GBUFFERS_TEXTURED_LIT || PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_ENTITIES || PROGRAM == GBUFFERS_ITEM || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_WEATHER
     gbuffer.lightmap = ((lmCoord
       #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
-        * getLightmapShading(lmCoord, surfaceNormal, view, materialVector.x, 0.5)
+        * getLightmapShading(lmCoord, surfaceNormal, view, materialVector.x, tbn)
       #endif
     ));
   #endif

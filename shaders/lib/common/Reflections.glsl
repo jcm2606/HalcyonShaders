@@ -36,7 +36,7 @@
 
     float alphaSqr = pow2(alpha);
 
-    float k2 = pow2(((f0 > 0.5) ? 0.5 : 2.0) * alpha);
+    float k2 = pow2(alpha);
 
     return max0(dot(normal, light)) * alphaSqr / (pi * pow2(pow2(max0(dot(normal, halfVector))) * (alphaSqr - 1.0) + 1.0)) * fresnelSchlick(dot(halfVector, light), f0) / (pow2(max0(dot(light, halfVector))) * (1.0 - k2) + k2);
   }
@@ -52,7 +52,7 @@
     return (LdotR < d) ? normalize(d * light + (normalize(reflected - LdotR * light) * sin(radius))) : reflected;
   }
 
-  vec4 getReflections(in sampler2D tex, in vec3 view, in mat2x3 atmosphereLighting, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in vec4 highlightTint, in float skyOcclusion) {
+  vec4 getReflections(in int layer, in sampler2D tex, in vec3 view, in mat2x3 atmosphereLighting, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in vec4 highlightTint, in float skyOcclusion) {
     // CREATE DATA
     vec3 dir = -normalize(view);
     vec2 alpha = pow2(vec2(roughness * 2.45, roughness * 1.6));
@@ -62,10 +62,10 @@
     vec3 reflView = reflect(normalize(view), normalize(normal));
 
     // RAYTRACE
-    vec4 specular = raytraceClip(tex, -reflect(dir, normal), view);
+    vec4 specular = raytraceClip(tex, -reflect(dir, normalize(normal)), view);
 
     // SAMPLE SKY IN REFLECTED DIRECTION
-    vec3 sky = drawSky(reflView, 2) * pow4(skyOcclusion);
+    vec3 sky = drawSky(reflView, 2) * pow4(skyOcclusion) * 1.5;
 
     // ADD-IN POINT: Volumetric cloud reflection.
 
@@ -74,7 +74,7 @@
 
     // APPLY FRESNEL
     float fresnel = ((1.0 - f0) * pow5(1.0 - max0(dot(dir, normalize(reflView + dir)))) + f0) * max0(1.0 - alpha.x);
-    specular.rgb *= fresnel;
+    specular.rgb *= (layer == 0) ? fresnel : 1.0;
 
     // APPLY SPECULAR HIGHLIGHT
     vec3 light = sunMRP(normalize(normal), normalize(view), lightVector);
@@ -89,7 +89,7 @@
   }
 
   vec3 drawReflectionOnSurface(in vec4 diffuse, in sampler2D tex, in vec3 view, in mat2x3 atmosphereLighting, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in vec4 highlightTint, in float skyOcclusion) {
-    return diffuse.rgb * ((f0 > 0.5) ? 0.0 : 1.0) + getReflections(tex, view, atmosphereLighting, albedo, normal, roughness, f0, highlightTint, skyOcclusion).rgb;
+    return diffuse.rgb * ((f0 > 0.5) ? 0.0 : 1.0) + getReflections(0, tex, view, atmosphereLighting, albedo, normal, roughness, f0, highlightTint, skyOcclusion).rgb;
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_REFLECTIONS */

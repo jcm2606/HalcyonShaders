@@ -7,7 +7,7 @@
 #ifndef INTERNAL_INCLUDED_GBUFFER_DIRECTIONALLIGHTMAP
   #define INTERNAL_INCLUDED_GBUFFER_DIRECTIONALLIGHTMAP
 
-  vec2 getLightmapShading(in vec2 lightmap, in vec3 surfaceNormal, in vec3 view, in float roughness, cin(float) steepness) {
+  vec2 getLightmapShading(in vec2 lightmap, in vec3 surfaceNormal, in vec3 view, in float roughness, in mat3 tbn) {
     vec2 shading = lightmap;
 
     #define blockShading shading.x
