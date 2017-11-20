@@ -68,8 +68,51 @@
     return pow(abs(height * 2.0 - 1.0), 0.85) * 1.5;
   }
 
+  float water2(in vec3 world) {
+    float height = 0.0;
+
+    vec2 position = world.xz - world.y;
+
+    c(float) waveSpeed = 0.0013;
+    c(vec2) waveDirection = swizzle2 * waveSpeed;
+    vec2 move = waveDirection * frametime;
+
+    c(mat2) rot = rot2(0.7);
+
+    position *= 0.0005;
+    position *= rot;
+
+    //position *= vec2(1.0, 0.75);
+
+    #define octave(scale) position *= rot; height += texnoise2D(noisetex, position * scale + move * scale) / scale
+
+    position *= rot; height += texnoise2D(noisetex, position + move * 0.5) * 2.0;
+
+    octave(1.0);
+    octave(2.0);
+    octave(4.0);
+    octave(8.0);
+    octave(16.0);
+    octave(32.0);
+    octave(64.0);
+    octave(128.0);
+    octave(256.0);
+    /*
+    position *= rot; height += texnoise2D(noisetex, position + move) * 1.0;
+    position *= rot; height += texnoise2D(noisetex, position * 2.0 + move * 2.0) * 0.5;
+    position *= rot; height += texnoise2D(noisetex, position * 4.0 + move * 4.0) * 0.25;
+    position *= rot; height += texnoise2D(noisetex, position * 8.0 + move * 8.0) * 0.125;
+    position *= rot; height += texnoise2D(noisetex, position * 16.0 + move * 16.0) * 0.0625;
+    position *= rot; height += texnoise2D(noisetex, position * 32.0 + move * 32.0) * 0.03125;
+    */
+    height *= 0.5;
+    height  = pow2(height);
+
+    return 1.0 - abs(height * 2.0 - 1.0);
+  }
+
   float getWaterHeight(in vec3 world) {
-    return water1(world);
+    return water2(world);
   }
 
   // ICE
@@ -123,7 +166,7 @@
       ((height3 - height0) + (height0 - height4))
     ) * normalDeltaRCP;
 
-    return normalize(vec3(delta.x, delta.y, 1.0 - pow2(delta.x) - pow2(delta.y)));
+    return (vec3(delta.x, delta.y, 1.0 - pow2(delta.x) - pow2(delta.y)));
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_TRANSPARENTNORMALS */

@@ -47,7 +47,7 @@
     #undef blockShading
     #undef skyShading
 
-    return shading;
+    return vec2(shading.x, lightmap.y);
   }
   
 #endif /* INTERNAL_INCLUDED_GBUFFER_DIRECTIONALLIGHTMAP */
