@@ -55,7 +55,7 @@
 
   #define MC_SEA_LEVEL 63.0
 
-  #define SUN_BRIGHTNESS 32768.0
+  #define SUN_BRIGHTNESS 8192.0
 
   #define SUN_SIZE 0.25
   #define MOON_SIZE 1.0

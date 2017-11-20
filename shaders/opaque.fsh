@@ -159,6 +159,7 @@ void main() {
     materialPlaceholder = 0.0;
   #endif
 
+  smoothness = max(0.000001, smoothness);
   smoothness = 1.0 - smoothness;
 
   #undef smoothness
