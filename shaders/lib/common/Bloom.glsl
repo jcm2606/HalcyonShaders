@@ -50,6 +50,8 @@
   #endif
 
   #if PROGRAM == FINAL
+    #include "/lib/common/util/BicubicSampler.glsl"
+
     vec3 drawBloomTile(in vec2 screenCoord, cin(int) lod, cin(vec2) offset) {
       c(float) tilePower = 0.0625;
 
@@ -58,7 +60,7 @@
 
       vec2 halfPixel = 1.0 / vec2(viewWidth, viewHeight) * 0.5;
 
-      return texture2D(colortex4, (screenCoord - halfPixel) * a + offset).rgb * b;
+      return bicubic2D(colortex4, (screenCoord - halfPixel) * a + offset).rgb * b;
     }
 
     vec3 drawBloom(in vec3 frame, in vec2 screenCoord) {
@@ -71,7 +73,11 @@
       bloom += drawBloomTile(screenCoord, 6, vec2(0.2, 0.3));
       bloom += drawBloomTile(screenCoord, 7, vec2(0.3, 0.3));
 
-      return mix(frame, bloom, 0.02 * 0.5);
+      return mix(
+        frame,
+        bloom,
+        (isEyeInWater == 1) ? 0.01 : mix(0.01, 0.07, rainStrength)
+      );
     }
   #endif
 

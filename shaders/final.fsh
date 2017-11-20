@@ -13,8 +13,6 @@
 #include "/lib/Header.glsl"
 
 // CONST
-const bool colortex4MipmapEnabled = true;
-
 // USED BUFFERS
 #define IN_TEX0
 #define IN_TEX4
@@ -28,6 +26,9 @@ uniform sampler2D colortex4;
 
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float rainStrength;
+
+uniform int isEyeInWater;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
