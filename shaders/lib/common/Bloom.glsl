@@ -8,9 +8,11 @@
   #define INTERNAL_INCLUDED_COMMON_BLOOM
 
   #if PROGRAM == COMPOSITE4
-    vec3 generateBloomTile(in vec2 screenCoord, cin(int) lod, cin(vec2) offset) {
+    // I have to do this because whoever is in charge of the GLSL compiler for AMD drivers is completely retarded.
+    #define getBloomTile(coord, lod, offset) generateBloomTile(coord, lod, offset, pow(2.0, lod))
+    
+    vec3 generateBloomTile(in vec2 screenCoord, cin(int) lod, cin(vec2) offset, cin(float) scale) {
       c(float) a = pow(0.5, 0.5) * 20.0;
-      c(float) scale = pow(2.0, lod);
       c(float) weight = 1.0 / 49.0;
 
       vec3 tile = vec3(0.0);
@@ -38,12 +40,12 @@
     vec3 generateBloomTiles(in vec2 screenCoord) {
       vec3 tiles = vec3(0.0);
 
-      tiles += generateBloomTile(screenCoord, 2, vec2(0.0, 0.0));
-      tiles += generateBloomTile(screenCoord, 3, vec2(0.3, 0.0));
-      tiles += generateBloomTile(screenCoord, 4, vec2(0.0, 0.3));
-      tiles += generateBloomTile(screenCoord, 5, vec2(0.1, 0.3));
-      tiles += generateBloomTile(screenCoord, 6, vec2(0.2, 0.3));
-      tiles += generateBloomTile(screenCoord, 7, vec2(0.3, 0.3));
+      tiles += getBloomTile(screenCoord, 2, vec2(0.0, 0.0));
+      tiles += getBloomTile(screenCoord, 3, vec2(0.3, 0.0));
+      tiles += getBloomTile(screenCoord, 4, vec2(0.0, 0.3));
+      tiles += getBloomTile(screenCoord, 5, vec2(0.1, 0.3));
+      tiles += getBloomTile(screenCoord, 6, vec2(0.2, 0.3));
+      tiles += getBloomTile(screenCoord, 7, vec2(0.3, 0.3));
 
       return tiles;
     }
