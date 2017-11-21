@@ -54,12 +54,12 @@
   #if PROGRAM == FINAL
     #include "/lib/common/util/BicubicSampler.glsl"
 
-    vec3 drawBloomTile(in vec2 screenCoord, cin(int) lod, cin(vec2) offset) {
-      c(float) tilePower = 0.0625;
+    c(float) tilePower = 0.0625;
 
-      c(float) a = 1.0 / pow(2.0, float(lod));
-      c(float) b = pow(9.0 - float(lod), tilePower);
+    // AMD, why are you so retarded?
+    #define drawBloomTile(coord, lod, offset) getBloomTile(coord, lod, offset, 1.0 / pow(2.0, float(lod)), pow(9.0 - float(lod), tilePower))
 
+    vec3 getBloomTile(in vec2 screenCoord, cin(int) lod, cin(vec2) offset, cin(float) a, cin(float) b) {
       vec2 halfPixel = 1.0 / vec2(viewWidth, viewHeight) * 0.5;
 
       return bicubic2D(colortex4, (screenCoord - halfPixel) * a + offset).rgb * b;
