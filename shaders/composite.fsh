@@ -26,6 +26,7 @@ varying vec2 screenCoord;
 flat(vec3) sunVector;
 flat(vec3) moonVector;
 flat(vec3) lightVector;
+flat(vec3) wLightVector;
 
 // UNIFORM
 uniform sampler2D colortex0;
@@ -41,6 +42,8 @@ uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
 uniform sampler2D shadowcolor1;
+
+uniform sampler2D noisetex;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
@@ -59,6 +62,7 @@ uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float rainStrength;
+uniform float frameTimeCounter;
 
 uniform ivec2 eyeBrightnessSmooth;
 
@@ -77,7 +81,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/common/WaterAbsorption.glsl"
 
+#include "/lib/deferred/VolumetricClouds.glsl"
 #include "/lib/deferred/Volumetrics.glsl"
+
+#include "/lib/deferred/Refraction.glsl"
 
 // FUNCTIONS
 vec3 getWaterAbsorption(in vec3 colour, io PositionObject position) {
@@ -106,6 +113,9 @@ void main() {
   // GENERATE ATMOSPHERE LIGHTING
   mat2x3 atmosphereLighting = getAtmosphereLighting();
 
+  // DRAW REFRACTION
+  buffers.tex0.rgb = drawRefraction(gbuffer, position, buffers.tex0.rgb, screenCoord);
+
   // DRAW TRANSPARENT BLOCKS
   buffers.tex0.rgb *= (buffers.tex6.a > 0.0) ? gbuffer.albedo : vec3(1.0);
   buffers.tex0.rgb  = mix(buffers.tex0.rgb, buffers.tex6.rgb, buffers.tex6.a);
@@ -120,6 +130,7 @@ void main() {
   buffers.tex4 = getVolumetrics(gbuffer, position, mask, screenCoord, atmosphereLighting);
 
   // GENERATE VOLUMETRIC CLOUDS
+  buffers.tex5 = getVolumetricClouds(position.viewPositionBack, position.depthBack, atmosphereLighting);
   
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:045 */

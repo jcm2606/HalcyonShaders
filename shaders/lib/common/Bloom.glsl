@@ -54,7 +54,7 @@
   #if PROGRAM == FINAL
     #include "/lib/common/util/BicubicSampler.glsl"
 
-    c(float) tilePower = 0.0625;
+    c(float) tilePower = 0.25;
 
     // AMD, why are you so retarded?
     #define drawBloomTile(coord, lod, offset) getBloomTile(coord, lod, offset, 1.0 / pow(2.0, float(lod)), pow(9.0 - float(lod), tilePower))
@@ -78,7 +78,7 @@
       return mix(
         frame,
         bloom,
-        (isEyeInWater == 1) ? 0.01 : mix(0.01, 0.07, rainStrength)
+        (isEyeInWater == 1) ? 0.01 : mix(0.01, 0.02, rainStrength)
       );
     }
   #endif

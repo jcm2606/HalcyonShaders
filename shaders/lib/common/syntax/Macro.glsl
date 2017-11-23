@@ -28,6 +28,7 @@
   #define getSunVector()   ( sunVector   = normalize( sunPosition) )
   #define getMoonVector()  ( moonVector  = normalize(-sunPosition) )
   #define getLightVector() ( lightVector = (sunAngle > 0.5) ? moonVector : sunVector )
+  #define getWorldLightVector() ( wLightVector = normalize(mat3(gbufferModelViewInverse) * ( (sunAngle > 0.5) ? -sunPosition : sunPosition )) )
 
   #define getSmoothedMoonPhase() ( (float(moonPhase) * 24000.0 + float(worldTime)) * 0.00000595238095238 )
 

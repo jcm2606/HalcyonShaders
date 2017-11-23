@@ -28,7 +28,13 @@
       if(screenCoord.x > 0.5) return vec3(shadowObject.edgePrediction);
     #endif
 
-    vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference) * getDirectShading(gbuffer, mask, position);
+    //vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference) * getDirectShading(gbuffer, mask, position);
+    vec3 direct = atmosphereLighting[0];
+    direct *= mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference);
+    direct *= getDirectShading(gbuffer, mask, position);
+    direct *= getCloudShadow(viewToWorld(position.viewPositionBack) + cameraPosition);
+    direct *= shadowObject.occlusionBack;
+
     vec3 sky = atmosphereLighting[1] * getSkyLightmap(gbuffer.skyLight, gbuffer.normal);
     vec3 block = blockLightColour * max(((mask.emissive) ? 32.0 : 1.0) * gbuffer.emission, getBlockLightmap(gbuffer.blockLight));
 

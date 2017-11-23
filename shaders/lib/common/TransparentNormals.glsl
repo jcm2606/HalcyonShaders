@@ -105,10 +105,10 @@
     position *= rot; height += texnoise2D(noisetex, position * 16.0 + move * 16.0) * 0.0625;
     position *= rot; height += texnoise2D(noisetex, position * 32.0 + move * 32.0) * 0.03125;
     */
-    height *= 0.5;
-    height  = pow2(height);
+    height *= 0.75;
+    //height  = pow2(height);
 
-    return 1.0 - abs(height * 2.0 - 1.0);
+    return abs(height * 2.0 - 1.0);
   }
 
   float getWaterHeight(in vec3 world) {

@@ -20,11 +20,14 @@ varying vec2 screenCoord;
 flat(vec3) sunVector;
 flat(vec3) moonVector;
 flat(vec3) lightVector;
+flat(vec3) wLightVector;
 
 // UNIFORM
 uniform vec3 sunPosition;
 
 uniform float sunAngle;
+
+uniform mat4 gbufferModelViewInverse;
 
 // STRUCT
 // ARBITRARY
@@ -39,4 +42,5 @@ void main() {
   getSunVector();
   getMoonVector();
   getLightVector();
+  getWorldLightVector();
 }

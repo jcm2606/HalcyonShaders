@@ -109,8 +109,10 @@
         visibility  = (occlusionBack - occlusionFront > 0.0 && water) ? vec2(1.0) : visibility;
 
         // OCCLUDE RAY
-        visibility.x *= occlusionBack * mieTail;
-        visibility.y *= occlusionBack;//mix(ebs, pow6(gbuffer.skyLight), pow4(distance(viewRay.start, viewRay.pos) / viewRay.dist));
+        float cloudShadow = getCloudShadow(world);
+
+        visibility.x *= occlusionBack * cloudShadow;
+        visibility.y *= occlusionBack * (cloudShadow * 0.5 + 0.5);//mix(ebs, pow6(gbuffer.skyLight), pow4(distance(viewRay.start, viewRay.pos) / viewRay.dist));
 
         // BEGIN RAY COLOURING
         vec3 lightColour = atmosphereLighting[0] * visibility.x + (atmosphereLighting[1] * visibility.y);
@@ -139,10 +141,15 @@
       return vec4(volumetrics.rgb, 1.0);
     }
   #elif PROGRAM == COMPOSITE1
-    vec3 drawVolumetrics(in vec3 frame, in vec2 screenCoord, in vec2 refractOffset) {
+    #include "/lib/deferred/Refraction.glsl"
+
+    vec3 drawVolumetrics(io GbufferObject gbuffer, io PositionObject position, in vec3 frame, in vec2 screenCoord) {
       #ifndef VOLUMETRICS
         return frame;
       #endif
+
+      float refractDist = 0.0;
+      //screenCoord = getRefractPos(refractDist, screenCoord, position.viewPositionBack, position.viewPositionFront, gbuffer.normal).xy;
 
       c(int) width = 3;
       cRCP(float, width);
@@ -158,6 +165,8 @@
       for(int i = -width; i <= width; i++) {
         for(int j = -width; j <= width; j++) {
           vec2 offset = vec2(i, j) * radius + screenCoord;
+
+          //if(texture2DLod(depthtex1, offset).x - position.depthBack > 0.001) continue;
 
           volumetrics += texture2DLod(colortex4, offset, 2);
         }

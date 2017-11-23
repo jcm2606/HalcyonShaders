@@ -29,6 +29,7 @@ varying vec2 screenCoord;
 flat(vec3) sunVector;
 flat(vec3) moonVector;
 flat(vec3) lightVector;
+flat(vec3) wLightVector;
 
 flat(vec4) timeVector;
 
@@ -44,6 +45,8 @@ uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
 uniform sampler2D shadowcolor1;
+
+uniform sampler2D noisetex;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
@@ -61,6 +64,9 @@ uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float rainStrength;
+uniform float frameTimeCounter;
+
+uniform vec3 cameraPosition;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
@@ -75,6 +81,8 @@ uniform float rainStrength;
 
 #include "/lib/common/Sky.glsl"
 #include "/lib/common/AtmosphereLighting.glsl"
+
+#include "/lib/deferred/VolumetricClouds.glsl"
 
 #include "/lib/opaque/Shading.glsl"
 

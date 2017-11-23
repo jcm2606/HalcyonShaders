@@ -11,7 +11,7 @@
     c(float) steps = 4;
     cRCP(float, steps);
 
-    c(float) height = 0.7;
+    c(float) height = PARALLAX_TRANSPARENT_DEPTH_WATER;
 
     float waveHeight = getHeight(world, objectID) * height;
 
