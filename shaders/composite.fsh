@@ -56,6 +56,8 @@ uniform mat4 shadowModelView;
 uniform vec3 cameraPosition;
 
 uniform int isEyeInWater;
+uniform int worldTime;
+uniform int moonPhase;
 
 uniform float near;
 uniform float far;

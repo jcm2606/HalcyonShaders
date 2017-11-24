@@ -1,0 +1,168 @@
+# Miscellaneous
+screen.Miscellaneous=Miscellaneous
+screen.Miscellaneous.comment=PLACEHOLDER
+
+#   Miscellaneous\Debugging
+screen.Debugging=Debugging
+screen.Debugging.comment=PLACEHOLDER
+
+#   Miscellaneous\Internal
+screen.Internal=Internal
+screen.Internal.comment=PLACEHOLDER
+
+#   Miscellaneous\Uncategorised
+screen.Uncategorised=Uncategorised
+screen.Uncategorised.comment=PLACEHOLDER
+
+#   ShaderConfig
+screen.ShaderConfig=Shader Configuration
+screen.ShaderConfig.comment=PLACEHOLDER
+
+#   ShaderConfig\Options
+option.GLOBAL_SPEED=Global Speed Multiplier
+value.GLOBAL_SPEED.0.08333=12x Slower
+value.GLOBAL_SPEED.0.09090909=11x Slower
+value.GLOBAL_SPEED.0.1=10x Slower
+value.GLOBAL_SPEED.0.111=9x Slower
+value.GLOBAL_SPEED.0.125=8x Slower
+value.GLOBAL_SPEED.0.142857=7x Slower
+value.GLOBAL_SPEED.0.1666=6x Slower
+value.GLOBAL_SPEED.0.2=5x Slower
+value.GLOBAL_SPEED.0.25=4x Slower
+value.GLOBAL_SPEED.0.333=3x Slower
+value.GLOBAL_SPEED.0.5=2x Slower
+value.GLOBAL_SPEED.1.0=Normal Speed
+value.GLOBAL_SPEED.2.0=2x Faster
+value.GLOBAL_SPEED.3.0=3x Faster
+value.GLOBAL_SPEED.4.0=4x Faster
+value.GLOBAL_SPEED.5.0=5x Faster
+value.GLOBAL_SPEED.6.0=6x Faster
+value.GLOBAL_SPEED.7.0=7x Faster
+value.GLOBAL_SPEED.8.0=8x Faster
+value.GLOBAL_SPEED.9.0=9x Faster
+value.GLOBAL_SPEED.10.0=10x Faster
+value.GLOBAL_SPEED.11.0=11x Faster
+value.GLOBAL_SPEED.12.0=12x Faster
+
+option.TEXTURE_RESOLUTION=Texture Resolution
+value.TEXTURE_RESOLUTION.16.0=16x16
+value.TEXTURE_RESOLUTION.32.0=32x32
+value.TEXTURE_RESOLUTION.64.0=64x64
+value.TEXTURE_RESOLUTION.128.0=128x128
+value.TEXTURE_RESOLUTION.256.0=256x256
+value.TEXTURE_RESOLUTION.512.0=512x512
+value.TEXTURE_RESOLUTION.1024.0=1024x1024
+value.TEXTURE_RESOLUTION.2048.0=2048x2048
+value.TEXTURE_RESOLUTION.4096.0=4096x4096
+value.TEXTURE_RESOLUTION.8192.0=8192x8192
+
+option.MC_SEA_LEVEL=Sea Level
+
+option.RESOURCE_FORMAT=Specular Format
+value.RESOURCE_FORMAT.0=Hardcoded
+value.RESOURCE_FORMAT.1=Specular
+value.RESOURCE_FORMAT.2=Old PBR, No Emission
+value.RESOURCE_FORMAT.3=Old PBR, Emission
+value.RESOURCE_FORMAT.4=New PBR
+
+option.wetnessHalflife=Wetness Halflife
+
+option.drynessHalflife=Dryness Halflife
+
+option.sunPathRotation=Sun Rotation
+
+option.eyeBrightnessHalflife=Eye Brightness Halflife
+
+# Atmospherics
+screen.Atmospherics=Atmospherics
+screen.Atmospherics.comment=PLACEHOLDER
+
+#   Atmospherics\Volumetrics
+screen.Volumetrics=Volumetrics
+screen.Volumetrics.comment=PLACEHOLDER
+
+#   Atmospherics\Clouds
+screen.Clouds=Volumetric Clouds
+screen.Clouds.comment=PLACEHOLDER
+
+#     Atmosphereics\Clouds\Options
+option.VOLUMETRIC_CLOUDS=Volumetric Clouds
+
+option.VC_QUALITY=Quality
+
+option.VC_OCTAVES=FBM Octaves
+
+option.VC_LIGHTING_QUALITY_DIRECT=Direct Lighting Quality
+suffix.VC_LIGHTING_QUALITY_DIRECT= Steps
+
+option.VC_LIGHTING_QUALITY_SKY=Sky Lighting Quality
+suffix.VC_LIGHTING_QUALITY_SKY= Steps
+
+option.VC_LIGHTING_QUALITY_BOUNCED=Bounced Lighting Quality
+suffix.VC_LIGHTING_QUALITY_BOUNCED= Steps
+
+option.VC_ALTITUDE=Altitude
+prefix.VC_ALTITUDE=Y 
+
+option.VC_HEIGHT=Height
+suffix.VC_HEIGHT= Blocks
+
+option.VC_DENSITY_CLEAR=Clear Density
+
+option.VC_DENSITY_OVERCAST=Overcast Density
+
+option.VC_DENSITY_RAIN=Rain Density
+
+option.VC_COVERAGE_CLEAR=Clear Coverage
+
+option.VC_COVERAGE_OVERCAST=Overcast Coverage
+
+option.VC_COVERAGE_RAIN=Rain Coverage
+
+#   Atmospherics\Sky
+screen.Sky=Sky
+screen.Sky.comment=PLACEHOLDER
+
+# Geometry
+screen.Geometry=Geometry
+screen.Geometry.comment=PLACEHOLDER
+
+#   Geometry\Parallax
+screen.Parallax=Parallax
+screen.Parallax.comment=PLACEHOLDER
+
+#   Geometry\VertexDisplacement
+screen.VertexDisplacement=Vertex Displacement
+screen.VertexDisplacement.comment=PLACEHOLDER
+
+# Post
+screen.Post=Post Processing
+screen.Post.comment=PLACEHOLDER
+
+#   Post\Tonemapping
+screen.Tonemapping=Tonemapping
+screen.Tonemapping.comment=PLACEHOLDER
+
+#   Post\Bloom
+screen.Bloom=Bloom
+screen.Bloom.comment=PLACEHOLDER
+
+# Surface
+screen.Surface=Surface
+screen.Surface.comment=PLACEHOLDER
+
+#   Surface\Normals
+screen.Normals=Normals
+screen.Normals.comment=PLACEHOLDER
+
+# Shading
+screen.Shading=Shading
+screen.Shading.comment=PLACEHOLDER
+
+#   Shading\Shadowing
+screen.Shadowing=Shadowing
+screen.Shadowing.comment=PLACEHOLDER
+
+#   Shading\Lighting
+screen.Lighting=Lighting
+screen.Lighting.comment=PLACEHOLDER

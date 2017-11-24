@@ -80,6 +80,10 @@
     vec3 light = sunMRP(normalize(normal), normalize(view), lightVector);
     float highlight = ggx(normalize(view), normalize(normal), light, alpha.y, f0);
 
+    #if PROGRAM == DEFERRED2
+      highlight *= getCloudShadow(viewToWorld(view) + cameraPosition);
+    #endif
+
     specular.rgb += min(vec3(SUN_BRIGHTNESS), atmosphereLighting[0] * highlight * highlightTint.rgb * highlightTint.a);
 
     // APPLY METALLIC TINTING

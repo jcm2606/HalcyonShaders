@@ -7,7 +7,7 @@
 #ifndef INTERNAL_INCLUDED_OPTION_MATERIAL
   #define INTERNAL_INCLUDED_OPTION_MATERIAL
 
-  #define RESOURCE_FORMAT 2 // [0 1 2 3 4]
+  #define RESOURCE_FORMAT 2 // Pick 'Harcoded' if you aren't using a resource pack that provides shader support. Pick 'Specular' if you are using a resource pack that uses a greyscale specular texture. Pick 'Old PBR, Emission' if you are using an old PBR resource pack that includes emission in the blue channel, 'Old PBR, No Emission' if it doesn't. Pick 'New PBR' if you are using a resource pack that uses the new Continuum / SEUS PBR standard, ie Pulchra. [0 1 2 3 4]
 
   /* smoothness, f0, emission, materialPlaceholder */
 

@@ -1,0 +1,12 @@
+/*
+  JCM2606.
+  HALCYON.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+*/
+
+#ifndef INTERNAL_INCLUDED_UTIL_WEATHERCYCLE
+  #define INTERNAL_INCLUDED_UTIL_WEATHERCYCLE
+
+  float weatherCycle = max0(sin(getSmoothedMoonPhase() * pi));
+
+#endif /* INTERNAL_INCLUDED_UTIL_WEATHERCYCLE */

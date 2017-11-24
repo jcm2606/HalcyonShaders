@@ -58,6 +58,8 @@ uniform mat4 shadowProjectionInverse;
 uniform mat4 shadowModelView;
 
 uniform int isEyeInWater;
+uniform int worldTime;
+uniform int moonPhase;
 
 uniform float near;
 uniform float far;

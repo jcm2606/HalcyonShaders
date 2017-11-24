@@ -25,6 +25,7 @@ varying vec2 screenCoord;
 flat(vec3) sunVector;
 flat(vec3) moonVector;
 flat(vec3) lightVector;
+flat(vec3) wLightVector;
 
 // UNIFORM
 uniform sampler2D colortex0;
@@ -35,16 +36,23 @@ uniform sampler2D colortex5;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
+uniform sampler2D noisetex;
+
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
 uniform int isEyeInWater;
+uniform int worldTime;
+uniform int moonPhase;
+
+uniform vec3 cameraPosition;
 
 uniform float near;
 uniform float far;
 uniform float rainStrength;
+uniform float frameTimeCounter;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
@@ -53,6 +61,8 @@ uniform float rainStrength;
 
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/deferred/VolumetricClouds.glsl"
+
 #include "/lib/common/Reflections.glsl"
 
 // FUNCTIONS

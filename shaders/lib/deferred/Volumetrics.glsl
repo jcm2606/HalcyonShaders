@@ -96,7 +96,7 @@
 
         // PARTICIPATING MEDIA
         // HEIGHT FOG
-        visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.05) * 0.05;
+        visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.01) * 0.03;
 
         // GROUND FOG
         //visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.2) * 0.1;
@@ -112,7 +112,7 @@
         float cloudShadow = getCloudShadow(world);
 
         visibility.x *= occlusionBack * cloudShadow;
-        visibility.y *= occlusionBack * (cloudShadow * 0.5 + 0.5);//mix(ebs, pow6(gbuffer.skyLight), pow4(distance(viewRay.start, viewRay.pos) / viewRay.dist));
+        visibility.y *= occlusionBack * (cloudShadow);//mix(ebs, pow6(gbuffer.skyLight), pow4(distance(viewRay.start, viewRay.pos) / viewRay.dist));
 
         // BEGIN RAY COLOURING
         vec3 lightColour = atmosphereLighting[0] * visibility.x + (atmosphereLighting[1] * visibility.y);
