@@ -32,7 +32,7 @@
     }
 
     float getWaterFog(in float opticalDepth, in vec3 world, in bool differenceMask, in bool isWater) {
-      return (differenceMask && isWater) ? 0.3 : opticalDepth;
+      return (differenceMask && isWater) ? 2.0 : opticalDepth;
     }
 
     float getOpticalDepth(in vec3 world, in float eBS, in float objectID, in bool differenceMask, in bool isWater) {
@@ -192,13 +192,13 @@
 
         // GET INTERACTION WITH WATER VOLUME
         // WATER SURFACE -> RAY
-        rayColour *= (differenceMask && isWater) ? absorbWater(distanceToSurface) : vec3(1.0);
+        rayColour = (differenceMask && isWater) ? interactWater(rayColour, distanceToSurface) : rayColour;
 
         // RAY -> EYE
         vec3 waterAbsorptionOrigin = (isEyeInWater == 0) ? position.viewPositionFront : viewRay.origin;
         vec3 waterAbsorptionTarget = (!differenceMask && mask.water && isEyeInWater == 1) ? position.viewPositionFront : viewRay.pos;
 
-        rayColour *= ((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) ? absorbWater(distance(waterAbsorptionOrigin, waterAbsorptionTarget)) : vec3(1.0);
+        rayColour = ((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) ? interactWater(rayColour, distance(waterAbsorptionOrigin, waterAbsorptionTarget)) : rayColour;
 
         // ACCUMULATE RAY
         scattering += rayColour * transmittedScatteringIntegral(opticalDepth, 0.02) * transmittance;

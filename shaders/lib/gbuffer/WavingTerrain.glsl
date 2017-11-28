@@ -9,9 +9,16 @@
 
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == SHADOW
     // MOVEMENT
-    vec3 moveFullVertex(in vec3 position, cin(vec2) speed0, cin(vec2) speed1, in vec3 strength0, in vec3 strength1) {
+    vec3 moveFullVertex(in vec3 position, const in vec2 speed0, const in vec2 speed1, in vec3 strength0, in vec3 strength1) {
       c(vec3) v0 = vec3(2.0) / 16.0;
       c(vec3) v1 = vec3(-3.0, 3.0, 3.0) / 16.0;
+      c(vec3) v2 = vec3(5.0, 5.0, 6.0) / 16.0;
+      c(vec3) v3 = vec3(-6.0, 5.0, 5.0) / 16.0;
+
+      c(vec3) nv0 = normalize(v0);
+      c(vec3) nv1 = normalize(v1);
+      c(vec3) nv2 = normalize(v2);
+      c(vec3) nv3 = normalize(v3);
 
       c(float) pi2 = 2.0 * pi;
 
@@ -20,17 +27,14 @@
       float s0 = sin(pi2ft * speed0.x + dot(pi2 * v0, position));
       float s1 = sin(pi2ft * speed0.y + dot(pi2 * v1, position));
 
-      vec3 move0 = (normalize(v0) * s0 + normalize(v1) * s1) * strength0;
+      vec3 move0 = (nv0 * s0 + nv1 * s1) * strength0;
 
       position += move0;
-
-      c(vec3) v2 = vec3(5.0, 5.0, 6.0) / 16.0;
-      c(vec3) v3 = vec3(-6.0, 5.0, 5.0) / 16.0;
 
       float s2 = sin(pi2ft * speed1.x + dot(pi2 * v2, position));
       float s3 = sin(pi2ft * speed1.y + dot(pi2 * v3, position));
 
-      vec3 move1 = (normalize(v2) * s2 + normalize(v3) * s3) * (abs(s0 * s1) * 0.6 + 0.4) * strength1;
+      vec3 move1 = (nv2 * s2 + nv3 * s3) * (abs(s0 * s1) * 0.6 + 0.4) * strength1;
 
       return move0 + move1;
     }

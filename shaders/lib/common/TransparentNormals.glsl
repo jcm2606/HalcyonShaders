@@ -11,30 +11,32 @@
 
   // WATER
   float water0(in vec3 world) {
-    float height = 0.0;
+    float height = 1.0;
 
     vec2 position = world.xz - world.y;
+    mat2 rot = rot2(-0.7);
 
-    c(float) waveSpeed = 0.0022;
-    c(vec2) waveDirection = swizzle2 * waveSpeed;
-    vec2 move = waveDirection * frametime;
-
-    c(mat2) rot = rot2(0.7);
-
-    position *= 0.001;
     position *= rot;
+    position *= 0.0008;
+    position.x *= 0.7;
 
-    position *= vec2(1.0, 0.75);
+    float weight = 1.0;
 
-    height += texnoise2D(noisetex, position + move * 0.25);
-    height += texnoise2D(noisetex, position * 2.0 + move * 2.0) * 0.5;
-    height -= texnoise2D(noisetex, position * 4.0 + move * 4.0) * 0.25;
-    height += texnoise2D(noisetex, position * 8.0 + move * 8.0) * 0.125;
-    height -= texnoise2D(noisetex, position * 16.0 + move * 16.0) * 0.0625;
+    c(vec2) windDir = vec2(0.0, 1.0);
+    vec2 wind = windDir * frametime;
+    float windSpeed = 0.004;
 
-    height *= 1.;
+    for(int i = 0; i < 5; i++) {
+      height -= abs(texnoise2D(noisetex, wind * windSpeed + position) * 2.0 - 1.0) * weight;
 
-    return abs(height * 2.0 - 1.0);
+      position *= 2.2;
+      position.x *= 1.1;
+      //position *= rot;
+      windSpeed *= 1.2;
+      weight *= 0.5;
+    }
+
+    return height * 0.35;
   }
 
   float water1(in vec3 world) {
@@ -112,7 +114,7 @@
   }
 
   float getWaterHeight(in vec3 world) {
-    return water2(world);
+    return water0(world);
   }
 
   // ICE
@@ -166,7 +168,7 @@
       ((height3 - height0) + (height0 - height4))
     ) * normalDeltaRCP;
 
-    return (vec3(delta.x, delta.y, 1.0 - pow2(delta.x) - pow2(delta.y)));
+    return normalize(vec3(delta.x, delta.y, 1.0 - pow2(delta.x) - pow2(delta.y)));
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_TRANSPARENTNORMALS */

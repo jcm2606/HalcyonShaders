@@ -5,7 +5,6 @@
 */
 
 #version 120
-#extension GL_EXT_gpu_shader4 : enable
 
 #include "/lib/common/syntax/Shaders.glsl"
 #define SHADER FSH
@@ -52,9 +51,9 @@ void main() {
     #if 0
       vec3 nworld = normalize(world);
       vec3 refractPos = refract(nworld, customNormal, refractInterfaceAirWater);
-      float caustic = pow(( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.125);
+      float caustic = 1.0 - pow(( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.03125);
     #else
-      float caustic = mix(0.4, 1.6, (1.0 - customNormal.z));
+      float caustic = mix(0.2, 1.8, pow2(getHeight(world, objectID)));
     #endif
 
     albedo.rgb = vec3(caustic);

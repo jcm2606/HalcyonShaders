@@ -5,7 +5,6 @@
 */
 
 #version 120
-#extension GL_EXT_gpu_shader4 : enable
 
 #include "/lib/common/syntax/Shaders.glsl"
 #define SHADER FSH
