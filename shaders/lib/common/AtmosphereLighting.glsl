@@ -19,7 +19,7 @@
     //atmosphereLighting[0] *= mix(1.0, 0.3, rainStrength);
 
     // AMBIENT
-    atmosphereLighting[1] = drawSky(upVector, 1) * 8.0;
+    atmosphereLighting[1] = drawSky(upVector, 1) * SKY_LIGHT_STRENGTH;
 
     return atmosphereLighting;
   }

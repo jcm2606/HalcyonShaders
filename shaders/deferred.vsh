@@ -17,7 +17,12 @@
 // VARYING
 varying vec2 screenCoord;
 
+flat(vec3) sunVector;
+flat(vec3) moonVector;
+
 // UNIFORM
+uniform vec3 sunPosition;
+
 // STRUCT
 // ARBITRARY
 // INCLUDED FILES
@@ -27,4 +32,7 @@ void main() {
   gl_Position = reprojectVertex(gl_ModelViewMatrix, gl_Vertex.xyz);
 
   screenCoord = gl_MultiTexCoord0.xy;
+
+  getSunVector();
+  getMoonVector();
 }

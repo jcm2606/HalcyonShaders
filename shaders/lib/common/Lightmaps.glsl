@@ -11,8 +11,12 @@
     return pow(blockLight, 4.0);
   }
 
+  float getRawSkyLightmap(in float skyLight) {
+    return pow(skyLight, 5.0);
+  }
+
   float getSkyLightmap(in float skyLight, in vec3 normal) {
-    return pow(skyLight, 5.0) * max0(dot(normal, upVector) * 0.45 + 0.65);
+    return getRawSkyLightmap(skyLight) * max0(dot(normal, upVector) * 0.45 + 0.65);
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_LIGHTMAPS */

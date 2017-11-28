@@ -52,7 +52,7 @@
         weight *= 0.6;
       }
 
-      float coverage = mix(VC_COVERAGE_CLEAR - weatherCycle * cloudOvercastOffsetCoverage, VC_COVERAGE_RAIN, rainStrength);
+      float coverage = mix(VC_COVERAGE_CLEAR - pow2(weatherCycle) * cloudOvercastOffsetCoverage, VC_COVERAGE_RAIN, rainStrength);
 
       fbm -= coverage;
       fbm  = max0(fbm);
@@ -62,15 +62,15 @@
     }
 
     float getCloudShadow(in vec3 world) {
-      float opticalDepth = getCloudFBM(wLightVector * ((cloudAltitudeUpper - world.y) / wLightVector.y) + world) * 3.0 * smoothstep(0.0, 0.1, dot(normalize(wLightVector), vec3(0.0, 1.0, 0.0)));
+      float opticalDepth = getCloudFBM(wLightVector * ((cloudAltitudeUpper - world.y) / wLightVector.y) + world) * 1.5 * smoothstep(0.0, 0.1, dot(normalize(wLightVector), vec3(0.0, 1.0, 0.0)));
 
       return exp(-0.02 * stepSize * opticalDepth * cloudDensity);
     }
   #endif
 
   #if   PROGRAM == COMPOSITE0
-    float vcVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, cin(int) samples) {
-      c(float) visStepSize = cloudHeight / (float(samples) + 0.5);
+    float vcVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, const in int samples) {
+      const float visStepSize = cloudHeight / (float(samples) + 0.5);
 
       dir *= visStepSize;
       ray += dither * dir;
@@ -94,6 +94,8 @@
       vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
       if(getLandMask(backDepth)) return clouds;
+
+      atmosphereLighting[1] *= 1.5;
 
       #define scattering clouds.rgb
       #define transmittance clouds.a
@@ -121,13 +123,13 @@
 
         if(opticalDepth <= 0.0) continue;
 
-        float visibilityLight = vcVisibilityCheck(ray, wLightVector, opticalDepth, 0.9, dither, VC_LIGHTING_QUALITY_DIRECT);
+        float visibilityLight = vcVisibilityCheck(ray, wLightVector, opticalDepth, 0.7, dither, VC_LIGHTING_QUALITY_DIRECT);
         float visibilitySky = vcVisibilityCheck(ray, vec3(0.0, 1.0, 0.0), opticalDepth, 0.2, dither, VC_LIGHTING_QUALITY_SKY);
         float visibilityBounced = vcVisibilityCheck(ray, vec3(0.0, -1.0, 0.0), opticalDepth, 0.5, dither, VC_LIGHTING_QUALITY_BOUNCED);
 
         vec3 lightingDirect = atmosphereLighting[0] * visibilityLight;
         vec3 lightingSky = atmosphereLighting[1] * visibilitySky;
-        vec3 lightingBounced = (atmosphereLighting[0] * max0(dot(lightVector, upVector)) + atmosphereLighting[1]) * 0.05 * visibilityBounced;
+        vec3 lightingBounced = (atmosphereLighting[0] * max0(dot(lightVector, upVector)) + atmosphereLighting[1]) * 0.2 * visibilityBounced;
 
         vec3 lighting = lightingDirect + lightingSky + lightingBounced;
 

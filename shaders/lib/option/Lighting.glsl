@@ -15,4 +15,6 @@
     c(vec3) blockLightColour = vec3(1.0, 0.1, 0.0);
   #endif
 
+  #define SKY_LIGHT_STRENGTH 4.0
+
 #endif /* INTERNAL_INCLUDED_OPTION_LIGHTING */

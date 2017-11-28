@@ -73,6 +73,25 @@ option.sunPathRotation=Sun Rotation
 
 option.eyeBrightnessHalflife=Eye Brightness Halflife
 
+option.shadowDistance=Shadow Render Distance
+value.shadowDistance.96.0=4
+value.shadowDistance.160.0=8
+value.shadowDistance.224.0=12
+value.shadowDistance.288.0=16
+value.shadowDistance.352.0=20
+value.shadowDistance.416.0=24
+value.shadowDistance.480.0=28
+value.shadowDistance.544.0=32
+value.shadowDistance.608.0=36
+value.shadowDistance.672.0=40
+value.shadowDistance.736.0=44
+value.shadowDistance.800.0=48
+value.shadowDistance.862.0=52
+value.shadowDistance.928.0=56
+value.shadowDistance.992.0=60
+value.shadowDistance.1056.0=64
+suffix.shadowDistance= Chunks
+
 # Atmospherics
 screen.Atmospherics=Atmospherics
 screen.Atmospherics.comment=PLACEHOLDER
@@ -119,6 +138,10 @@ option.VC_COVERAGE_OVERCAST=Overcast Coverage
 
 option.VC_COVERAGE_RAIN=Rain Coverage
 
+option.VC_SHADOW_SOFTENING=Shadow Softening
+
+option.VC_SHADOW_SOFTENING_STRENGTH=Shadow Softening Strength
+
 #   Atmospherics\Sky
 screen.Sky=Sky
 screen.Sky.comment=PLACEHOLDER
@@ -130,6 +153,26 @@ screen.Geometry.comment=PLACEHOLDER
 #   Geometry\Parallax
 screen.Parallax=Parallax
 screen.Parallax.comment=PLACEHOLDER
+
+#   Geometry\Parallax\Options
+option.PARALLAX_OPAQUE=Terrain Parallax
+
+option.PARALLAX_OPAQUE_DEPTH=Terrain Parallax Depth
+
+option.PARALLAX_OPAQUE_QUALITY_SCALING=Quality Scaling
+
+option.PARALLAX_OPAQUE_QUALITY_FIXED=Fixed Quality
+
+option.PARALLAX_TRANSPARENT=Transparent Parallax
+
+option.PARALLAX_TRANSPARENT_DEPTH_WATER=Water Depth
+
+option.PARALLAX_TRANSPARENT_STEPS=Transparent Parallax Quality
+suffix.PARALLAX_TRANSPARENT_STEPS= Steps
+
+option.PARALLAX_TRANSPARENT_DEPTH_ICE=Ice Depth
+
+option.PARALLAX_TRANSPARENT_DEPTH_STAINED_GLASS=Stained Glass Depth
 
 #   Geometry\VertexDisplacement
 screen.VertexDisplacement=Vertex Displacement
@@ -162,6 +205,31 @@ screen.Shading.comment=PLACEHOLDER
 #   Shading\Shadowing
 screen.Shadowing=Shadowing
 screen.Shadowing.comment=PLACEHOLDER
+
+#   Shading\Shadowing\Options
+option.shadowMapResolution=Resolution
+value.shadowMapResolution.512=512x512
+value.shadowMapResolution.1024=1024x1024
+value.shadowMapResolution.2048=2048x2048
+value.shadowMapResolution.3072=3072x3072
+value.shadowMapResolution.4096=4096x4096
+value.shadowMapResolution.8192=8192x8192
+
+option.SHADOW_DISTORTION_FACTOR=Distortion Factor
+
+option.SHADOW_FILTER_QUALITY=Penumbra Quality
+value.SHADOW_FILTER_QUALITY.1=3x3
+value.SHADOW_FILTER_QUALITY.2=5x5
+value.SHADOW_FILTER_QUALITY.3=7x7
+value.SHADOW_FILTER_QUALITY.4=9x9
+value.SHADOW_FILTER_QUALITY.5=11x11
+value.SHADOW_FILTER_QUALITY.6=13x13
+
+option.LIGHT_SOURCE_DISTANCE=Light Distance
+
+option.SHADOW_FILTER_MIN_WIDTH=Min Penumbra Width
+
+option.SHADOW_FILTER_MAX_WIDTH=Max Penumbra Width
 
 #   Shading\Lighting
 screen.Lighting=Lighting

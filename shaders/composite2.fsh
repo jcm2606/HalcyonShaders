@@ -37,8 +37,8 @@ uniform float frameTime;
 // FUNCTIONS
 vec3 computeCameraExposure(io BufferObject buffers) {
   float prevLuma = texture2D(colortex3, screenCoord).r;
-  float currLuma = getLuma(texture2DLod(colortex0, vec2(0.5), 100).rgb);
-  float avgLuma = mix(prevLuma, currLuma, clamp01(frameTime / (1.0 + frameTime)));
+  float currLuma = getLuma(pow(texture2DLod(colortex0, vec2(0.5), 100).rgb, vec3(0.65)));
+  float avgLuma = mix(prevLuma, currLuma, clamp(frameTime * 0.5, 0.01, 0.99));
 
   buffers.tex3.r = avgLuma;
 

@@ -30,6 +30,7 @@ varying float dist;
 
 // UNIFORM
 attribute vec4 mc_Entity;
+attribute vec4 mc_midTexCoord;
 attribute vec4 at_tangent;
 
 uniform mat4 shadowProjection;
@@ -40,9 +41,13 @@ uniform vec3 cameraPosition;
 
 uniform int isEyeInWater;
 
+uniform float frameTimeCounter;
+
 // ARBITRARY
 // INCLUDED FILES
 #include "/lib/common/util/ShadowTransform.glsl"
+
+#include "/lib/gbuffer/WavingTerrain.glsl"
 
 // FUNCTIONS
 // MAIN
@@ -59,7 +64,8 @@ void main() {
   world = position + cameraPosition;
 
   // ADD-IN POINT: Vertex deformation.
-  // ADD-IN POINT: Waving terrain.
+  
+  position = getMovedVertex(position, world, entity, objectID);
 
   gl_Position = reprojectVertex(shadowModelView, position);
 

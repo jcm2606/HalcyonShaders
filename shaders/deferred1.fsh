@@ -18,6 +18,8 @@ const bool shadowtex1Mipmap = true;
 const bool shadowcolor0Mipmap = true;
 const bool shadowcolor1Mipmap = true;
 
+const bool colortex4MipmapEnabled = true;
+
 // USED BUFFERS
 #define IN_TEX0
 #define IN_TEX1
@@ -37,6 +39,7 @@ flat(vec4) timeVector;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
+uniform sampler2D colortex4;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -119,7 +122,7 @@ void main() {
   buffers.tex5 = highlightTint;
   
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:05 */
+/* DRAWBUFFERS:054 */
   gl_FragData[0] = buffers.tex0;
   gl_FragData[1] = buffers.tex5;
 }

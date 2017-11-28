@@ -54,7 +54,7 @@ void main() {
       vec3 refractPos = refract(nworld, customNormal, refractInterfaceAirWater);
       float caustic = pow(( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.125);
     #else
-      float caustic = mix(0.6, 1.4, (1.0 - customNormal.z));
+      float caustic = mix(0.4, 1.6, (1.0 - customNormal.z));
     #endif
 
     albedo.rgb = vec3(caustic);

@@ -27,7 +27,7 @@
 
   // TODO: When a depth pre-pass is added to Optifine, fix solid shadows.
 
-  void getShadows(io ShadowObject shadowObject, in vec3 viewFront, in vec3 viewBack) {
+  void getShadows(io ShadowObject shadowObject, in vec3 viewFront, in vec3 viewBack, in float cloudShadow) {
     // GENERATE SHADOW POSITIONS
     mat3 shadowPosition = mat3(0.0);
 
@@ -40,7 +40,7 @@
     shadowPositionSolid = worldToShadow(viewToWorld(viewFront));
 
     // APPLY DEPTH BIAS
-    c(float) shadowBias = -0.0003;
+    c(float) shadowBias = 0.0004;
     shadowPositionFront.z += shadowBias;
     shadowPositionBack.z += shadowBias;
     shadowPositionSolid.z += shadowBias;
@@ -91,7 +91,7 @@
     shadowObject.edgePrediction = blockerWeight.y;
 
     // SAMPLE SHADOWS WITH PERCENTAGE-CLOSER FILTER
-    c(float) lightDistance = LIGHT_SOURCE_DISTANCE;
+    c(float) lightDistance = lightSourceDistanceScaled;
     cRCP(float, lightDistance);
     c(int) shadowQuality = SHADOW_FILTER_QUALITY;
     cRCP(float, shadowQuality);
@@ -104,6 +104,10 @@
     width *= lightDistanceRCP;
     //width *= blockerWeight;
     //width  = max(vec2(minWidth), width);
+    #ifdef VC_SHADOW_SOFTENING
+      width *= mix(VC_SHADOW_SOFTENING_STRENGTH, 1.0, pow(cloudShadow, vcShadowSofteningPowerScale));
+    #endif
+    width *= shadowPenumbraDistanceCompensation;
     width  = clamp(width, vec2(minWidth), vec2(maxWidth));
     width *= shadowQualityRCP;
     //vec2 width = clamp((vec2(shadowPositionSolid.z, shadowPositionBack.z) - blocker) * lightDistanceRCP, vec2(minWidth), vec2(maxWidth)) * shadowQualityRCP;
@@ -132,9 +136,9 @@
         texture2DLod(shadowtex1, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).x
       );
 
-      shadowObject.occlusionBack += ceil(compareShadow(depths.x, shadowPositionBack.z));
-      shadowObject.occlusionFront += ceil(compareShadow(depths.y, shadowPositionBack.z));
-      shadowObject.occlusionSolid += ceil(compareShadow(depths.z, shadowPositionFront.z));
+      shadowObject.occlusionBack += CutShadow(compareShadow(depths.x, shadowPositionBack.z));
+      shadowObject.occlusionFront += CutShadow(compareShadow(depths.y, shadowPositionBack.z));
+      shadowObject.occlusionSolid += CutShadow(compareShadow(depths.z, shadowPositionFront.z));
 
       shadowObject.difference += ceil(depths.x - depths.y);
 

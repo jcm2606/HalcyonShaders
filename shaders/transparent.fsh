@@ -200,7 +200,7 @@ void main() {
   vec3 backView = clipToView(screenCoord, texture2D(depthtex1, screenCoord).x);
 
   #if 1
-    getShadows(shadowObject, vView, backView);
+    getShadows(shadowObject, vView, backView, 1.0);
   #else
     shadowObject.occlusionSolid = 0.0;
   #endif

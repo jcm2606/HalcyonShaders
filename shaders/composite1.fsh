@@ -18,6 +18,8 @@ const bool colortex5MipmapEnabled = true;
 
 // USED BUFFERS
 #define IN_TEX0
+#define IN_TEX1
+#define IN_TEX2
 #define IN_TEX5
 
 // VARYING

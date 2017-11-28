@@ -8,14 +8,46 @@
   #define INTERNAL_INCLUDED_DEFERRED_VOLUMETRICS
 
   #if   PROGRAM == COMPOSITE0
-    #ifndef INTERNAL_INCLUDED_UTIL_SHADOWTRANSFORM
-      #include "/lib/common/util/ShadowTransform.glsl"
-    #endif
+    #include "/lib/common/util/ShadowTransform.glsl"
 
-    // MARCHER
+    #include "/lib/common/Lightmaps.glsl"
+
+    // OPTIONS
     c(int) steps = 12;
     cRCP(float, steps);
+ 
+    c(float) absorptionCoeff = 0.02;
 
+    // OPTICAL DEPTH
+    float getHeightFog(in vec3 world) {
+      return exp2(-max0(world.y - MC_SEA_LEVEL) * 0.01) * 0.02;
+    }
+
+    float getGroundFog(in vec3 world) {
+      return exp2(-abs(world.y - MC_SEA_LEVEL) * 0.2) * 0.1;
+    }
+
+    float getRainFog(in vec3 world) {
+      return rainStrength * 2.0;
+    }
+
+    float getWaterFog(in float opticalDepth, in vec3 world, in bool differenceMask, in bool isWater) {
+      return (differenceMask && isWater) ? 0.3 : opticalDepth;
+    }
+
+    float getOpticalDepth(in vec3 world, in float eBS, in float objectID, in bool differenceMask, in bool isWater) {
+      float opticalDepth = 0.0;
+
+      opticalDepth += getHeightFog(world);
+      opticalDepth += getGroundFog(world);
+      opticalDepth += getRainFog(world);
+
+      opticalDepth  = getWaterFog(opticalDepth, world, differenceMask, isWater);
+
+      return opticalDepth;
+    }
+
+    // MARCHER
     struct Ray {
       vec3 start;
       vec3 end;
@@ -24,121 +56,159 @@
       float dist;
     };
 
-    #define getRayIncrement(ray) ( normalize(ray.end - ray.start) * ray.dist * stepsRCP )
+    struct RayVol {
+      vec3 origin;
+      vec3 target;
+      vec3 dir;
+      vec3 pos;
+      vec3 incr;
+
+      float dist;
+    };
+
+    #define getRayDirection(ray) ( normalize(ray.target - ray.origin) )
+    #define getRayDistance(ray) ( distance(ray.target, ray.origin) )
+    #define getRayIncrement(ray) ( ray.dir * ray.dist * stepsRCP )
+
+    float volVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, in float stepSize, in float eBS, const in int samples) {
+      const float visStepSizeScale = 1.0 / (float(samples) + 0.5);
+      float visStepSize = stepSize * visStepSizeScale;
+
+      dir *= visStepSize;
+      ray += dither * dir;
+
+      float opticalDepth = 0.5 * odAtStart;
+
+      for(int i = 0; i < samples; i++, ray += dir) {
+        opticalDepth -= getOpticalDepth(ray, eBS, 0.0, false, false);
+      }
+
+      return exp((absorptionCoeff * visDensity) * visStepSize * opticalDepth);
+    }
 
     vec4 getVolumetrics(io GbufferObject gbuffer, io PositionObject position, io MaskObject mask, in vec2 screenCoord, in mat2x3 atmosphereLighting) {
       #ifndef VOLUMETRICS
-        return vec4(0.0);
+        return vec4(0.0, 0.0, 0.0, 1.0);
       #endif
 
-      vec4 volumetrics = vec4(0.0);
+      vec4 volumetrics = vec4(0.0, 0.0, 0.0, 1.0);
 
-      // CREATE MIE TAIL
-      float mieTail = pow2(dot(normalize(position.viewPositionBack), lightVector) * 0.5 + 1.0);
+      #define scattering volumetrics.rgb
+      #define transmittance volumetrics.a
 
-      // CREATE EYE BRIGHTNESS SMOOTH
-      float ebs = pow(getEBS().y, 6.0);
+      // DEFINE SMOOTHED EYE BRIGHTNESS
+      float eBS = getRawSkyLightmap(getEBS().y);
 
-      // CREATE DITHER PATTERN
-      float dither = bayer64(ivec2(int(screenCoord.x * viewWidth), int(screenCoord.y * viewHeight)));
-
-      // CREATE WORLD TO SHADOW MATRIX
+      // DEFINE WORLD TO SHADOW MATRIX
       mat4 matrixWorldToShadow = shadowProjection * shadowModelView;
 
-      // CREATE RAYS
-      Ray viewRay, worldRay, shadowRay;
+      // DEFINE DITHER
+      float dither = bayer128(gl_FragCoord.xy);
 
+      // DEFINE RAY OBJECTS
+      RayVol viewRay, worldRay, shadowRay;
+
+      // POPULATE RAY OBJECTS
       // VIEW
-      viewRay.start = vec3(0.0);
-      viewRay.end = (!getLandMask(position.depthBack)) ? clipToView(screenCoord, getExpDepth(64.0)) : position.viewPositionBack;
-      viewRay.dist = distance(viewRay.start, viewRay.end);
+      c(float) skyDistance = 64.0;
+      viewRay.origin = vec3(0.0);
+      viewRay.target = (!getLandMask(position.depthBack)) ? clipToView(screenCoord, getExpDepth(skyDistance)) : position.viewPositionBack;
+      viewRay.dir = getRayDirection(viewRay);
+      viewRay.dist = getRayDistance(viewRay);
       viewRay.incr = getRayIncrement(viewRay);
-      viewRay.pos = viewRay.incr * dither + viewRay.start;
+      viewRay.pos = viewRay.incr * dither + viewRay.origin;
 
       // WORLD
-      worldRay.start = viewToWorld(viewRay.start);
-      worldRay.end = viewToWorld(viewRay.end);
-      worldRay.dist = distance(worldRay.start, worldRay.end);
+      worldRay.origin = viewToWorld(viewRay.origin);
+      worldRay.target = viewToWorld(viewRay.target);
+      worldRay.dir = getRayDirection(worldRay);
+      worldRay.dist = getRayDistance(worldRay);
       worldRay.incr = getRayIncrement(worldRay);
-      worldRay.pos = worldRay.incr * dither + worldRay.start;
+      worldRay.pos = worldRay.incr * dither + worldRay.origin;
 
       // SHADOW
-      shadowRay.start = transMAD(matrixWorldToShadow, worldRay.start);
-      shadowRay.end = transMAD(matrixWorldToShadow, worldRay.end);
-      shadowRay.dist = distance(shadowRay.start, shadowRay.end);
+      shadowRay.origin = transMAD(matrixWorldToShadow, worldRay.origin);
+      shadowRay.target = transMAD(matrixWorldToShadow, worldRay.target);
+      shadowRay.dir = getRayDirection(shadowRay);
+      shadowRay.dist = getRayDistance(shadowRay);
       shadowRay.incr = getRayIncrement(shadowRay);
-      shadowRay.pos = shadowRay.incr * dither + shadowRay.start;
+      shadowRay.pos = shadowRay.incr * dither + shadowRay.origin;
 
-      // MARCH VOLUME
-      float weight = flength(shadowRay.incr);
+      // DEFINE STEP SIZE
+      float stepSize = flength(shadowRay.incr);
 
+      // MARCH
       for(int i = 0; i < steps; i++, viewRay.pos += viewRay.incr, worldRay.pos += worldRay.incr, shadowRay.pos += shadowRay.incr) {
-        // CREATE POSITIONS
-        vec3 shadow = vec3(distortShadowPosition(shadowRay.pos.xy, 0), shadowRay.pos.z) * 0.5 + 0.5;
+        // DEFINE POSITIONS
+        vec3 shadow = vec3(distortShadowPosition(shadowRay.pos.xy, 0), shadowRay.pos.z * shadowDepthMult) * 0.5 + 0.5;
         vec3 world = worldRay.pos + cameraPosition;
 
-        // STORE RAW FRONT SHADOW DEPTH
+        // GET RAW FRONT SHADOW DEPTH
         float depthFront = texture2DLod(shadowtex0, shadow.xy, 0).x;
 
-        // STORE OCCLUSION SCALARS
-        float occlusionBack = compareShadow(texture2DLod(shadowtex1, shadow.xy, 0).x, shadow.z);
-        float occlusionFront = compareShadow(depthFront, shadow.z);
+        // GET SHADOW VISIBILITY VALUES
+        float visibilityBack = CutShadow(compareShadow(texture2DLod(shadowtex1, shadow.xy, 0).x, shadow.z));
+        float visibilityFront = CutShadow(compareShadow(depthFront, shadow.z));
 
-        // CREATE DISTANCES
-        float distSurfaceToRay = max0(shadow.z - depthFront) * shadowDepthBlocks;
+        // DEFINE DIFFERENCE MASK
+        bool differenceMask = visibilityBack - visibilityFront > 0.0;
 
-        // STORE OBJECT ID
+        // DEFINE DISTANCES
+        float distanceToSurface = max0(shadow.z - depthFront) * shadowDepthBlocks;
+
+        // GET SHADOW OBJECT ID
         float objectID = texture2DLod(shadowcolor1, shadow.xy, 0).a * objectIDRange;
-        bool water = comparef(objectID, OBJECT_WATER, ubyteMaxRCP);
 
-        // BEGIN RAY VISIBILITY
-        vec2 visibility = vec2(0.0);
+        // DEFINE OBJECT ID MASKS
+        bool isWater = comparef(objectID, OBJECT_WATER, ubyteMaxRCP);
 
-        // PARTICIPATING MEDIA
-        // HEIGHT FOG
-        visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.01) * 0.03;
+        // GET OPTICAL DEPTH
+        float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater) * stepSize;
 
-        // GROUND FOG
-        //visibility += exp2(-max0(world.y - MC_SEA_LEVEL) * 0.2) * 0.1;
-        
-        // VOLUME FOG
-        // RAIN FOG
-        visibility += rainStrength;
-        
-        // WATER
-        visibility  = (occlusionBack - occlusionFront > 0.0 && water) ? vec2(1.0) : visibility;
+        // GET VOLUME VISIBILITY
+        //float visibilityLight = volVisibilityCheck(world, wLightVector, opticalDepth, 1.5, dither, stepSize, eBS, 6);
 
-        // OCCLUDE RAY
+        // GET CLOUD SHADOW
         float cloudShadow = getCloudShadow(world);
 
-        visibility.x *= occlusionBack * cloudShadow;
-        visibility.y *= occlusionBack * (cloudShadow);//mix(ebs, pow6(gbuffer.skyLight), pow4(distance(viewRay.start, viewRay.pos) / viewRay.dist));
+        // OCCLUDE RAY
+        vec2 rayVisibility = vec2(1.0);
 
-        // BEGIN RAY COLOURING
-        vec3 lightColour = atmosphereLighting[0] * visibility.x + (atmosphereLighting[1] * visibility.y);
+        #define directVisibility rayVisibility.x
+        #define skyVisibility rayVisibility.y
+
+        directVisibility *= cloudShadow * visibilityBack;
+        skyVisibility *= (cloudShadow * 0.75 + 0.25) * visibilityBack;//eBS;
+
+        // ILLUMINATE RAY
+        vec3 lightColour = atmosphereLighting[0] * directVisibility + atmosphereLighting[1] * skyVisibility;
         vec3 rayColour = lightColour;
 
-        // COLOURED SHADOW TINT
-        rayColour *= (occlusionBack - occlusionFront > 0.0) ? toShadowHDR(texture2DLod(shadowcolor0, shadow.xy, 0).rgb) : vec3(1.0);
+        #undef directVisibility
+        #undef skyVisibility
 
-        // BEGIN RAY INTERACTION
-        // WATER INTERACTION
-        // SURFACE -> RAY
-        rayColour = (occlusionBack - occlusionFront > 0.0 && water) ? interactWater(rayColour, distSurfaceToRay) : rayColour;
+        // GET INTERACTION WITH FRONT SHADOWS
+        rayColour *= (differenceMask) ? toShadowHDR(texture2DLod(shadowcolor0, shadow.xy, 0).rgb) : vec3(1.0);
+
+        // GET INTERACTION WITH WATER VOLUME
+        // WATER SURFACE -> RAY
+        rayColour *= (differenceMask && isWater) ? absorbWater(distanceToSurface) : vec3(1.0);
 
         // RAY -> EYE
-        vec3 eyeAbsorptionStart = (isEyeInWater == 0) ? position.viewPositionFront : viewRay.start;
-        vec3 eyeAbsorptionEnd = (occlusionBack - occlusionFront <= 0.0 && isEyeInWater == 1 && mask.water) ? position.viewPositionFront : viewRay.pos;
+        vec3 waterAbsorptionOrigin = (isEyeInWater == 0) ? position.viewPositionFront : viewRay.origin;
+        vec3 waterAbsorptionTarget = (!differenceMask && mask.water && isEyeInWater == 1) ? position.viewPositionFront : viewRay.pos;
 
-        rayColour = ((occlusionBack - occlusionFront > 0.0 && water) || (isEyeInWater == 1 && mask.water)) ? interactWater(rayColour, distance(eyeAbsorptionStart, eyeAbsorptionEnd)) : rayColour;
+        rayColour *= ((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) ? absorbWater(distance(waterAbsorptionOrigin, waterAbsorptionTarget)) : vec3(1.0);
 
-        // ACCUMULATE RAYS
-        volumetrics.rgb = rayColour * weight + volumetrics.rgb;
+        // ACCUMULATE RAY
+        scattering += rayColour * transmittedScatteringIntegral(opticalDepth, 0.02) * transmittance;
+        transmittance *= exp(-0.02 * opticalDepth);
       }
 
-      // TWEAK RESULTS
-      // RETURN
-      return vec4(volumetrics.rgb, 1.0);
+      #undef scattering
+      #undef transmittance
+
+      return volumetrics;
     }
   #elif PROGRAM == COMPOSITE1
     #include "/lib/deferred/Refraction.glsl"
@@ -148,12 +218,15 @@
         return frame;
       #endif
 
+      vec2 originalCoord = screenCoord;
       float refractDist = 0.0;
-      //screenCoord = getRefractPos(refractDist, screenCoord, position.viewPositionBack, position.viewPositionFront, gbuffer.normal).xy;
+      screenCoord = getRefractPos(refractDist, screenCoord, position.viewPositionBack, position.viewPositionFront, gbuffer.normal).xy;
+
+      if(refractDist == 0.0 || texture2D(depthtex1, screenCoord.xy).x < position.depthFront) screenCoord = originalCoord;
 
       c(int) width = 3;
       cRCP(float, width);
-      c(float) filterRadius = 0.002;
+      c(float) filterRadius = 0.003;
       c(vec2) filterOffset = vec2(filterRadius) * widthRCP;
 
       c(float) weight = 1.0 / pow(float(width) * 2.0 + 1.0, 2.0);
@@ -174,7 +247,7 @@
 
       volumetrics *= weight;
 
-      return frame + volumetrics.rgb;
+      return frame * volumetrics.a + volumetrics.rgb;
     }
   #endif
 

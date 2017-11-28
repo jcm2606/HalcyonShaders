@@ -46,8 +46,12 @@ uniform mat4 gbufferModelViewInverse;
 
 uniform vec3 cameraPosition;
 
+uniform float frameTimeCounter;
+
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/gbuffer/WavingTerrain.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
@@ -81,7 +85,10 @@ void main() {
   #endif
 
   // ADD-IN POINT: Vertex deformation.
-  // ADD-IN POINT: Waving terrain.
+  
+  #if PROGRAM == GBUFFERS_TERRAIN
+    position = getMovedVertex(position, world, entity, objectID);
+  #endif
 
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
     vView = transMAD(gbufferModelView, position);

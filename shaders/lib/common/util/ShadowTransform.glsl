@@ -10,7 +10,10 @@
   mat4 shadowMVP = shadowProjection * shadowModelView;
 
   vec3 worldToShadow(in vec3 world) {
-    return transMAD(shadowMVP, world) * 0.5 + 0.5;
+    vec3 shadow = transMAD(shadowMVP, world);
+    shadow.z *= shadowDepthMult;
+    shadow = shadow * 0.5 + 0.5;
+    return shadow;
   }
 
   c(float) distortFactor = SHADOW_DISTORTION_FACTOR;

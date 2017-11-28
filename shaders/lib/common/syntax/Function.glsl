@@ -70,17 +70,17 @@
   vec2 ebs(in vec2 ebs) { return ebs * ebsRCP; }
 
   float transmittedScatteringIntegral(in float od, const in float coeff) {
-    c(float) a = -coeff / log(2.0);
-    c(float) b = -1.0 / coeff;
-    c(float) c =  1.0 / coeff;
+    const float a = -coeff / log(2.0);
+    const float b = -1.0 / coeff;
+    const float c =  1.0 / coeff;
 
     return exp2(a * od) * b + c;
   }
 
   vec3 transmittedScatteringIntegral(in float od, const in vec3 coeff) {
-    c(vec3) a = -coeff / log(2.0);
-    c(vec3) b = -1.0 / coeff;
-    c(vec3) c =  1.0 / coeff;
+    const vec3 a = -coeff / log(2.0);
+    const vec3 b = -1.0 / coeff;
+    const vec3 c =  1.0 / coeff;
 
     return exp2(a * od) * b + c;
   }
