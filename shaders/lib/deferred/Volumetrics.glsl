@@ -70,7 +70,7 @@
     #define getRayDistance(ray) ( distance(ray.target, ray.origin) )
     #define getRayIncrement(ray) ( ray.dir * ray.dist * stepsRCP )
 
-    float volVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, in float stepSize, in float eBS, const in int samples) {
+    float volVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, in float stepSize, in float eBS, const int samples) {
       const float visStepSizeScale = 1.0 / (float(samples) + 0.5);
       float visStepSize = stepSize * visStepSizeScale;
 

@@ -9,7 +9,7 @@
 
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == SHADOW
     // MOVEMENT
-    vec3 moveFullVertex(in vec3 position, const in vec2 speed0, const in vec2 speed1, in vec3 strength0, in vec3 strength1) {
+    vec3 moveFullVertex(in vec3 position, const vec2 speed0, const vec2 speed1, in vec3 strength0, in vec3 strength1) {
       c(vec3) v0 = vec3(2.0) / 16.0;
       c(vec3) v1 = vec3(-3.0, 3.0, 3.0) / 16.0;
       c(vec3) v2 = vec3(5.0, 5.0, 6.0) / 16.0;

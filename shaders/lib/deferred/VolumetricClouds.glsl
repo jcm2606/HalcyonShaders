@@ -69,7 +69,7 @@
   #endif
 
   #if   PROGRAM == COMPOSITE0
-    float vcVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, const in int samples) {
+    float vcVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, const int samples) {
       const float visStepSize = cloudHeight / (float(samples) + 0.5);
 
       dir *= visStepSize;
