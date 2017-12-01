@@ -36,6 +36,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
 uniform vec3 sunPosition;
+uniform vec3 cameraPosition;
 
 uniform int isEyeInWater;
 

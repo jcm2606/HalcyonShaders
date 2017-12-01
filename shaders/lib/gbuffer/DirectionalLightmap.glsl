@@ -47,6 +47,8 @@
     #undef blockShading
     #undef skyShading
 
+    shading.y = lightmap.y;
+
     return shading;//vec2(shading.x, lightmap.y);
   }
   

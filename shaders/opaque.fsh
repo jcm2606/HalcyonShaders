@@ -111,6 +111,10 @@ void main() {
     gbuffer.albedo = textureSample(texture, uv) * colour;
   #endif
 
+  #ifdef WHITE_TEXTURES
+    gbuffer.albedo.rgb = vec3(1.0);
+  #endif
+
   // MATERIAL
   vec4 materialVector = MATERIAL_DEFAULT;
 

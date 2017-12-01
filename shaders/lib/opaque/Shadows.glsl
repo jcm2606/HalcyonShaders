@@ -140,7 +140,7 @@
       shadowObject.occlusionFront += CutShadow(compareShadow(depths.y, shadowPositionBack.z));
       shadowObject.occlusionSolid += CutShadow(compareShadow(depths.z, shadowPositionFront.z));
 
-      shadowObject.difference += ceil(depths.x - depths.y);
+      shadowObject.difference += sign(depths.x - depths.y);
 
       float objectID = texture2DLod(shadowcolor1, distortShadowPosition(offsetFront + shadowPositionFront.xy, 1), 0).a * objectIDRange;
       float depthDifference = max0(shadowPositionBack.z - depths.y) * shadowDepthBlocks;

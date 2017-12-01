@@ -50,14 +50,23 @@ void main() {
 
     #if 0
       vec3 nworld = normalize(world);
-      vec3 refractPos = refract(nworld, customNormal, refractInterfaceAirWater);
-      float caustic = 1.0 - pow(( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.03125);
+      vec3 refractPos = refract(nworld, normalize(customNormal), refractInterfaceAirWater);
+      float caustic = pow(( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.0625);
     #else
-      float caustic = mix(0.2, 1.8, pow2(getHeight(world, objectID)));
+      c(float) causticWaterHigh = 8.0;
+      c(float) causticWaterLow = 1.0;
+      c(float) causticWaterPow = 2.75;
+
+      float caustic = mix(causticWaterHigh, causticWaterLow, pow(customNormal.z, causticWaterPow));
+      //float caustic = 1.0 - (customNormal.z);
     #endif
 
     albedo.rgb = vec3(caustic);
   }
+
+  #ifdef WHITE_TEXTURES
+    albedo.rgb = vec3(1.0);
+  #endif
 
 /* DRAWBUFFERS:01 */
   gl_FragData[0] = toShadowLDR(albedo);

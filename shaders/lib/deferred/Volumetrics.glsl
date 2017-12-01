@@ -32,7 +32,7 @@
     }
 
     float getWaterFog(in float opticalDepth, in vec3 world, in bool differenceMask, in bool isWater) {
-      return (differenceMask && isWater) ? 2.0 : opticalDepth;
+      return (differenceMask && isWater) ? 1.0 : opticalDepth;
     }
 
     float getOpticalDepth(in vec3 world, in float eBS, in float objectID, in bool differenceMask, in bool isWater) {

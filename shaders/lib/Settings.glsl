@@ -60,6 +60,8 @@
   #ifdef MC_SEA_LEVEL
   #endif
 
+  #define WHITE_TEXTURES
+
   #define SUN_BRIGHTNESS 8192.0
 
   #define SUN_SIZE 0.25
@@ -76,7 +78,7 @@
   c(float) dynamicRangeFog = 48.0;
   cRCP(float, dynamicRangeFog);
 
-  c(float) dynamicRangeShadow = 4.0;
+  c(float) dynamicRangeShadow = 8.0;
   cRCP(float, dynamicRangeShadow);
 
   c(float) objectIDRange = 255.0;

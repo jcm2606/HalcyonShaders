@@ -67,6 +67,8 @@ uniform float rainStrength;
 uniform float near;
 uniform float far;
 
+uniform vec3 cameraPosition;
+
 // STRUCT
 #include "/lib/gbuffer/struct/StructGbuffer.glsl"
 
@@ -130,6 +132,10 @@ void main() {
   gbuffer.albedo = texture2D(texture, uvCoord);
 
   gbuffer.albedo = (water) ? vec4(0.0, 0.0, 0.0, 0.0) : gbuffer.albedo;
+
+  #ifdef WHITE_TEXTURES
+    gbuffer.albedo.rgb = vec3(1.0);
+  #endif
 
   // OBJECT ID
   gbuffer.objectID = objectID * objectIDRangeRCP;

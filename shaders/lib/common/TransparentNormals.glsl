@@ -18,25 +18,28 @@
 
     position *= rot;
     position *= 0.0008;
-    position.x *= 0.7;
+    position.x *= 0.35;
 
     float weight = 1.0;
+    float totalWeight = 0.0;
 
     c(vec2) windDir = vec2(0.0, 1.0);
     vec2 wind = windDir * frametime;
     float windSpeed = 0.004;
 
     for(int i = 0; i < 5; i++) {
-      height -= abs(texnoise2D(noisetex, wind * windSpeed + position) * 2.0 - 1.0) * weight;
+      totalWeight += weight;
+
+      height -= texnoise2D(noisetex, wind * windSpeed + position) * weight;
 
       position *= 2.2;
-      position.x *= 1.1;
+      position.x *= 1.07;
       //position *= rot;
-      windSpeed *= 1.2;
+      windSpeed *= 1.6;
       weight *= 0.5;
     }
 
-    return height * 0.35;
+    return height / totalWeight;
   }
 
   float water1(in vec3 world) {
