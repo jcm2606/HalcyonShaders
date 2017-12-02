@@ -55,7 +55,7 @@ void main() {
     #else
       c(float) causticWaterHigh = 8.0;
       c(float) causticWaterLow = 1.0;
-      c(float) causticWaterPow = 2.75;
+      c(float) causticWaterPow = 3.0;
 
       float caustic = mix(causticWaterHigh, causticWaterLow, pow(customNormal.z, causticWaterPow));
       //float caustic = 1.0 - (customNormal.z);

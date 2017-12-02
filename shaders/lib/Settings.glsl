@@ -60,7 +60,7 @@
   #ifdef MC_SEA_LEVEL
   #endif
 
-  #define WHITE_TEXTURES
+  //#define WHITE_TEXTURES
 
   #define SUN_BRIGHTNESS 8192.0
 
