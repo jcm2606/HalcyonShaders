@@ -48,9 +48,9 @@
 
     float cloudShadow = getCloudShadow(viewToWorld(position.viewPositionBack) + cameraPosition);
 
-    getShadows(shadowObject, position.viewPositionFront, position.viewPositionBack, cloudShadow);
+    getShadows(shadowObject, position.viewPositionBack, cloudShadow, false);
 
-    highlightTint = vec4(shadowObject.colour, shadowObject.occlusionBack);
+    highlightTint = vec4(mix(vec3(1.0), shadowObject.colour, shadowObject.difference), shadowObject.occlusionBack);
 
     #ifdef VISUALISE_PCSS_EDGE_PREDICTION
       if(screenCoord.x > 0.5) return vec3(shadowObject.edgePrediction);

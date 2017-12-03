@@ -206,12 +206,12 @@ void main() {
   vec3 backView = clipToView(screenCoord, texture2D(depthtex1, screenCoord).x);
 
   #if 1
-    getShadows(shadowObject, vView, backView, 1.0);
+    getShadows(shadowObject, vView, 1.0, true);
   #else
-    shadowObject.occlusionSolid = 0.0;
+    shadowObject.occlusionSolid = 1.0;
   #endif
 
-  vec3 direct = atmosphereLighting[0] * shadowObject.occlusionSolid;
+  vec3 direct = atmosphereLighting[0] * shadowObject.occlusionFront;
   vec3 sky = atmosphereLighting[1] * getSkyLightmap(gbuffer.lightmap.y, gbuffer.normal);
   vec3 block = blockLightColour * getBlockLightmap(gbuffer.lightmap.x);
 
@@ -221,7 +221,7 @@ void main() {
   populateBuffers(gbuffer);
 
   // DRAW REFLECTIONS
-  vec4 reflection = getTransparentReflections(vView, gbuffer.albedo.xyz, gbuffer.normal, materialVector.x, materialVector.y, atmosphereLighting, shadowObject.occlusionSolid);
+  vec4 reflection = getTransparentReflections(vView, gbuffer.albedo.xyz, gbuffer.normal, materialVector.x, materialVector.y, atmosphereLighting, shadowObject.occlusionFront);
 
   // DRAW WATER ABSORPTION
   vec3 background = texture2D(gaux4, screenCoord).rgb;

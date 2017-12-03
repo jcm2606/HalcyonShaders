@@ -9,13 +9,13 @@
 
   #define SHADOW_DISTORTION_FACTOR 0.9
 
-  #define LIGHT_SOURCE_DISTANCE 512.0 // How far from the world should the light source be?. This influences how soft shadows appear. The lower the distance, the softer shadows will appear. [1.0 2.0 4.0 8.0 16.0 32.0 64.0 128.0 256.0 512.0 1024.0 2048.0 4096.0 8192.0 16384.0 32768.0 65536.0]
+  #define LIGHT_SOURCE_DISTANCE 2048.0 // How far from the world should the light source be?. This influences how soft shadows appear. The lower the distance, the softer shadows will appear. [1.0 2.0 4.0 8.0 16.0 32.0 64.0 128.0 256.0 512.0 1024.0 2048.0 4096.0 8192.0 16384.0 32768.0 65536.0]
 
-  c(float) lightSourceDistanceScaled = LIGHT_SOURCE_DISTANCE * 0.0625 * 0.25;
+  c(float) lightSourceDistanceScaled = LIGHT_SOURCE_DISTANCE / 512.0;
 
   #define SHADOW_FILTER_QUALITY 2 // How large should the filter be?. Larger sizes give smoother penumbras to shadows, but significantly impact performance. [1 2 3 4 5 6]
-  #define SHADOW_FILTER_MIN_WIDTH 0.00002 // What should the minimum width of the shadow penumbra be?. This is mostly used to combat aliasing on contact shadows. [0.0 0.000005 0.00001 0.000015 0.00002 0.000025 0.00003 0.000035 0.00004 0.000045 0.00005 0.000055 0.00006 0.000065 0.00007 0.000075 0.00008 0.000085 0.00009 0.000095 0.0001]
-  #define SHADOW_FILTER_MAX_WIDTH 0.00075 // What should the maximum width of the shadow penumbra be?. This is mostly used to hide sampling artifacts and improve performance when the penumbra gets very wide.
+  #define SHADOW_FILTER_MIN_WIDTH 0.25 // What should the minimum width of the shadow penumbra be?. This is mostly used to combat aliasing on contact shadows.
+  #define SHADOW_FILTER_MAX_WIDTH 64.0 // What should the maximum width of the shadow penumbra be?. This is mostly used to hide sampling artifacts and improve performance when the penumbra gets very wide.
 
   #define CutShadow ceil // Which method should shadows use for the cut?. This is an internal variable, do not change unless you know what you're doing. [ceil floor round sign]
 
@@ -48,5 +48,6 @@
   c(float) shadowPenumbraDistanceCompensation = 160.0 / shadowDistance;
 
   const int shadowMapResolution = 2048; // This controls the resolution of the shadow map. Higher resolutions mean higher detailed shadows, but can significantly impact performance. [512 1024 2048 3072 4096 8192]
+  cRCP(float, shadowMapResolution);
 
 #endif /* INTERNAL_INCLUDED_OPTION_SHADOWS */

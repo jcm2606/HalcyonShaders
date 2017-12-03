@@ -62,6 +62,10 @@
     }
 
     float getCloudShadow(in vec3 world) {
+      #ifndef VOLUMETRIC_CLOUDS
+        return 1.0;
+      #endif
+
       float opticalDepth = getCloudFBM(wLightVector * ((cloudAltitudeUpper - world.y) / wLightVector.y) + world) * 1.5 * smoothstep(0.0, 0.1, dot(normalize(wLightVector), vec3(0.0, 1.0, 0.0)));
 
       return exp(-0.02 * stepSize * opticalDepth * cloudDensity);
@@ -129,7 +133,7 @@
 
         vec3 lightingDirect = atmosphereLighting[0] * visibilityLight;
         vec3 lightingSky = atmosphereLighting[1] * visibilitySky;
-        vec3 lightingBounced = (atmosphereLighting[0] * max0(dot(lightVector, upVector)) + atmosphereLighting[1]) * 0.2 * visibilityBounced;
+        vec3 lightingBounced = (atmosphereLighting[0] * max0(dot(lightVector, upVector)) + atmosphereLighting[1]) * 0.05 * visibilityBounced;
 
         vec3 lighting = lightingDirect + lightingSky + lightingBounced;
 

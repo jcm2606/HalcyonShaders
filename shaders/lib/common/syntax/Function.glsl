@@ -85,4 +85,6 @@
     return exp2(a * od) * b + c;
   }
 
+  vec2 lattice(in float i, cin(float) n) { return vec2(mod(i * pi, sqrt(n)) * inversesqrt(n), i / n); }
+
 #endif /* INTERNAL_INCLUDED_SYNTAX_FUNCTION */
