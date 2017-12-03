@@ -86,7 +86,7 @@
 
     vec2 radii  = vec2(shadowPosition.z) - blockers;
          radii *= radiiScale;
-         radii *= prediction;
+         //radii *= prediction;
          radii  = clamp(radii, vec2(minWidth), vec2(maxWidth));
          radii *= 1.0E-3;
 
