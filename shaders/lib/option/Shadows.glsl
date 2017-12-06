@@ -45,7 +45,9 @@
   */
 
   const float shadowDistance = 160.0; // This controls the render distance used for shadows. Set this to whatever render distance is equal to or below the render distance you've select in video settings. [96.0 160.0 224.0 288.0 352.0 416.0 480.0 544.0 608.0 672.0 736.0 800.0 862.0 928.0 992.0 1056.0]
-  c(float) shadowPenumbraDistanceCompensation = 160.0 / shadowDistance;
+  cRCP(float, shadowDistance);
+  c(float) shadowDistanceScale = 160.0 / shadowDistance;
+  cRCP(float, shadowDistanceScale);
 
   const int shadowMapResolution = 2048; // This controls the resolution of the shadow map. Higher resolutions mean higher detailed shadows, but can significantly impact performance. [512 1024 2048 3072 4096 8192]
   cRCP(float, shadowMapResolution);

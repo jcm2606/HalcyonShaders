@@ -87,4 +87,22 @@
 
   vec2 lattice(in float i, cin(float) n) { return vec2(mod(i * pi, sqrt(n)) * inversesqrt(n), i / n); }
 
+  float length8(in vec2 v) {
+    v *= v;
+    v *= v;
+    return pow(dot(v, v), 0.125);
+  }
+
+  float length8(in vec3 v) {
+    v *= v;
+    v *= v;
+    return pow(dot(v, v), 0.125);
+  }
+
+  float length8(in vec4 v) {
+    v *= v;
+    v *= v;
+    return pow(dot(v, v), 0.125);
+  }
+
 #endif /* INTERNAL_INCLUDED_SYNTAX_FUNCTION */

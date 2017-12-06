@@ -82,7 +82,7 @@
     shadowObject.edgePrediction = prediction.y;
 
     // PENUMBRA RADIUS ESTIMATION
-    c(float) radiiScale = shadowDepthBlocks * lightDistanceRCP;
+    c(float) radiiScale = shadowDepthBlocks * lightDistanceRCP * shadowDistanceScale;
 
     vec2 radii  = vec2(shadowPosition.z) - blockers;
          radii *= radiiScale;

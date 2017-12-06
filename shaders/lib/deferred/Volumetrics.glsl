@@ -16,35 +16,81 @@
     c(int) steps = 12;
     cRCP(float, steps);
  
-    c(float) absorptionCoeff = 0.02;
+    c(float) absorptionCoeff = 2.0;
 
     // OPTICAL DEPTH
     float getHeightFog(in vec3 world) {
-      return exp2(-max0(world.y - MC_SEA_LEVEL) * 0.01) * 0.02;
+      #ifndef FOG_LAYER_HEIGHT
+        return 0.0;
+      #endif
+
+      return exp2(-max0(world.y - MC_SEA_LEVEL) * FOG_LAYER_HEIGHT_FALLOFF) * FOG_LAYER_HEIGHT_DENSITY;
     }
 
-    float getGroundFog(in vec3 world) {
-      return exp2(-abs(world.y - MC_SEA_LEVEL) * 0.2) * 0.1;
+    float getSheetFog(in vec3 world) {
+      #ifndef FOG_LAYER_SHEET
+        return 0.0;
+      #endif
+
+      c(int) octaves = FOG_LAYER_SHEET_OCTAVES;
+      cRCP(float, octaves);
+
+      float opticalDepth = 0.0;
+
+      c(mat2) rot = rot2(-0.7);
+
+      vec3 position = world * 0.3 * vec3(1.0, 2.0, 1.0);
+
+      float weight = 1.0;
+
+      c(vec2) windDir = vec2(0.0, 1.0);
+      vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
+      float windSpeed = 0.4;
+
+      for(int i = 0; i < octaves; i++) {
+        opticalDepth += texnoise3D(noisetex, position + wind * windSpeed) * weight;
+        
+        position *= 2.7;
+        position.xz *= rot;
+        position.xy *= rot;
+        windSpeed *= 1.1;
+        weight *= 0.5;
+      }
+
+      opticalDepth -= 0.7;
+      opticalDepth  = max0(opticalDepth);
+
+      opticalDepth *= FOG_LAYER_SHEET_DENSITY;
+
+      return exp2(-abs(world.y - MC_SEA_LEVEL) * FOG_LAYER_SHEET_FALLOFF) * opticalDepth;
     }
 
     float getRainFog(in vec3 world) {
-      return rainStrength * 2.0;
+      #ifndef FOG_LAYER_RAIN
+        return 0.0;
+      #endif
+
+      return rainStrength * FOG_LAYER_RAIN_MULTIPLIER;
     }
 
     float getWaterFog(in float opticalDepth, in vec3 world, in bool differenceMask, in bool isWater) {
-      return (differenceMask && isWater) ? 1.0 : opticalDepth;
+      #ifndef FOG_LAYER_WATER
+        return 0.0;
+      #endif
+
+      return (differenceMask && isWater) ? FOG_LAYER_WATER_DENSITY : opticalDepth;
     }
 
     float getOpticalDepth(in vec3 world, in float eBS, in float objectID, in bool differenceMask, in bool isWater) {
       float opticalDepth = 0.0;
 
       opticalDepth += getHeightFog(world);
-      opticalDepth += getGroundFog(world);
+      opticalDepth += getSheetFog(world);
       opticalDepth += getRainFog(world);
 
       opticalDepth  = getWaterFog(opticalDepth, world, differenceMask, isWater);
 
-      return opticalDepth;
+      return opticalDepth * 0.01;
     }
 
     // MARCHER
@@ -83,7 +129,15 @@
         opticalDepth -= getOpticalDepth(ray, eBS, 0.0, false, false);
       }
 
-      return exp((absorptionCoeff * visDensity) * visStepSize * opticalDepth);
+      return clamp01(exp((absorptionCoeff * visDensity) * visStepSize * (opticalDepth)));
+    }
+
+    float volumetrics_miePhase(in float theta, cin(float) G) {
+      c(float) gg = G * G;
+      c(float) p1 = (0.75 * (1.0 - gg)) / (tau * (2.0 + gg));
+      float p2 = (theta * theta + 1.0) * pow(1.0 + gg - 2.0 * G * theta, -1.5);
+    
+      return p1 * p2;
     }
 
     vec4 getVolumetrics(io GbufferObject gbuffer, io PositionObject position, io MaskObject mask, in vec2 screenCoord, in mat2x3 atmosphereLighting) {
@@ -99,6 +153,9 @@
       // DEFINE SMOOTHED EYE BRIGHTNESS
       float eBS = getRawSkyLightmap(getEBS().y);
 
+      // DEFINE SKY MASK
+      bool isSky = !getLandMask(position.depthBack);
+
       // DEFINE WORLD TO SHADOW MATRIX
       mat4 matrixWorldToShadow = shadowProjection * shadowModelView;
 
@@ -112,7 +169,7 @@
       // VIEW
       c(float) skyDistance = 64.0;
       viewRay.origin = vec3(0.0);
-      viewRay.target = (!getLandMask(position.depthBack)) ? clipToView(screenCoord, getExpDepth(skyDistance)) : position.viewPositionBack;
+      viewRay.target = position.viewPositionBack;
       viewRay.dir = getRayDirection(viewRay);
       viewRay.dist = getRayDistance(viewRay);
       viewRay.incr = getRayIncrement(viewRay);
@@ -127,20 +184,24 @@
       worldRay.pos = worldRay.incr * dither + worldRay.origin;
 
       // SHADOW
-      shadowRay.origin = transMAD(matrixWorldToShadow, worldRay.origin);
-      shadowRay.target = transMAD(matrixWorldToShadow, worldRay.target);
+      c(vec3) shadowRayScale = vec3(1.0, 1.0, shadowDepthMult);
+      shadowRay.origin = transMAD(matrixWorldToShadow, worldRay.origin) * shadowRayScale;
+      shadowRay.target = transMAD(matrixWorldToShadow, worldRay.target) * shadowRayScale;
       shadowRay.dir = getRayDirection(shadowRay);
       shadowRay.dist = getRayDistance(shadowRay);
       shadowRay.incr = getRayIncrement(shadowRay);
       shadowRay.pos = shadowRay.incr * dither + shadowRay.origin;
 
+      // DEFINE MIE TAIL
+      float miePhase = volumetrics_miePhase((dot(viewRay.dir, lightVector)), 0.2) * 2.0;
+
       // DEFINE STEP SIZE
-      float stepSize = flength(shadowRay.incr);
+      float stepSize = flength(worldRay.incr);
 
       // MARCH
       for(int i = 0; i < steps; i++, viewRay.pos += viewRay.incr, worldRay.pos += worldRay.incr, shadowRay.pos += shadowRay.incr) {
         // DEFINE POSITIONS
-        vec3 shadow = vec3(distortShadowPosition(shadowRay.pos.xy, 0), shadowRay.pos.z * shadowDepthMult) * 0.5 + 0.5;
+        vec3 shadow = vec3(distortShadowPosition(shadowRay.pos.xy, 0), shadowRay.pos.z) * 0.5 + 0.5;
         vec3 world = worldRay.pos + cameraPosition;
 
         // GET RAW FRONT SHADOW DEPTH
@@ -149,6 +210,16 @@
         // GET SHADOW VISIBILITY VALUES
         float visibilityBack = CutShadow(compareShadow(texture2DLod(shadowtex1, shadow.xy, 0).x, shadow.z));
         float visibilityFront = CutShadow(compareShadow(depthFront, shadow.z));
+
+        // SKY VISIBILITY OVERRIDE
+        if(isSky && (any(greaterThan(shadow.xy, vec2(1.0))) || any(lessThan(shadow.xy, vec2(0.0))))) {
+          visibilityBack = 1.0;
+          visibilityFront = 1.0;
+        }
+
+        // CLAMP SHADOW VISIBILITY VALUES
+        visibilityBack = min1(visibilityBack);
+        visibilityFront = min1(visibilityFront);
 
         // DEFINE DIFFERENCE MASK
         bool differenceMask = visibilityBack - visibilityFront > 0.0;
@@ -163,10 +234,20 @@
         bool isWater = comparef(objectID, OBJECT_WATER, ubyteMaxRCP);
 
         // GET OPTICAL DEPTH
-        float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater) * stepSize;
+        float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater);
 
         // GET VOLUME VISIBILITY
-        //float visibilityLight = volVisibilityCheck(world, wLightVector, opticalDepth, 1.5, dither, stepSize, eBS, 6);
+        #ifdef FOG_LIGHTING_DIRECT
+          float visibilityDirect = volVisibilityCheck(world, wLightVector, opticalDepth, 0.7, dither, stepSize, eBS, FOG_LIGHTING_DIRECT_STEPS);
+        #else
+          float visibilityDirect = 1.0;
+        #endif
+
+        #ifdef FOG_LIGHTING_SKY
+          float visibilitySky = volVisibilityCheck(world, vec3(0.0, 1.0, 0.0), opticalDepth, 0.2, dither, stepSize, eBS, FOG_LIGHTING_SKY_STEPS);
+        #else
+          float visibilitySky = 1.0;
+        #endif
 
         // GET CLOUD SHADOW
         float cloudShadow = getCloudShadow(world);
@@ -177,8 +258,14 @@
         #define directVisibility rayVisibility.x
         #define skyVisibility rayVisibility.y
 
-        directVisibility *= cloudShadow * visibilityBack;
-        skyVisibility *= (cloudShadow * 0.75 + 0.25) * visibilityBack;//eBS;
+        directVisibility *= cloudShadow * miePhase * visibilityDirect * visibilityBack;
+        skyVisibility *= (cloudShadow * 0.75 + 0.25) * visibilitySky;
+
+        #if   FOG_OCCLUSION_SKY == 1
+          skyVisibility *= visibilityBack;
+        #elif FOG_OCCLUSION_SKY == 2
+          // TODO: Sky light occlusion approximation.
+        #endif
 
         // ILLUMINATE RAY
         vec3 lightColour = atmosphereLighting[0] * directVisibility + atmosphereLighting[1] * skyVisibility;
@@ -201,8 +288,8 @@
         rayColour = ((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) ? interactWater(rayColour, distance(waterAbsorptionOrigin, waterAbsorptionTarget)) : rayColour;
 
         // ACCUMULATE RAY
-        scattering += rayColour * transmittedScatteringIntegral(opticalDepth, 0.02) * transmittance;
-        transmittance *= exp(-0.02 * opticalDepth);
+        scattering += rayColour * transmittedScatteringIntegral(opticalDepth * stepSize, absorptionCoeff) * transmittance;
+        transmittance *= exp(-absorptionCoeff * opticalDepth * stepSize);
       }
 
       #undef scattering

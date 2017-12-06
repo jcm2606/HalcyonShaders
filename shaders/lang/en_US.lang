@@ -96,9 +96,43 @@ suffix.shadowDistance= Chunks
 screen.Atmospherics=Atmospherics
 screen.Atmospherics.comment=PLACEHOLDER
 
-#   Atmospherics\Volumetrics
-screen.Volumetrics=Volumetrics
-screen.Volumetrics.comment=PLACEHOLDER
+#   Atmospherics\Fog
+screen.Fog=Volumetric Fog
+screen.Fog.comment=PLACEHOLDER
+
+#     Atmospherics\Fog\Options
+option.VOLUMETRICS=Volumetric Fog
+
+#     Atmospherics\Fog\FogLayers
+screen.FogLayers=Layers
+screen.FogLayers.comment=PLACEHOLDER
+
+#       Atmospherics\Fog\FogLayers\Options
+
+#     Atmospherics\Fog\FogLighting
+screen.FogLighting=Lighting
+screen.FogLighting.comment=PLACEHOLDER
+
+#       Atmospherics\Fog\FogLighting\Options
+option.FOG_LIGHTING_DIRECT=Direct Lighting
+
+option.FOG_LIGHTING_DIRECT_STEPS=Direct Lighting Quality
+suffix.FOG_LIGHTING_DIRECT_STEPS= Step(s)
+
+option.FOG_LIGHTING_SKY=Sky Lighting
+
+option.FOG_LIGHTING_SKY_STEPS=Sky Lighting Quality
+suffix.FOG_LIGHTING_SKY_STEPS= Step(s)
+
+option.FOG_LIGHTING_BOUNCED=Bounced Lighting
+
+option.FOG_LIGHTING_BOUNCED_STEPS=Bounced Lighting Quality
+suffix.FOG_LIGHTING_BOUNCED_STEPS= Step(s)
+
+option.FOG_OCCLUSION_SKY=Sky Occlusion
+value.FOG_OCCLUSION_SKY.0=No Occlusion
+value.FOG_OCCLUSION_SKY.1=Direct Shadow
+value.FOG_OCCLUSION_SKY.2=Approximation
 
 #   Atmospherics\Clouds
 screen.Clouds=Volumetric Clouds
