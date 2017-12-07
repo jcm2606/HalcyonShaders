@@ -23,15 +23,15 @@
 
   c(float) cloudOvercastOffsetDensity = abs(VC_DENSITY_OVERCAST - VC_DENSITY_CLEAR);
 
-  #define VC_COVERAGE_CLEAR 1.5 // How large are clouds during clear weather?. Smaller number = larger clouds. [1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7]
+  #define VC_COVERAGE_CLEAR 1.3 // How large are clouds during clear weather?. Smaller number = larger clouds. [1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7]
   #define VC_COVERAGE_OVERCAST 0.9 // How large are clouds during overcast weather?. Smaller number = larger clouds. [0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2]
   #define VC_COVERAGE_RAIN 0.3 // How large are clouds during rainy weather?. Smaller number = larger clouds. [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 
   c(float) cloudOvercastOffsetCoverage = abs(VC_COVERAGE_CLEAR - VC_COVERAGE_OVERCAST);
 
-  #define VC_LIGHTING_QUALITY_DIRECT 4 // How many steps should be taken for direct lighting?. Higher number means more accurate lighting, at the cost of performance. [1 2 4 6 8 10 12 14 16]
-  #define VC_LIGHTING_QUALITY_SKY 2 // How many steps should be taken for sky lighting?. Higher number means more accurate lighting, at the cost of performance. [1 2 4 6 8 10 12 14 16]
-  #define VC_LIGHTING_QUALITY_BOUNCED 2 // How many steps should be taken for bounced lighting?. Higher number means more accurate lighting, at the cost of performance. [1 2 4 6 8 10 12 14 16]
+  #define VC_LIGHTING_QUALITY_DIRECT 2 // How many steps should be taken for direct lighting?. Higher number means more accurate lighting, at the cost of performance. [1 2 4 6 8 10 12 14 16]
+  #define VC_LIGHTING_QUALITY_SKY 1 // How many steps should be taken for sky lighting?. Higher number means more accurate lighting, at the cost of performance. [1 2 4 6 8 10 12 14 16]
+  #define VC_LIGHTING_QUALITY_BOUNCED 1 // How many steps should be taken for bounced lighting?. Higher number means more accurate lighting, at the cost of performance. [1 2 4 6 8 10 12 14 16]
 
   #define VC_ALTITUDE 4096.0 // How high in the world should clouds start? [1024.0 2048.0 4096.0 8192.0 16384.0]
   #define VC_HEIGHT 1024.0 // How high should clouds themselves be? [256.0 512.0 768.0 1024.0 1280.0 1536.0 1792.0 2048.0]

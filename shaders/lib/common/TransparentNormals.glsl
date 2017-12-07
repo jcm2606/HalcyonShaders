@@ -149,11 +149,13 @@
   
   // GENERIC
   float getHeight(in vec3 world, in float objectID) {
-    return (comparef(objectID, OBJECT_WATER, ubyteMaxRCP)) ? getWaterHeight(world) : (
-      (comparef(objectID, OBJECT_ICE, ubyteMaxRCP)) ? getIceHeight(world) : (
-        (comparef(objectID, OBJECT_STAINED_GLASS, ubyteMaxRCP)) ? getGlassHeight(world) : 0.0
-      )
-    );
+    float height = 0.0;
+
+    if(comparef(objectID, OBJECT_WATER, ubyteMaxRCP)) height = getWaterHeight(world);
+    if(comparef(objectID, OBJECT_ICE, ubyteMaxRCP)) height = getIceHeight(world);
+    if(comparef(objectID, OBJECT_STAINED_GLASS, ubyteMaxRCP)) height = getGlassHeight(world);
+
+    return height;
   }
 
   vec3 getNormal(in vec3 world, in float objectID) {

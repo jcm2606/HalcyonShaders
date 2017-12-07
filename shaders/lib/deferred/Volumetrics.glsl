@@ -24,7 +24,7 @@
         return 0.0;
       #endif
 
-      return exp2(-max0(world.y - MC_SEA_LEVEL) * FOG_LAYER_HEIGHT_FALLOFF) * FOG_LAYER_HEIGHT_DENSITY;
+      return exp2(-max0(world.y - SEA_LEVEL) * FOG_LAYER_HEIGHT_FALLOFF) * FOG_LAYER_HEIGHT_DENSITY;
     }
 
     float getSheetFog(in vec3 world) {
@@ -32,37 +32,103 @@
         return 0.0;
       #endif
 
-      c(int) octaves = FOG_LAYER_SHEET_OCTAVES;
-      cRCP(float, octaves);
+      #ifdef FOG_LAYER_SHEET_HQ
+        c(int) octaves = FOG_LAYER_SHEET_OCTAVES;
+        cRCP(float, octaves);
 
-      float opticalDepth = 0.0;
+        float opticalDepth = 1.0;
+
+        c(mat2) rot = rot2(-0.7);
+
+        vec3 position = world * 0.3 * vec3(1.0, 1.0, 1.0);
+
+        float weight = 1.0;
+
+        c(vec2) windDir = vec2(0.0, 1.0);
+        vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
+        float windSpeed = 0.4;
+
+        for(int i = 0; i < octaves; i++) {
+          opticalDepth -= texnoise3D(noisetex, position + wind * windSpeed) * weight;
+          
+          position *= 2.1;
+          position.xz *= rot;
+          position.xy *= rot;
+          windSpeed *= 1.1;
+          weight *= 0.5;
+        }
+
+        //opticalDepth -= 0.9;
+        opticalDepth  = clamp01(opticalDepth);
+        opticalDepth  = sqrt(opticalDepth);
+        
+        opticalDepth = opticalDepth * 0.7 + 0.3;
+      #else
+        float opticalDepth = 1.0;
+      #endif
+
+      opticalDepth *= FOG_LAYER_SHEET_DENSITY;
+
+      return exp2(-abs(world.y - SEA_LEVEL) * FOG_LAYER_SHEET_FALLOFF) * opticalDepth;
+    }
+
+    float getVolumeFog(in vec3 world) {
+      #ifndef FOG_LAYER_VOLUME
+        return 0.0;
+      #endif
+
+      float opticalDepth = 1.0;
 
       c(mat2) rot = rot2(-0.7);
 
-      vec3 position = world * 0.3 * vec3(1.0, 2.0, 1.0);
+      vec3 position = world * 0.004;
 
       float weight = 1.0;
 
       c(vec2) windDir = vec2(0.0, 1.0);
       vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
-      float windSpeed = 0.4;
+      float windSpeed = 0.07;
 
-      for(int i = 0; i < octaves; i++) {
-        opticalDepth += texnoise3D(noisetex, position + wind * windSpeed) * weight;
-        
-        position *= 2.7;
+      // PRIMARY VOLUME
+      c(int) primaryOctaves = 2;
+      cRCP(float, primaryOctaves);
+
+      for(int i = 0; i < primaryOctaves; i++) {
+        opticalDepth -= texnoise3D(noisetex, position + wind * windSpeed) * weight;
+
+        position *= 2.4;
         position.xz *= rot;
-        position.xy *= rot;
+        position.yz *= rot;
         windSpeed *= 1.1;
-        weight *= 0.5;
+        weight *= 0.6;
       }
 
-      opticalDepth -= 0.7;
-      opticalDepth  = max0(opticalDepth);
+      // ROLLING MIST
+      c(int) rollingOctaves = 5;
+      cRCP(float, rollingOctaves);
 
-      opticalDepth *= FOG_LAYER_SHEET_DENSITY;
+      position *= 4.0;
 
-      return exp2(-abs(world.y - MC_SEA_LEVEL) * FOG_LAYER_SHEET_FALLOFF) * opticalDepth;
+      for(int i = 0; i < rollingOctaves; i++) {
+        opticalDepth += texnoise3D(noisetex, position + wind * windSpeed) * weight;
+
+        position *= 2.4;
+        position.xz *= rot;
+        position.yz *= rot;
+        windSpeed *= 1.1;
+        weight *= 0.6;
+      }
+
+      opticalDepth -= 0.4;
+      opticalDepth = clamp01(opticalDepth);
+      //opticalDepth = ceil(opticalDepth);
+      //opticalDepth = sqrt(opticalDepth);
+
+      opticalDepth *= 64.0;
+
+      return exp2(-abs(world.y - SEA_LEVEL) * 0.2) * opticalDepth;
+
+      return opticalDepth;
     }
 
     float getRainFog(in vec3 world) {
@@ -86,6 +152,7 @@
 
       opticalDepth += getHeightFog(world);
       opticalDepth += getSheetFog(world);
+      opticalDepth += getVolumeFog(world);
       opticalDepth += getRainFog(world);
 
       opticalDepth  = getWaterFog(opticalDepth, world, differenceMask, isWater);
@@ -140,7 +207,9 @@
       return p1 * p2;
     }
 
-    vec4 getVolumetrics(io GbufferObject gbuffer, io PositionObject position, io MaskObject mask, in vec2 screenCoord, in mat2x3 atmosphereLighting) {
+    vec4 getVolumetrics(io GbufferObject gbuffer, io PositionObject position, io MaskObject mask, out float frontTransmittance, in vec2 screenCoord, in mat2x3 atmosphereLighting) {
+      frontTransmittance = 1.0;
+
       #ifndef VOLUMETRICS
         return vec4(0.0, 0.0, 0.0, 1.0);
       #endif
@@ -169,7 +238,7 @@
       // VIEW
       c(float) skyDistance = 64.0;
       viewRay.origin = vec3(0.0);
-      viewRay.target = position.viewPositionBack;
+      viewRay.target = position.viewBack;
       viewRay.dir = getRayDirection(viewRay);
       viewRay.dist = getRayDistance(viewRay);
       viewRay.incr = getRayIncrement(viewRay);
@@ -194,6 +263,9 @@
 
       // DEFINE MIE TAIL
       float miePhase = volumetrics_miePhase((dot(viewRay.dir, lightVector)), 0.2) * 2.0;
+
+      // DEFINE FRONT VIEW DISTANCE
+      float distanceToViewFront = distance(viewRay.origin, position.viewFront);
 
       // DEFINE STEP SIZE
       float stepSize = flength(worldRay.incr);
@@ -226,6 +298,7 @@
 
         // DEFINE DISTANCES
         float distanceToSurface = max0(shadow.z - depthFront) * shadowDepthBlocks;
+        float distanceToViewRay = distance(viewRay.origin, viewRay.pos);
 
         // GET SHADOW OBJECT ID
         float objectID = texture2DLod(shadowcolor1, shadow.xy, 0).a * objectIDRange;
@@ -238,13 +311,13 @@
 
         // GET VOLUME VISIBILITY
         #ifdef FOG_LIGHTING_DIRECT
-          float visibilityDirect = volVisibilityCheck(world, wLightVector, opticalDepth, 0.7, dither, stepSize, eBS, FOG_LIGHTING_DIRECT_STEPS);
+          float visibilityDirect = volVisibilityCheck(world, wLightVector, opticalDepth, 0.9, dither, stepSize, eBS, FOG_LIGHTING_DIRECT_STEPS);
         #else
           float visibilityDirect = 1.0;
         #endif
 
         #ifdef FOG_LIGHTING_SKY
-          float visibilitySky = volVisibilityCheck(world, vec3(0.0, 1.0, 0.0), opticalDepth, 0.2, dither, stepSize, eBS, FOG_LIGHTING_SKY_STEPS);
+          float visibilitySky = volVisibilityCheck(world, vec3(0.0, 1.0, 0.0), opticalDepth, 0.9, dither, stepSize, eBS, FOG_LIGHTING_SKY_STEPS);
         #else
           float visibilitySky = 1.0;
         #endif
@@ -275,21 +348,25 @@
         #undef skyVisibility
 
         // GET INTERACTION WITH FRONT SHADOWS
-        rayColour *= (differenceMask) ? toShadowHDR(texture2DLod(shadowcolor0, shadow.xy, 0).rgb) : vec3(1.0);
+        if(differenceMask) rayColour *= toShadowHDR(texture2DLod(shadowcolor0, shadow.xy, 0).rgb);
 
         // GET INTERACTION WITH WATER VOLUME
         // WATER SURFACE -> RAY
-        rayColour = (differenceMask && isWater) ? interactWater(rayColour, distanceToSurface) : rayColour;
+        if(differenceMask && isWater) rayColour = interactWater(rayColour, distanceToSurface);
 
         // RAY -> EYE
-        vec3 waterAbsorptionOrigin = (isEyeInWater == 0) ? position.viewPositionFront : viewRay.origin;
-        vec3 waterAbsorptionTarget = (!differenceMask && mask.water && isEyeInWater == 1) ? position.viewPositionFront : viewRay.pos;
+        if((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) {
+          vec3 waterAbsorptionOrigin = (isEyeInWater == 0) ? position.viewFront : viewRay.origin;
+          vec3 waterAbsorptionTarget = (!differenceMask && mask.water && isEyeInWater == 1) ? position.viewFront : viewRay.pos;
 
-        rayColour = ((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) ? interactWater(rayColour, distance(waterAbsorptionOrigin, waterAbsorptionTarget)) : rayColour;
+          rayColour = interactWater(rayColour, distance(waterAbsorptionOrigin, waterAbsorptionTarget));
+        }
 
         // ACCUMULATE RAY
         scattering += rayColour * transmittedScatteringIntegral(opticalDepth * stepSize, absorptionCoeff) * transmittance;
-        transmittance *= exp(-absorptionCoeff * opticalDepth * stepSize);
+        float absorption = exp(-absorptionCoeff * opticalDepth * stepSize);
+        transmittance *= absorption;
+        frontTransmittance *= (distanceToViewRay < distanceToViewFront) ? absorption : 1.0;
       }
 
       #undef scattering
@@ -307,7 +384,7 @@
 
       vec2 originalCoord = screenCoord;
       float refractDist = 0.0;
-      screenCoord = getRefractPos(refractDist, screenCoord, position.viewPositionBack, position.viewPositionFront, gbuffer.normal).xy;
+      screenCoord = getRefractPos(refractDist, screenCoord, position.viewBack, position.viewFront, gbuffer.normal).xy;
 
       if(refractDist == 0.0 || texture2D(depthtex1, screenCoord.xy).x < position.depthFront) screenCoord = originalCoord;
 

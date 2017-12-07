@@ -37,11 +37,11 @@
   #ifdef INTERNAL_INCLUDED_STRUCT_STRUCTPOSITION
 
     void populateFrontViewPosition(io PositionObject position, in vec2 screenCoord) {
-      position.viewPositionFront = clipToView(screenCoord, position.depthFront);
+      position.viewFront = clipToView(screenCoord, position.depthFront);
     }
 
     void populateBackViewPosition(io PositionObject position, in vec2 screenCoord) {
-      position.viewPositionBack = clipToView(screenCoord, position.depthBack);
+      position.viewBack = clipToView(screenCoord, position.depthBack);
     }
 
     void populateViewPositions(io PositionObject position, in vec2 screenCoord) {

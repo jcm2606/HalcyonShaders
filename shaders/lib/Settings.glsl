@@ -48,6 +48,8 @@
   #include "/lib/option/Volumetrics.glsl"
   #include "/lib/option/VolumetricClouds.glsl"
   #include "/lib/option/WavingTerrain.glsl"
+  #include "/lib/option/Bloom.glsl"
+  #include "/lib/option/AmbientLighting.glsl"
 
   // OPTIONS
   #define GLOBAL_SPEED 1.0 // How fast should the shader run?. This is a multiple of real-world time. For cinematics, '12x Slower' allows you to record the game at 5 FPS, then speed it up in post to get 60 FPS, and the shader will run at its normal speed. [0.08333 0.09090909 0.1 0.111 0.125 0.142857 0.1666 0.2 0.25 0.333 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0]
@@ -55,9 +57,9 @@
 
   #define TEXTURE_RESOLUTION 128.0 // What resolution should the shader assume the current resource pack should be?. Set this to the resolution of your resource pack. [16.0 32.0 64.0 128.0 256.0 512.0 1024.0 2048.0 4096.0 8192.0]
 
-  #define MC_SEA_LEVEL 63.0 // How high is sea level in the world?. Set this to the sea level for the current dimension. Normal worlds use 'Y 63', flat worlds use 'Y 4'. [4.0 63.0]
+  #define SEA_LEVEL 63.0 // How high is sea level in the world?. Set this to the sea level for the current dimension. Normal worlds use 'Y 63', flat worlds use 'Y 4'. [4.0 63.0 127.0]
 
-  #ifdef MC_SEA_LEVEL
+  #ifdef SEA_LEVEL
   #endif
 
   //#define WHITE_TEXTURES

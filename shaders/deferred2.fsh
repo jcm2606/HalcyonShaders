@@ -79,7 +79,7 @@ void main() {
   populateViewPositions(position, screenCoord);
 
   // DRAW REFLECTIONS
-  buffers.tex0.rgb = (getLandMask(position.depthBack)) ? drawReflectionOnSurface(buffers.tex0, colortex0, position.viewPositionBack, getAtmosphereLighting(), gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, buffers.tex5, gbuffer.skyLight) : buffers.tex0.rgb;
+  buffers.tex0.rgb = (getLandMask(position.depthBack)) ? drawReflectionOnSurface(buffers.tex0, colortex0, position.viewBack, getAtmosphereLighting(), gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, buffers.tex5, gbuffer.skyLight) : buffers.tex0.rgb;
 
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:07 */

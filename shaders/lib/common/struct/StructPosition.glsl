@@ -11,8 +11,8 @@
     float depthFront;
     float depthBack;
 
-    vec3 viewPositionFront;
-    vec3 viewPositionBack;
+    vec3 viewFront;
+    vec3 viewBack;
   };
 
   #define NewPositionObject(name) PositionObject name = PositionObject(0.0, 0.0, vec3(0.0), vec3(0.0))

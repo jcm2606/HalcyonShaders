@@ -12,6 +12,10 @@
     #define getBloomTile(coord, lod, offset) generateBloomTile(coord, lod, offset, pow(2.0, lod))
     
     vec3 generateBloomTile(in vec2 screenCoord, cin(int) lod, cin(vec2) offset, cin(float) scale) {
+      #ifndef BLOOM
+        return vec3(0.0);
+      #endif
+
       c(float) a = pow(0.5, 0.5) * 20.0;
       c(float) weight = 1.0 / 49.0;
 
@@ -38,6 +42,10 @@
     }
 
     vec3 generateBloomTiles(in vec2 screenCoord) {
+      #ifndef BLOOM
+        return vec3(0.0);
+      #endif
+
       vec3 tiles = vec3(0.0);
 
       tiles += getBloomTile(screenCoord, 2, vec2(0.0, 0.0));
@@ -60,12 +68,20 @@
     #define drawBloomTile(coord, lod, offset) getBloomTile(coord, lod, offset, 1.0 / pow(2.0, float(lod)), pow(9.0 - float(lod), tilePower))
 
     vec3 getBloomTile(in vec2 screenCoord, cin(int) lod, cin(vec2) offset, cin(float) a, cin(float) b) {
+      #ifndef BLOOM
+        return vec3(0.0);
+      #endif
+
       vec2 halfPixel = 1.0 / vec2(viewWidth, viewHeight) * 0.5;
 
       return bicubic2D(colortex4, (screenCoord - halfPixel) * a + offset).rgb * b;
     }
 
     vec3 drawBloom(in vec3 frame, in vec2 screenCoord) {
+      #ifndef BLOOM
+        return frame;
+      #endif
+
       vec3 bloom = vec3(0.0);
       
       bloom += drawBloomTile(screenCoord, 2, vec2(0.0, 0.0));

@@ -74,7 +74,7 @@
 
     // APPLY FRESNEL
     float fresnel = ((1.0 - f0) * pow5(1.0 - max0(dot(dir, normalize(reflView + dir)))) + f0) * max0(1.0 - alpha.x);
-    specular.rgb *= (layer == 0) ? fresnel : 1.0;
+    if(layer == 0) specular.rgb *= fresnel;
 
     // APPLY SPECULAR HIGHLIGHT
     vec3 light = sunMRP(normalize(normal), normalize(view), lightVector);
@@ -87,7 +87,7 @@
     specular.rgb += min(vec3(SUN_BRIGHTNESS), atmosphereLighting[0] * highlight * highlightTint.rgb * highlightTint.a);
 
     // APPLY METALLIC TINTING
-    specular.rgb *= (metallic > 0.5) ? albedo : vec3(1.0);
+    if(metallic > 0.5) specular.rgb *= albedo;
 
     return vec4(specular.rgb, fresnel);
   }

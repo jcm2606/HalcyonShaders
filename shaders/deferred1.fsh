@@ -110,7 +110,7 @@ void main() {
   buffers.tex0.rgb = toLinear(buffers.tex0.rgb);
 
   // DRAW SKY
-  buffers.tex0.rgb = (!getLandMask(position.depthBack) && !mask.weather) ? drawSky(position.viewPositionBack, 0) : buffers.tex0.rgb;
+  buffers.tex0.rgb = (!getLandMask(position.depthBack) && !mask.weather) ? drawSky(position.viewBack, 0) : buffers.tex0.rgb;
 
   // CALCULATE ATMOSPHERE LIGHTING
   mat2x3 atmosphereLighting = getAtmosphereLighting();

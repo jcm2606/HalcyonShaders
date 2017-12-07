@@ -91,7 +91,7 @@ uniform ivec2 eyeBrightnessSmooth;
 vec3 getWaterAbsorption(in vec3 colour, io PositionObject position) {
   if(isEyeInWater == 0) return colour;
 
-  float dist = distance(vec3(0.0), position.viewPositionFront);
+  float dist = distance(vec3(0.0), position.viewFront);
 
   return interactWater(colour, dist);
 }
@@ -124,18 +124,23 @@ void main() {
   // DRAW UNDERWATER ABSORPTION
   buffers.tex0.rgb = getWaterAbsorption(buffers.tex0.rgb, position);
 
-  // DRAW TRANSPARENT REFLECTIONS
-  buffers.tex0.rgb += buffers.tex4.rgb;
+  // WRITE TRANSPARENT REFLECTIONS TO TEX7 RGB
+  buffers.tex7.rgb = buffers.tex4.rgb;
 
   // GENERATE VOLUMETRICS
-  buffers.tex4 = getVolumetrics(gbuffer, position, mask, screenCoord, atmosphereLighting);
+  float frontAbsorption = 0.0;
+  buffers.tex4 = getVolumetrics(gbuffer, position, mask, frontAbsorption, screenCoord, atmosphereLighting);
+
+  // WRITE FRONT TRANSMITTANCE TO TEX7 A
+  buffers.tex7.a = frontAbsorption;
 
   // GENERATE VOLUMETRIC CLOUDS
-  buffers.tex5 = getVolumetricClouds(position.viewPositionBack, position.depthBack, atmosphereLighting);
+  buffers.tex5 = getVolumetricClouds(position.viewBack, position.depthBack, atmosphereLighting);
   
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:045 */
+/* DRAWBUFFERS:0457 */
   gl_FragData[0] = buffers.tex0;
   gl_FragData[1] = buffers.tex4;
   gl_FragData[2] = buffers.tex5;
+  gl_FragData[3] = buffers.tex7;
 }

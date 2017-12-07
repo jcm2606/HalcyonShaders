@@ -20,7 +20,7 @@
   #if PROGRAM == COMPOSITE0
     vec3 drawRefraction(io GbufferObject gbuffer, io PositionObject position, in vec3 background, in vec2 screenCoord) {
       float dist = 0.0;
-      vec3 refractPos = getRefractPos(dist, screenCoord, position.viewPositionBack, position.viewPositionFront, gbuffer.normal);
+      vec3 refractPos = getRefractPos(dist, screenCoord, position.viewBack, position.viewFront, gbuffer.normal);
 
       if(dist == 0.0 || texture2D(depthtex1, refractPos.xy).x < position.depthFront) return background;
 

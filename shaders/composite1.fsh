@@ -20,6 +20,7 @@ const bool colortex5MipmapEnabled = true;
 #define IN_TEX1
 #define IN_TEX2
 #define IN_TEX5
+#define IN_TEX7
 
 // VARYING
 varying vec2 screenCoord;
@@ -30,6 +31,7 @@ uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
+uniform sampler2D colortex7;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -72,6 +74,9 @@ void main() {
 
   // DRAW VOLUMETRICS
   buffers.tex0.rgb = drawVolumetrics(gbuffer, position, buffers.tex0.rgb, screenCoord);
+
+  // DRAW TRANSPARENT REFLECTIONS
+  buffers.tex0.rgb += buffers.tex7.rgb * buffers.tex7.a;
 
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:0 */

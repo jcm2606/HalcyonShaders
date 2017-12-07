@@ -14,7 +14,7 @@
   #include "/lib/common/Lightmaps.glsl"
 
   float getDirectShading(io GbufferObject gbuffer, io MaskObject mask, io PositionObject position) {
-    return (mask.foliage) ? 1.0 : lambert(normalize(position.viewPositionBack), lightVector, normalize(gbuffer.normal), gbuffer.roughness);
+    return (mask.foliage) ? 1.0 : lambert(normalize(position.viewBack), lightVector, normalize(gbuffer.normal), gbuffer.roughness);
   }
 
   vec3 getAmbientLighting(io PositionObject position, in vec2 screenCoord) {
@@ -46,9 +46,9 @@
 
     NewShadowObject(shadowObject);
 
-    float cloudShadow = getCloudShadow(viewToWorld(position.viewPositionBack) + cameraPosition);
+    float cloudShadow = getCloudShadow(viewToWorld(position.viewBack) + cameraPosition);
 
-    getShadows(shadowObject, position.viewPositionBack, cloudShadow, false);
+    getShadows(shadowObject, position.viewBack, cloudShadow, false);
 
     highlightTint = vec4(mix(vec3(1.0), shadowObject.colour, shadowObject.difference), shadowObject.occlusionBack);
 

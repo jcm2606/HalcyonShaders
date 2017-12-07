@@ -40,7 +40,7 @@ void main() {
 
   // POPULATE STRUCTS
   populateBufferObject(buffers, screenCoord);
-
+  
   // GENERATE BLOOM TILES
   buffers.tex4.rgb = generateBloomTiles(screenCoord);
 

@@ -13,7 +13,7 @@
     return mix(
       impurityColour,
       colour,
-      exp2(-dist * 0.35)
+      exp2(-dist * 0.25)
     ) * absorbWater(dist);
   }
   

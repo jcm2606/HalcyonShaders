@@ -78,6 +78,10 @@
   vec3 _clipToView(in vec2 screenCoord) { return clipToView(screenCoord, texture2D(depthtex2, screenCoord).x); }
 
   vec3 getAmbientDiffuse(io GbufferObject gbuffer, io PositionObject position, in vec2 p) {
+    #if !defined AMBIENT_OCCLUSION && !defined AMBIENT_DIFFUSE
+      return vec3(1.0);
+    #endif
+
     c(int) steps = 12;
     cRCP(float, steps);
     c(float) r = 8.0;
@@ -92,7 +96,7 @@
     int y = int(p.y * viewHeight) % 4;
     int index = x * 4 + y;
 
-    vec3 p3 = position.viewPositionBack;
+    vec3 p3 = position.viewBack;
 
     vec3 normal = normalize(gbuffer.normal);
     vec2 clipRadius = 4 * vec2(viewHeight / viewWidth, 1.0) / length(p3);
@@ -124,18 +128,20 @@
       horizon2 /= len2;
 
       // AO
-      normalVisibility += clamp(1.0 - max(
-        dot(horizon1, normal) - clamp01((len1 - aoRadius) / aoRadius),
-        dot(horizon2, normal) - clamp01((len2 - aoRadius) / aoRadius)
-      ), 0.0, 1.0);
+      #ifdef AMBIENT_OCCLUSION
+        normalVisibility += clamp(1.0 - max(
+          dot(horizon1, normal) - clamp01((len1 - aoRadius) / aoRadius),
+          dot(horizon2, normal) - clamp01((len2 - aoRadius) / aoRadius)
+        ), 0.0, 1.0);
 
-      viewVisibility += clamp(1.0 - max(
-        dot(horizon1, v) - clamp01((len1 - aoRadius) / aoRadius),
-        dot(horizon2, v) - clamp01((len2 - aoRadius) / aoRadius)
-      ), 0.0, 1.0);
+        viewVisibility += clamp(1.0 - max(
+          dot(horizon1, v) - clamp01((len1 - aoRadius) / aoRadius),
+          dot(horizon2, v) - clamp01((len2 - aoRadius) / aoRadius)
+        ), 0.0, 1.0);
+      #endif
 
       // AD
-      #if 0
+      #ifdef AMBIENT_DIFFUSE
         bool trueHorizon = dot(horizon2, normal) > dot(horizon1, normal);
 
         vec3 horizon = trueHorizon ? horizon2 : horizon1;
