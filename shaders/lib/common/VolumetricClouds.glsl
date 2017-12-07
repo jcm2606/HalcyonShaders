@@ -4,8 +4,8 @@
   PLEASE READ "LICENSE.MD" BEFORE EDITING.
 */
 
-#ifndef INTERNAL_INCLUDED_DEFERRED_VOLUMETRICCLOUDS
-  #define INTERNAL_INCLUDED_DEFERRED_VOLUMETRICCLOUDS
+#ifndef INTERNAL_INCLUDED_COMMON_VOLUMETRICCLOUDS
+  #define INTERNAL_INCLUDED_COMMON_VOLUMETRICCLOUDS
 
   #if   PROGRAM == COMPOSITE0 || PROGRAM == DEFERRED1 || PROGRAM == DEFERRED2
     #include "/lib/common/util/Noise.glsl"
@@ -34,7 +34,7 @@
 
       world *= 0.0003;
 
-      mat2 rot = rot2(-0.7);
+      c(mat2) rot = rot2(-0.7);
 
       float weight = 1.0;
 
@@ -47,7 +47,7 @@
 
         world *= 2.2;
         world.xz *= rot;
-        world.yz *= rot;
+        //world.yz *= rot;
         windSpeed *= 1.4;
         weight *= 0.6;
       }
@@ -150,32 +150,6 @@
 
       return clouds;
     }
-  #elif PROGRAM == COMPOSITE1
-    vec3 drawVolumetricClouds(io PositionObject position, in vec3 frame, in vec2 screenCoord) {
-      #ifndef VOLUMETRIC_CLOUDS
-        return frame;
-      #endif
-
-      c(int) samples = 1;
-      cRCP(float, samples);
-      c(float) filterRadius = 0.001;
-      c(vec2) filterOffset = vec2(filterRadius) * samplesRCP;
-      c(float) weight = 1.0 / pow(float(samples) * 2.0 + 1.0, 2.0);
-
-      vec4 clouds = vec4(0.0);
-
-      for(int i = -samples; i <= samples; i++) {
-        for(int j = -samples; j <= samples; j++) {
-          vec2 offset = vec2(i, j) * filterOffset + screenCoord;
-
-          clouds += texture2DLod(colortex5, offset, 1);
-        }
-      }
-
-      clouds *= weight;
-
-      return frame * clouds.a + clouds.rgb;
-    }
   #endif
 
-#endif /* INTERNAL_INCLUDED_DEFERRED_VOLUMETRICCLOUDS */
+#endif /* INTERNAL_INCLUDED_COMMON_VOLUMETRICCLOUDS */

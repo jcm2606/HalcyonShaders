@@ -54,15 +54,17 @@
 
   vec4 getReflections(in int layer, in sampler2D tex, in vec3 view, in mat2x3 atmosphereLighting, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in vec4 highlightTint, in float skyOcclusion) {
     // CREATE DATA
-    vec3 dir = -normalize(view);
+    vec3 nview = normalize(view);
+    vec3 nnormal = normalize(normal);
+    vec3 dir = -nview;
     vec2 alpha = pow2(vec2(roughness * 2.45, roughness * 1.6));
     float metallic = (f0 > 0.5) ? 1.0 : 0.0;
 
     // CREATE REFLECTION VECTORS
-    vec3 reflView = reflect(normalize(view), normalize(normal));
+    vec3 reflView = reflect(nview, nnormal);
 
     // RAYTRACE
-    vec4 specular = raytraceClip(tex, -reflect(dir, normalize(normal)), view);
+    vec4 specular = raytraceClip(tex, -reflect(dir, nnormal), view);
 
     // SAMPLE SKY IN REFLECTED DIRECTION
     vec3 sky = drawSky(reflView, 2) * pow4(skyOcclusion) * 1.5;
@@ -77,8 +79,8 @@
     if(layer == 0) specular.rgb *= fresnel;
 
     // APPLY SPECULAR HIGHLIGHT
-    vec3 light = sunMRP(normalize(normal), normalize(view), lightVector);
-    float highlight = ggx(normalize(view), normalize(normal), light, alpha.y, f0);
+    vec3 light = sunMRP(nnormal, nview, lightVector);
+    float highlight = ggx(nview, nnormal, light, alpha.y, f0);
 
     #if PROGRAM == DEFERRED2
       highlight *= getCloudShadow(viewToWorld(view) + cameraPosition);

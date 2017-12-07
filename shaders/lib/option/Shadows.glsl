@@ -15,7 +15,7 @@
 
   #define SHADOW_FILTER_QUALITY 2 // How large should the filter be?. Larger sizes give smoother penumbras to shadows, but significantly impact performance. [1 2 3 4 5 6]
   #define SHADOW_FILTER_MIN_WIDTH 0.25 // What should the minimum width of the shadow penumbra be?. This is mostly used to combat aliasing on contact shadows.
-  #define SHADOW_FILTER_MAX_WIDTH 64.0 // What should the maximum width of the shadow penumbra be?. This is mostly used to hide sampling artifacts and improve performance when the penumbra gets very wide.
+  #define SHADOW_FILTER_MAX_WIDTH 2.0 // What should the maximum width of the shadow penumbra be?. This is mostly used to hide sampling artifacts and improve performance when the penumbra gets very wide.
 
   #define CutShadow ceil // Which method should shadows use for the cut?. This is an internal variable, do not change unless you know what you're doing. [ceil floor round sign]
 

@@ -82,7 +82,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/common/WaterAbsorption.glsl"
 
-#include "/lib/deferred/VolumetricClouds.glsl"
+#include "/lib/common/VolumetricClouds.glsl"
 #include "/lib/deferred/Volumetrics.glsl"
 
 #include "/lib/deferred/Refraction.glsl"

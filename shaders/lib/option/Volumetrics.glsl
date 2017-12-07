@@ -20,7 +20,7 @@
 
   // FOG LAYERS
   #define FOG_LAYER_HEIGHT // When enabled, height fog is included in the fog function. Height fog is a thin layer of fog that gets thicker as it approaches sea level. Height fog is an analytical layer of fog, and as such is fairly cheap.
-  #define FOG_LAYER_HEIGHT_DENSITY 0.1 // How dense should height fog be?. [0.0 0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4]
+  #define FOG_LAYER_HEIGHT_DENSITY 0.15 // How dense should height fog be?. [0.0 0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4]
   #define FOG_LAYER_HEIGHT_FALLOFF 0.01 // How quick should height fog get thinner, relative to world height?. The higher this value is, the quicker the fog gets thinner. [0.01]
 
   //#define FOG_LAYER_SHEET // When enabled, sheet fog is included in the fog function. Sheet fog is a thick layer of mist that exists in a thin sheet across sea level. Sheet fog is a volumetric layer of fog, and as such does impact performance.

@@ -14,7 +14,7 @@
   #define faceVisible() abs(pos.z - currDepth) < abs(stepLength * direction.z)
   #define onScreen() (floor(pos.xy) == vec2(0.0))
 
-  c(int) quality = 4;
+  c(int) quality = 1;
   cRCP(float, quality);
   c(int) steps = quality + 4;
 

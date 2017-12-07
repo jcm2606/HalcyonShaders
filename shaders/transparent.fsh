@@ -83,7 +83,7 @@ uniform vec3 cameraPosition;
 #include "/lib/gbuffer/ParallaxTransparent.glsl"
 
 #include "/lib/common/util/ShadowTransform.glsl"
-#include "/lib/opaque/Shadows.glsl"
+#include "/lib/common/Shadows.glsl"
 
 #include "/lib/gbuffer/DirectionalLightmap.glsl"
 #include "/lib/common/Lightmaps.glsl"

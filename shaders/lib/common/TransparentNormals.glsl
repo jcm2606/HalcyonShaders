@@ -14,7 +14,7 @@
     float height = 1.0;
 
     vec2 position = world.xz - world.y;
-    mat2 rot = rot2(-0.7);
+    c(mat2) rot = rot2(-0.7);
 
     position *= rot;
     position *= 0.0008;

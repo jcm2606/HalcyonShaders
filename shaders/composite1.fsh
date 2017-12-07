@@ -53,7 +53,6 @@ uniform int isEyeInWater;
 #include "/lib/common/util/SpaceTransform.glsl"
 
 #include "/lib/deferred/Volumetrics.glsl"
-#include "/lib/deferred/VolumetricClouds.glsl"
 
 // FUNCTIONS
 // MAIN
@@ -69,11 +68,8 @@ void main() {
   populateDepths(position, screenCoord);
   populateViewPositions(position, screenCoord);
 
-  // DRAW VOLUMETRIC CLOUDS
-  buffers.tex0.rgb = drawVolumetricClouds(position, buffers.tex0.rgb, screenCoord);
-
   // DRAW VOLUMETRICS
-  buffers.tex0.rgb = drawVolumetrics(gbuffer, position, buffers.tex0.rgb, screenCoord);
+  buffers.tex0.rgb = drawCombinedVolumetrics(gbuffer, position, buffers.tex0.rgb, screenCoord);
 
   // DRAW TRANSPARENT REFLECTIONS
   buffers.tex0.rgb += buffers.tex7.rgb * buffers.tex7.a;

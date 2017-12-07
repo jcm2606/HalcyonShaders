@@ -4,8 +4,8 @@
   PLEASE READ "LICENSE.MD" BEFORE EDITING.
 */
 
-#ifndef INTERNAL_INCLUDED_OPAQUE_AMBIENTLIGHT
-  #define INTERNAL_INCLUDED_OPAQUE_AMBIENTLIGHT
+#ifndef INTERNAL_INCLUDED_FORWARD_AMBIENTLIGHT
+  #define INTERNAL_INCLUDED_FORWARD_AMBIENTLIGHT
 
   #define hammersley(i, N) vec2( float(i) / float(N), float( bitfieldReverse(i) ) * 2.3283064365386963e-10 )
   #define circlemap(p) (vec2(cos((p).y*tau), sin((p).y*tau)) * p.x)
@@ -179,4 +179,4 @@
     #endif
   }
   
-#endif /* INTERNAL_INCLUDED_OPAQUE_AMBIENTLIGHT */
+#endif /* INTERNAL_INCLUDED_FORWARD_AMBIENTLIGHT */

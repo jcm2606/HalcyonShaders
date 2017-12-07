@@ -13,7 +13,7 @@
     #include "/lib/common/Lightmaps.glsl"
 
     // OPTIONS
-    c(int) steps = 12;
+    c(int) steps = 8;
     cRCP(float, steps);
  
     c(float) absorptionCoeff = 2.0;
@@ -377,42 +377,100 @@
   #elif PROGRAM == COMPOSITE1
     #include "/lib/deferred/Refraction.glsl"
 
-    vec3 drawVolumetrics(io GbufferObject gbuffer, io PositionObject position, in vec3 frame, in vec2 screenCoord) {
-      #ifndef VOLUMETRICS
+    #define hammersley(i, N) vec2( float(i) / float(N), float( bitfieldReverse(i) ) * 2.3283064365386963e-10 )
+    #define circlemap(p) (vec2(cos((p).y*tau), sin((p).y*tau)) * p.x)
+
+    vec3 drawCombinedVolumetrics(io GbufferObject gbuffer, io PositionObject position, in vec3 frame, in vec2 screenCoord) {
+      #if !defined VOLUMETRICS && !defined VOLUMETRIC_CLOUDS
         return frame;
       #endif
 
+      // OPTIONS
+      c(float) samples = 24;
+      cRCP(float, samples);
+
+      c(float) radius = 0.003;
+
+      c(int) fogLOD = 2;
+      c(int) cloudLOD = 1;
+
+      // GET REFRACTED SCREEN COORDINATE
       vec2 originalCoord = screenCoord;
       float refractDist = 0.0;
       screenCoord = getRefractPos(refractDist, screenCoord, position.viewBack, position.viewFront, gbuffer.normal).xy;
 
       if(refractDist == 0.0 || texture2D(depthtex1, screenCoord.xy).x < position.depthFront) screenCoord = originalCoord;
 
-      c(int) width = 3;
-      cRCP(float, width);
-      c(float) filterRadius = 0.003;
-      c(vec2) filterOffset = vec2(filterRadius) * widthRCP;
+      // GENERATE DITHER PATTERN
+      c(float) ditherScale = pow(32, 2.0);
+      float dither = bayer32(gl_FragCoord.xy) * ditherScale;
 
-      c(float) weight = 1.0 / pow(float(width) * 2.0 + 1.0, 2.0);
+      // DEFINE FOG AND CLOUD VARIABLES
+      #ifdef VOLUMETRICS
+        vec4 fog = vec4(0.0);
 
-      vec2 radius = filterOffset;
+        #define fogScattering fog.rgb
+        #define fogTransmittance fog.a
+      #endif
 
-      vec4 volumetrics = vec4(0.0);
+      #ifdef VOLUMETRIC_CLOUDS
+        vec4 cloud = vec4(0.0);
 
-      for(int i = -width; i <= width; i++) {
-        for(int j = -width; j <= width; j++) {
-          vec2 offset = vec2(i, j) * radius + screenCoord;
+        #define cloudScattering cloud.rgb
+        #define cloudTransmittance cloud.a
+      #endif
 
-          //if(texture2DLod(depthtex1, offset).x - position.depthBack > 0.001) continue;
+      // FILTER
+      for(int i = 0; i < samples; i++) {
+        vec2 offset = circlemap(
+          lattice(i * ditherScale + dither, samples * ditherScale)
+        ) * radius + screenCoord;
 
-          volumetrics += texture2DLod(colortex4, offset, 2);
-        }
+        // ACCUMULATE FOG
+        #ifdef VOLUMETRICS
+          fog += texture2DLod(colortex4, offset, fogLOD);
+        #endif
+
+        // ACCUMULATE CLOUDS
+        #ifdef VOLUMETRIC_CLOUDS
+          cloud += texture2DLod(colortex5, offset, cloudLOD);
+        #endif
       }
 
-      volumetrics *= weight;
+      // NORMALIZE DATA
+      #ifdef VOLUMETRICS
+        fog *= samplesRCP;
+      #endif
 
-      return frame * volumetrics.a + volumetrics.rgb;
+      #ifdef VOLUMETRIC_CLOUDS
+        cloud *= samplesRCP;
+      #endif
+
+      // DRAW CLOUDS
+      #ifdef VOLUMETRIC_CLOUDS
+        frame = frame * cloudTransmittance + cloudScattering;
+      #endif
+
+      // DRAW FOG
+      #ifdef VOLUMETRICS
+        frame = frame * fogTransmittance + fogScattering;
+      #endif
+
+      #ifdef VOLUMETRICS
+        #undef fogScattering
+        #undef fogTransmittance
+      #endif
+
+      #ifdef VOLUMETRIC_CLOUDS
+        #undef cloudScattering
+        #undef cloudTransmittance
+      #endif
+
+      return frame;
     }
+
+    #undef hammersley
+    #undef circlemap
   #endif
 
 #endif /* INTERNAL_INCLUDED_DEFERRED_VOLUMETRICS */

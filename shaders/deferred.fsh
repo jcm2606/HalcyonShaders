@@ -54,7 +54,7 @@ uniform float far;
 // INCLUDED FILES
 #include "/lib/common/util/SpaceTransform.glsl"
 
-#include "/lib/opaque/AmbientLight.glsl"
+#include "/lib/forward/AmbientLight.glsl"
 
 // FUNCTIONS
 // MAIN

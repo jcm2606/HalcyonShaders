@@ -4,10 +4,10 @@
   PLEASE READ "LICENSE.MD" BEFORE EDITING.
 */
 
-#ifndef INTERNAL_INCLUDED_OPAQUE_SHADING
-  #define INTERNAL_INCLUDED_OPAQUE_SHADING
+#ifndef INTERNAL_INCLUDED_FORWARD_SHADING
+  #define INTERNAL_INCLUDED_FORWARD_SHADING
 
-  #include "/lib/opaque/Shadows.glsl"
+  #include "/lib/common/Shadows.glsl"
 
   #include "/lib/common/DiffuseModel.glsl"
 
@@ -69,4 +69,4 @@
     return albedo * (direct + sky + block);
   }
 
-#endif /* INTERNAL_INCLUDED_OPAQUE_SHADING */
+#endif /* INTERNAL_INCLUDED_FORWARD_SHADING */

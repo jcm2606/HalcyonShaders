@@ -60,7 +60,7 @@ uniform float frameTimeCounter;
 
 // ARBITRARY
 // INCLUDED FILES
-#include "/lib/deferred/VolumetricClouds.glsl"
+#include "/lib/common/VolumetricClouds.glsl"
 
 #include "/lib/common/Reflections.glsl"
 

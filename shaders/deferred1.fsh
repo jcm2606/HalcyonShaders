@@ -86,9 +86,9 @@ uniform vec3 cameraPosition;
 #include "/lib/common/Sky.glsl"
 #include "/lib/common/AtmosphereLighting.glsl"
 
-#include "/lib/deferred/VolumetricClouds.glsl"
+#include "/lib/common/VolumetricClouds.glsl"
 
-#include "/lib/opaque/Shading.glsl"
+#include "/lib/forward/Shading.glsl"
 
 // FUNCTIONS
 // MAIN
