@@ -83,7 +83,7 @@
     float highlight = ggx(nview, nnormal, light, alpha.y, f0);
 
     #if PROGRAM == DEFERRED2
-      highlight *= getCloudShadow(viewToWorld(view) + cameraPosition);
+      highlight *= getCloudShadow(viewToWorld(view) + cameraPosition, wLightVector);
     #endif
 
     specular.rgb += min(vec3(SUN_BRIGHTNESS), atmosphereLighting[0] * highlight * highlightTint.rgb * highlightTint.a);

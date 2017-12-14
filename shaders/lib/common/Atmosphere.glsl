@@ -59,7 +59,7 @@
     vec3 scatterM = scatterCoeff.xyz * phaseRayleigh(VdotM) + (scatterCoeff.w * phaseMie((mode == 2) ? 0.0 : VdotM));
 
     cv(float) sunBrightness = 1.5;
-    cv(float) moonBrightness = 0.001;
+    cv(float) moonBrightness = 0.002;
     cv(float) moonLightBrightness = pow(16.0, 6.0);
     cv(vec3) moonColour = vec3(0.2, 0.3, 1.0);
 

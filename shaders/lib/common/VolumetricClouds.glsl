@@ -61,12 +61,12 @@
       return clamp01(fbm);
     }
 
-    float getCloudShadow(in vec3 world) {
-      #ifndef VOLUMETRIC_CLOUDS
-        return 1.0;
-      #endif
+    float getCloudShadow(in vec3 world, in vec3 light) {
+      vec3 sampleDirection = light * ((cloudAltitudeUpper - world.y) / light.y) + world;
 
-      float opticalDepth = getCloudFBM(wLightVector * ((cloudAltitudeUpper - world.y) / wLightVector.y) + world) * 1.5 * smoothstep(0.0, 0.1, dot(normalize(wLightVector), vec3(0.0, 1.0, 0.0)));
+      float opticalDepth  = getCloudFBM(sampleDirection);
+            opticalDepth *= 1.5;
+            //opticalDepth *= smoothstep(0.0, 0.1, dot(normalize(light), normalize(vec3(0.0, 1.0, 0.0))));
 
       return exp(-0.02 * stepSize * opticalDepth * cloudDensity);
     }

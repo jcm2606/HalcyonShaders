@@ -46,7 +46,7 @@
 
     NewShadowObject(shadowObject);
 
-    float cloudShadow = getCloudShadow(viewToWorld(position.viewBack) + cameraPosition);
+    float cloudShadow = getCloudShadow(viewToWorld(position.viewBack) + cameraPosition, wLightVector);
 
     getShadows(shadowObject, position.viewBack, cloudShadow, false);
 
@@ -57,14 +57,18 @@
     #endif
 
     //vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference) * getDirectShading(gbuffer, mask, position);
-    vec3 direct = atmosphereLighting[0];
-    direct *= mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference);
-    direct *= getDirectShading(gbuffer, mask, position);
-    direct *= cloudShadow;
-    direct *= shadowObject.occlusionBack;
+    vec3 direct  = atmosphereLighting[0];
+         direct *= mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference);
+         direct *= getDirectShading(gbuffer, mask, position);
+         direct *= cloudShadow;
+         direct *= shadowObject.occlusionBack;
 
-    vec3 sky = getAmbientLighting(position, screenCoord) * atmosphereLighting[1] * getRawSkyLightmap(gbuffer.skyLight);
-    vec3 block = blockLightColour * max(((mask.emissive) ? 32.0 : 1.0) * gbuffer.emission, getBlockLightmap(gbuffer.blockLight));
+    vec3 sky  = atmosphereLighting[1];
+         sky *= getAmbientLighting(position, screenCoord);
+         sky *= getRawSkyLightmap(gbuffer.skyLight);
+
+    vec3 block  = blockLightColour;
+         block *= max(((mask.emissive) ? 32.0 : 1.0) * gbuffer.emission, getBlockLightmap(gbuffer.blockLight));
 
     return albedo * (direct + sky + block);
   }

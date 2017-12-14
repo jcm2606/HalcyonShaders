@@ -335,8 +335,9 @@
           float visibilitySky = 1.0;
         #endif
 
-        // GET CLOUD SHADOW
-        float cloudShadow = getCloudShadow(world);
+        // GET CLOUD SHADOWS
+        visibilityDirect *= getCloudShadow(world, wLightVector);
+        visibilitySky *= getCloudShadow(world, vec3(0.0, 1.0, 0.0));
 
         // OCCLUDE RAY
         vec2 rayVisibility = vec2(1.0);
@@ -344,8 +345,8 @@
         #define directVisibility rayVisibility.x
         #define skyVisibility rayVisibility.y
 
-        directVisibility *= cloudShadow * miePhase * visibilityDirect * visibilityBack;
-        skyVisibility *= (cloudShadow * 0.75 + 0.25) * visibilitySky;
+        directVisibility *= visibilityDirect * visibilityBack * miePhase;
+        skyVisibility *= visibilitySky;
 
         #if   FOG_OCCLUSION_SKY == 1
           skyVisibility *= visibilityBack;
