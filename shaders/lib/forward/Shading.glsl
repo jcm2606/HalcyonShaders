@@ -20,13 +20,13 @@
   vec3 getAmbientLighting(io PositionObject position, in vec2 screenCoord) {
     vec3 ambientLighting = vec3(0.0);
 
-    c(int) width = 3;
+    cv(int) width = 3;
     cRCP(float, width);
-    c(float) filterRadius = 0.001;
-    c(vec2) filterOffset = vec2(filterRadius) * widthRCP;
-    c(vec2) radius = filterOffset;
+    cv(float) filterRadius = 0.001;
+    cv(vec2) filterOffset = vec2(filterRadius) * widthRCP;
+    cv(vec2) radius = filterOffset;
 
-    c(float) weight = 1.0 / pow(float(width) * 2.0 + 1.0, 2.0);
+    cv(float) weight = 1.0 / pow(float(width) * 2.0 + 1.0, 2.0);
 
     for(int i = -width; i <= width; i++) {
       for(int j = -width; j <= width; j++) {

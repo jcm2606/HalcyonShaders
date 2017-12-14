@@ -16,8 +16,8 @@
         return vec3(0.0);
       #endif
 
-      c(float) a = pow(0.5, 0.5) * 20.0;
-      c(float) weight = 1.0 / 49.0;
+      cv(float) a = pow(0.5, 0.5) * 20.0;
+      cv(float) weight = 1.0 / 49.0;
 
       vec3 tile = vec3(0.0);
 
@@ -62,7 +62,7 @@
   #if PROGRAM == FINAL
     #include "/lib/common/util/BicubicSampler.glsl"
 
-    c(float) tilePower = 0.25;
+    cv(float) tilePower = 0.25;
 
     // AMD, why are you so retarded?
     #define drawBloomTile(coord, lod, offset) getBloomTile(coord, lod, offset, 1.0 / pow(2.0, float(lod)), pow(9.0 - float(lod), tilePower))

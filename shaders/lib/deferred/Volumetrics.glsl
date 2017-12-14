@@ -13,10 +13,8 @@
     #include "/lib/common/Lightmaps.glsl"
 
     // OPTIONS
-    c(int) steps = 8;
+    cv(int) steps = 8;
     cRCP(float, steps);
- 
-    c(float) absorptionCoeff = 2.0;
 
     // OPTICAL DEPTH
     float getHeightFog(in vec3 world) {
@@ -24,7 +22,19 @@
         return 0.0;
       #endif
 
-      return exp2(-max0(world.y - SEA_LEVEL) * FOG_LAYER_HEIGHT_FALLOFF) * FOG_LAYER_HEIGHT_DENSITY;
+      cv(float) worldHeight = SEA_LEVEL + FOG_LAYER_HEIGHT_OFFSET;
+
+      float density = FOG_LAYER_NIGHT_DENSITY * timeNight + FOG_LAYER_HEIGHT_DENSITY;
+
+      float height = world.y - worldHeight;
+
+      #ifndef FOG_LAYER_HEIGHT_EXPONENTIAL
+        height = max0(height);
+      #endif
+
+      height = -height;
+
+      return exp2(height * FOG_LAYER_HEIGHT_FALLOFF) * density;
     }
 
     float getSheetFog(in vec3 world) {
@@ -33,18 +43,18 @@
       #endif
 
       #ifdef FOG_LAYER_SHEET_HQ
-        c(int) octaves = FOG_LAYER_SHEET_OCTAVES;
+        cv(int) octaves = FOG_LAYER_SHEET_OCTAVES;
         cRCP(float, octaves);
 
         float opticalDepth = 1.0;
 
-        c(mat2) rot = rot2(-0.7);
+        cv(mat2) rot = rot2(-0.7);
 
         vec3 position = world * 0.3 * vec3(1.0, 1.0, 1.0);
 
         float weight = 1.0;
 
-        c(vec2) windDir = vec2(0.0, 1.0);
+        cv(vec2) windDir = vec2(0.0, 1.0);
         vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
         float windSpeed = 0.4;
 
@@ -72,25 +82,25 @@
       return exp2(-abs(world.y - SEA_LEVEL) * FOG_LAYER_SHEET_FALLOFF) * opticalDepth;
     }
 
-    float getVolumeFog(in vec3 world) {
-      #ifndef FOG_LAYER_VOLUME
+    float getRollingFog(in vec3 world) {
+      #ifndef FOG_LAYER_ROLLING
         return 0.0;
       #endif
 
       float opticalDepth = 1.0;
 
-      c(mat2) rot = rot2(-0.7);
+      cv(mat2) rot = rot2(-0.7);
 
       vec3 position = world * 0.004;
 
       float weight = 1.0;
 
-      c(vec2) windDir = vec2(0.0, 1.0);
+      cv(vec2) windDir = vec2(0.0, 1.0);
       vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
       float windSpeed = 0.07;
 
       // PRIMARY VOLUME
-      c(int) primaryOctaves = 2;
+      cv(int) primaryOctaves = FOG_LAYER_ROLLING_PRIMARY_OCTAVES;
       cRCP(float, primaryOctaves);
 
       for(int i = 0; i < primaryOctaves; i++) {
@@ -104,7 +114,7 @@
       }
 
       // ROLLING MIST
-      c(int) rollingOctaves = 5;
+      cv(int) rollingOctaves = FOG_LAYER_ROLLING_MIST_OCTAVES;
       cRCP(float, rollingOctaves);
 
       position *= 4.0;
@@ -119,14 +129,14 @@
         weight *= 0.6;
       }
 
-      opticalDepth -= 0.4;
+      opticalDepth -= FOG_LAYER_ROLLING_COVERAGE;
       opticalDepth = clamp01(opticalDepth);
       //opticalDepth = ceil(opticalDepth);
       //opticalDepth = sqrt(opticalDepth);
 
-      opticalDepth *= 64.0;
+      opticalDepth *= FOG_LAYER_ROLLING_DENSITY;
 
-      return exp2(-abs(world.y - SEA_LEVEL) * 0.2) * opticalDepth;
+      return exp2(-abs(world.y - SEA_LEVEL) * FOG_LAYER_ROLLING_FALLOFF) * opticalDepth;
 
       return opticalDepth;
     }
@@ -136,7 +146,7 @@
         return 0.0;
       #endif
 
-      return rainStrength * FOG_LAYER_RAIN_MULTIPLIER;
+      return rainStrength * FOG_LAYER_RAIN_DENSITY;
     }
 
     float getWaterFog(in float opticalDepth, in vec3 world, in bool differenceMask, in bool isWater) {
@@ -152,7 +162,7 @@
 
       opticalDepth += getHeightFog(world);
       opticalDepth += getSheetFog(world);
-      opticalDepth += getVolumeFog(world);
+      opticalDepth += getRollingFog(world);
       opticalDepth += getRainFog(world);
 
       opticalDepth  = getWaterFog(opticalDepth, world, differenceMask, isWater);
@@ -183,7 +193,7 @@
     #define getRayDistance(ray) ( distance(ray.target, ray.origin) )
     #define getRayIncrement(ray) ( ray.dir * ray.dist * stepsRCP )
 
-    float volVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, in float stepSize, in float eBS, const int samples) {
+    float volVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, in float stepSize, in float absorptionCoeff, in float eBS, const int samples) {
       const float visStepSizeScale = 1.0 / (float(samples) + 0.5);
       float visStepSize = stepSize * visStepSizeScale;
 
@@ -200,8 +210,8 @@
     }
 
     float volumetrics_miePhase(in float theta, cin(float) G) {
-      c(float) gg = G * G;
-      c(float) p1 = (0.75 * (1.0 - gg)) / (tau * (2.0 + gg));
+      cv(float) gg = G * G;
+      cv(float) p1 = (0.75 * (1.0 - gg)) / (tau * (2.0 + gg));
       float p2 = (theta * theta + 1.0) * pow(1.0 + gg - 2.0 * G * theta, -1.5);
     
       return p1 * p2;
@@ -236,7 +246,7 @@
 
       // POPULATE RAY OBJECTS
       // VIEW
-      c(float) skyDistance = 64.0;
+      cv(float) skyDistance = 64.0;
       viewRay.origin = vec3(0.0);
       viewRay.target = position.viewBack;
       viewRay.dir = getRayDirection(viewRay);
@@ -253,7 +263,7 @@
       worldRay.pos = worldRay.incr * dither + worldRay.origin;
 
       // SHADOW
-      c(vec3) shadowRayScale = vec3(1.0, 1.0, shadowDepthMult);
+      cv(vec3) shadowRayScale = vec3(1.0, 1.0, shadowDepthMult);
       shadowRay.origin = transMAD(matrixWorldToShadow, worldRay.origin) * shadowRayScale;
       shadowRay.target = transMAD(matrixWorldToShadow, worldRay.target) * shadowRayScale;
       shadowRay.dir = getRayDirection(shadowRay);
@@ -306,18 +316,21 @@
         // DEFINE OBJECT ID MASKS
         bool isWater = comparef(objectID, OBJECT_WATER, ubyteMaxRCP);
 
+        // DEFINE ABSORPTION COEFFICIENT
+        float absorptionCoeff = (differenceMask && isWater) ? 16.0 : 2.0;
+
         // GET OPTICAL DEPTH
         float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater);
 
         // GET VOLUME VISIBILITY
         #ifdef FOG_LIGHTING_DIRECT
-          float visibilityDirect = volVisibilityCheck(world, wLightVector, opticalDepth, 0.9, dither, stepSize, eBS, FOG_LIGHTING_DIRECT_STEPS);
+          float visibilityDirect = volVisibilityCheck(world, wLightVector, opticalDepth, 0.9, dither, stepSize, absorptionCoeff, eBS, FOG_LIGHTING_DIRECT_STEPS);
         #else
           float visibilityDirect = 1.0;
         #endif
 
         #ifdef FOG_LIGHTING_SKY
-          float visibilitySky = volVisibilityCheck(world, vec3(0.0, 1.0, 0.0), opticalDepth, 0.9, dither, stepSize, eBS, FOG_LIGHTING_SKY_STEPS);
+          float visibilitySky = volVisibilityCheck(world, vec3(0.0, 1.0, 0.0), opticalDepth, 0.9, dither, stepSize, absorptionCoeff, eBS, FOG_LIGHTING_SKY_STEPS);
         #else
           float visibilitySky = 1.0;
         #endif
@@ -352,14 +365,14 @@
 
         // GET INTERACTION WITH WATER VOLUME
         // WATER SURFACE -> RAY
-        if(differenceMask && isWater) rayColour = interactWater(rayColour, distanceToSurface);
+        if(differenceMask && isWater) rayColour *= absorbWater(distanceToSurface);
 
         // RAY -> EYE
         if((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) {
           vec3 waterAbsorptionOrigin = (isEyeInWater == 0) ? position.viewFront : viewRay.origin;
           vec3 waterAbsorptionTarget = (!differenceMask && mask.water && isEyeInWater == 1) ? position.viewFront : viewRay.pos;
 
-          rayColour = interactWater(rayColour, distance(waterAbsorptionOrigin, waterAbsorptionTarget));
+          rayColour *= absorbWater(distance(waterAbsorptionOrigin, waterAbsorptionTarget));
         }
 
         // ACCUMULATE RAY
@@ -377,6 +390,8 @@
   #elif PROGRAM == COMPOSITE1
     #include "/lib/deferred/Refraction.glsl"
 
+    #include "/lib/common/WaterAbsorption.glsl"
+
     #define hammersley(i, N) vec2( float(i) / float(N), float( bitfieldReverse(i) ) * 2.3283064365386963e-10 )
     #define circlemap(p) (vec2(cos((p).y*tau), sin((p).y*tau)) * p.x)
 
@@ -386,13 +401,13 @@
       #endif
 
       // OPTIONS
-      c(float) samples = 24;
+      cv(float) samples = 24;
       cRCP(float, samples);
 
-      c(float) radius = 0.003;
+      cv(float) radius = 0.003;
 
-      c(int) fogLOD = 2;
-      c(int) cloudLOD = 1;
+      cv(int) fogLOD = 2;
+      cv(int) cloudLOD = 0;
 
       // GET REFRACTED SCREEN COORDINATE
       vec2 originalCoord = screenCoord;
@@ -402,7 +417,7 @@
       if(refractDist == 0.0 || texture2D(depthtex1, screenCoord.xy).x < position.depthFront) screenCoord = originalCoord;
 
       // GENERATE DITHER PATTERN
-      c(float) ditherScale = pow(32, 2.0);
+      cv(float) ditherScale = pow(32, 2.0);
       float dither = bayer32(gl_FragCoord.xy) * ditherScale;
 
       // DEFINE FOG AND CLOUD VARIABLES
@@ -445,6 +460,11 @@
       #ifdef VOLUMETRIC_CLOUDS
         cloud *= samplesRCP;
       #endif
+
+      // PERFORM WATER ABSORPTION ON CLOUDS
+      if(isEyeInWater == 1) {
+        cloudScattering *= absorbWater(distance(vec3(0.0), position.viewFront));
+      }
 
       // DRAW CLOUDS
       #ifdef VOLUMETRIC_CLOUDS

@@ -10,11 +10,11 @@
   #define BLOCK_LIGHT_COLOUR 0 // [0]
 
   #if   BLOCK_LIGHT_COLOUR == 0
-    c(vec3) blockLightColour = vec3(1.0, 0.6, 0.3);
+    cv(vec3) blockLightColour = vec3(1.0, 0.6, 0.3);
   #else
-    c(vec3) blockLightColour = vec3(1.0, 0.1, 0.0);
+    cv(vec3) blockLightColour = vec3(1.0, 0.1, 0.0);
   #endif
 
-  #define SKY_LIGHT_STRENGTH 4.0
+  #define SKY_LIGHT_STRENGTH 3.0
 
 #endif /* INTERNAL_INCLUDED_OPTION_LIGHTING */

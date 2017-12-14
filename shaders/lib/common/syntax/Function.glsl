@@ -47,14 +47,14 @@
 
   bool checkNAN(in float f) { return (f < 0.0 || 0.0 < f || f == 0.0) ? false : true; }
 
-  float cflattenf(in float f, cin(float) weight) { c(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
-  vec2 cflatten2(in vec2 f, cin(float) weight) { c(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
-  vec3 cflatten3(in vec3 f, cin(float) weight) { c(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
-  vec4 cflatten4(in vec4 f, cin(float) weight) { c(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
+  float cflattenf(in float f, cin(float) weight) { cv(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
+  vec2 cflatten2(in vec2 f, cin(float) weight) { cv(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
+  vec3 cflatten3(in vec3 f, cin(float) weight) { cv(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
+  vec4 cflatten4(in vec4 f, cin(float) weight) { cv(float) weightInverse = 1.0 - weight; return f * weight + weightInverse; }
 
   float compareShadow(in float depth, in float comparison) { return clamp01(1.0 - max0(comparison - depth) * float(shadowMapResolution)); }
 
-  c(vec3) lumaCoeff = vec3(0.2125, 0.7154, 0.0721);
+  cv(vec3) lumaCoeff = vec3(0.2125, 0.7154, 0.0721);
   float getLuma(in vec3 colour) { return dot(colour, lumaCoeff); }
 
   vec3 saturation(in vec3 colour, in float saturation) { return mix(colour, vec3(getLuma(colour)), saturation); }
@@ -65,22 +65,22 @@
   #define getExpDepth(depth) expDepth(depth, near, far)
   float expDepth(in float dist, in float near, in float far) { return (far * (dist - near)) / (dist * (far - near)); }
 
-  c(float) ebsRCP = 1.0 / 240.0;
+  cv(float) ebsRCP = 1.0 / 240.0;
   #define getEBS() ebs(eyeBrightnessSmooth)
   vec2 ebs(in vec2 ebs) { return ebs * ebsRCP; }
 
-  float transmittedScatteringIntegral(in float od, const float coeff) {
-    const float a = -coeff / log(2.0);
-    const float b = -1.0 / coeff;
-    const float c =  1.0 / coeff;
+  float transmittedScatteringIntegral(in float od, cin(float) coeff) {
+    cv(float) a = -coeff / log(2.0);
+    cv(float) b = -1.0 / coeff;
+    cv(float) c =  1.0 / coeff;
 
     return exp2(a * od) * b + c;
   }
 
-  vec3 transmittedScatteringIntegral(in float od, const vec3 coeff) {
-    const vec3 a = -coeff / log(2.0);
-    const vec3 b = -1.0 / coeff;
-    const vec3 c =  1.0 / coeff;
+  vec3 transmittedScatteringIntegral(in float od, cin(vec3) coeff) {
+    cv(vec3) a = -coeff / log(2.0);
+    cv(vec3) b = -1.0 / coeff;
+    cv(vec3) c =  1.0 / coeff;
 
     return exp2(a * od) * b + c;
   }
@@ -103,6 +103,27 @@
     v *= v;
     v *= v;
     return pow(dot(v, v), 0.125);
+  }
+
+  bool canWriteTo(in vec2 screenCoord, ivec2 tile, cin(int) width) {
+    cRCP(float, width);
+    cv(int) lastTile = width - 1;
+
+    tile = min(tile, lastTile);
+
+    return all(greaterThan(screenCoord, vec2(widthRCP * tile))) && all(lessThan(screenCoord, vec2(widthRCP * tile + widthRCP)));
+  }
+
+  float writeToTile(in float new, in float old, in vec2 screenCoord, in ivec2 tile, cin(int) width) { return (canWriteTo(screenCoord, tile, width)) ? new : old; }
+  vec2 writeToTile(in vec2 new, in vec2 old, in vec2 screenCoord, in ivec2 tile, cin(int) width) { return (canWriteTo(screenCoord, tile, width)) ? new : old; }
+  vec3 writeToTile(in vec3 new, in vec3 old, in vec2 screenCoord, in ivec2 tile, cin(int) width) { return (canWriteTo(screenCoord, tile, width)) ? new : old; }
+  vec4 writeToTile(in vec4 new, in vec4 old, in vec2 screenCoord, in ivec2 tile, cin(int) width) { return (canWriteTo(screenCoord, tile, width)) ? new : old; }
+
+  vec4 readFromTile(in sampler2D tex, cin(ivec2) tile, cin(int) width) {
+    cRCP(float, width);
+    cv(vec2) xy = (tile + vec2(0.5)) * widthRCP;
+
+    return texture2D(tex, xy);
   }
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_FUNCTION */

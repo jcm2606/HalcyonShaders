@@ -25,6 +25,7 @@
   #define OBSIDIAN vec2(49, 0)
   #define SNOW vec2(80, 0)
   #define WEB vec2(30, 0)
+  #define SIGN vec2(63, 68)
 
   // TRANSPARENT
   #define ICE vec2(79, 0)

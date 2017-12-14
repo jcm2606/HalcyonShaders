@@ -13,9 +13,9 @@
   // AMBIENT OCCLUSION
   /*
   float getAmbientOcclusion(io GbufferObject gbuffer, io PositionObject position, in vec2 p) {
-    c(int) steps = 8;
+    cv(int) steps = 8;
     cRCP(float, steps);
-    c(float) r = 2.0;
+    cv(float) r = 2.0;
 
     int x = int(p.x * viewWidth) % 4;
     int y = int(p.y * viewHeight) % 4;
@@ -82,11 +82,11 @@
       return vec3(1.0);
     #endif
 
-    c(int) steps = 12;
+    cv(int) steps = 12;
     cRCP(float, steps);
-    c(float) r = 8.0;
-    c(float) aoRadius = 16.0;
-    c(int) skyMode = 2;
+    cv(float) r = 8.0;
+    cv(float) aoRadius = 16.0;
+    cv(int) skyMode = 2;
 
     float roughness = gbuffer.roughness;
 
@@ -113,9 +113,13 @@
     float burleyAtNormal = BurleyScatter(v, normal, normal, roughness);
     float earthOcclusionAtNormal = NdotU * 0.5 + 0.5;
 
+    cv(float) ditherScale = pow(2.0, 2.0);
+    float dither = bayer128(gl_FragCoord.xy) * ditherScale;
+
     for(int i = 0; i < steps; i++) {
       vec2 circlePoint = circlemap(
-        hammersley(i * 15 + index + 1, 16 * steps)
+        //hammersley(i * 15 + index + 1, 16 * steps)
+        lattice(i * ditherScale + dither, ditherScale * steps)
       ) * clipRadius;
 
       vec3 horizon1 = _clipToView(circlePoint + p) - p3;

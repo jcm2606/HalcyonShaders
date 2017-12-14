@@ -7,31 +7,31 @@
 #ifndef INTERNAL_INCLUDED_SYNTAX_VALUE
   #define INTERNAL_INCLUDED_SYNTAX_VALUE
 
-  c(float) pi = 3.14159265358979;
+  cv(float) pi = 3.14159265358979;
   cRCP(float, pi);
 
-  c(float) tau = 2.0 * pi;
+  cv(float) tau = 2.0 * pi;
   cRCP(float, tau);
 
-  c(float) phi = 1.61803398875;
+  cv(float) phi = 1.61803398875;
   cRCP(float, phi);
 
-  c(float) ubyteMax = exp2(8);
+  cv(float) ubyteMax = exp2(8);
   cRCP(float, ubyteMax);
 
-  c(float) uhalfMax = exp2(16);
+  cv(float) uhalfMax = exp2(16);
   cRCP(float, uhalfMax);
 
-  c(float) uintMax = exp2(32);
+  cv(float) uintMax = exp2(32);
   cRCP(float, uintMax);
 
-  c(float) ulongMax = exp2(64);
+  cv(float) ulongMax = exp2(64);
   cRCP(float, ulongMax);
 
-  c(float) iorAir = 1.0003;
-  c(float) iorWater = 1.333;
+  cv(float) iorAir = 1.0003;
+  cv(float) iorWater = 1.333;
 
-  c(float) refractInterfaceAirWater = iorAir / iorWater;
-  c(float) refractInterfaceWaterAir = iorWater / iorAir;
+  cv(float) refractInterfaceAirWater = iorAir / iorWater;
+  cv(float) refractInterfaceWaterAir = iorWater / iorAir;
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_VALUE */

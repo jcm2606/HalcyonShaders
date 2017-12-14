@@ -18,7 +18,7 @@
     float W;
   };
 
-  c(OptionsUC2) uc2Preset0 = OptionsUC2(
+  cv(OptionsUC2) uc2Preset0 = OptionsUC2(
     /* A */ 0.15,
     /* B */ 0.15,
     /* C */ 0.10,
@@ -28,9 +28,9 @@
     /* W */ 11.2
   );
 
-  c(OptionsUC2) uc2Preset = uc2Preset0;
+  cv(OptionsUC2) uc2Preset = uc2Preset0;
 
-  vec3 operatorUC2(c(in OptionsUC2) options, in vec3 colour) {
+  vec3 operatorUC2(cv(in OptionsUC2) options, in vec3 colour) {
     return ((colour * (options.A * colour + (options.C * options.B)) + options.D * options.E) / (colour * (options.A * colour + options.B) + (options.D * options.F))) - options.E / options.F;
   }
 

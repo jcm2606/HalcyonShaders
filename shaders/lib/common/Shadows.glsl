@@ -27,23 +27,23 @@
   #define circlemap(p) (vec2(cos((p).y*tau), sin((p).y*tau)) * p.x)
 
   void getShadows(io ShadowObject shadowObject, in vec3 view, in float cloudShadow, in bool forward) {
-    c(int) shadowSamples = 16;
+    cv(int) shadowSamples = 16;
     cRCP(float, shadowSamples);
 
-    c(float) lightDistance = lightSourceDistanceScaled;
+    cv(float) lightDistance = lightSourceDistanceScaled;
     cRCP(float, lightDistance);
-    c(float) minWidth = SHADOW_FILTER_MIN_WIDTH;
-    c(float) maxWidth = SHADOW_FILTER_MAX_WIDTH;
+    cv(float) minWidth = SHADOW_FILTER_MIN_WIDTH;
+    cv(float) maxWidth = SHADOW_FILTER_MAX_WIDTH;
 
-    c(int) blockerSamples = 8;
+    cv(int) blockerSamples = 8;
     cRCP(float, blockerSamples);
-    c(float) blockerRadius = 1.0E-3;
-    c(float) blockerLOD = 0;
+    cv(float) blockerRadius = 1.0E-3;
+    cv(float) blockerLOD = 0;
 
     vec3 shadowPosition = worldToShadow(viewToWorld(view));
     shadowPosition.z += 0.5 * shadowMapResolutionRCP;
 
-    c(float) ditherScale = pow(128.0, 2.0);
+    cv(float) ditherScale = pow(128.0, 2.0);
     float dither = bayer128(gl_FragCoord.xy) * ditherScale;
     
     // BLOCKER SEARCH
@@ -82,7 +82,7 @@
     shadowObject.edgePrediction = prediction.y;
 
     // PENUMBRA RADIUS ESTIMATION
-    c(float) radiiScale = shadowDepthBlocks * lightDistanceRCP * shadowDistanceScale;
+    cv(float) radiiScale = shadowDepthBlocks * lightDistanceRCP * shadowDistanceScale;
 
     vec2 radii  = vec2(shadowPosition.z) - blockers;
          radii *= radiiScale;
@@ -123,7 +123,8 @@
       float depthDifference = max0(shadowBack.z - depthFront) * shadowDepthBlocks;
 
       vec3 shadowColour = toShadowHDR(texture2DLod(shadowcolor0, shadowFront.xy, 0).rgb);
-      shadowObject.colour += (comparef(objectID, OBJECT_WATER, ubyteMaxRCP)) ? interactWater(shadowColour, depthDifference) : shadowColour;
+      shadowObject.colour += shadowColour * ((comparef(objectID, OBJECT_WATER, ubyteMaxRCP)) ? absorbWater(depthDifference) : vec3(1.0));
+      //shadowObject.colour += (comparef(objectID, OBJECT_WATER, ubyteMaxRCP)) ? absorbWater(depthDifference) : shadowColour;
 
       #undef depthFront
       #undef depthBack

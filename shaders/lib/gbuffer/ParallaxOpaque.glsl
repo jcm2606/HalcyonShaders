@@ -8,19 +8,19 @@
   #define INTERNAL_INCLUDED_GBUFFER_PARALLAXOPAQUE
 
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
-    c(vec3) intervalMult = vec3(1.0, 1.0, 1.0 / PARALLAX_OPAQUE_DEPTH) / TEXTURE_RESOLUTION;
-    c(float) maxOcclusionDistance = 96.0;
-    c(float) minOcclusionDistance = 64.0;
-    c(float) occlusionDistance = maxOcclusionDistance - minOcclusionDistance;
+    cv(vec3) intervalMult = vec3(1.0, 1.0, 1.0 / PARALLAX_OPAQUE_DEPTH) / TEXTURE_RESOLUTION;
+    cv(float) maxOcclusionDistance = 96.0;
+    cv(float) minOcclusionDistance = 64.0;
+    cv(float) occlusionDistance = maxOcclusionDistance - minOcclusionDistance;
     cRCP(float, occlusionDistance);
-    c(int) maxOcclusionPoints = 
+    cv(int) maxOcclusionPoints = 
       #ifdef PARALLAX_OPAQUE_QUALITY_SCALING
         int(TEXTURE_RESOLUTION)
       #else
         PARALLAX_OPAQUE_QUALITY_FIXED
       #endif
     ;
-    c(float) minCoord = 1.0 / 4096.0;
+    cv(float) minCoord = 1.0 / 4096.0;
 
     mat2 parallaxDerivatives = mat2(
       dFdx(uvCoord * parallax.zw),

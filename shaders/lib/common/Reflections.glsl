@@ -44,7 +44,7 @@
   vec3 sunMRP(in vec3 normal, in vec3 view, in vec3 light) {
     vec3 reflected = reflect(view, normal);
 
-    c(float) radius = 0.01 * SUN_SIZE;
+    cv(float) radius = 0.01 * SUN_SIZE;
     float d = cos(radius);
 
     float LdotR = dot(light, reflected);

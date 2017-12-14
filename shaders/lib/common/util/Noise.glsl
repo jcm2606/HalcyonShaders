@@ -25,7 +25,7 @@
     return mix(xy1, xy2, f);
   }
 
-  c(vec3) hashScale = vec3(0.1031, 0.1030, 0.0973);
+  cv(vec3) hashScale = vec3(0.1031, 0.1030, 0.0973);
 
   float hash13(in vec3 pos) {
     pos  = fract(pos * hashScale.x);

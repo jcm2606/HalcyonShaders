@@ -14,7 +14,7 @@
     float height = 1.0;
 
     vec2 position = world.xz - world.y;
-    c(mat2) rot = rot2(-0.7);
+    cv(mat2) rot = rot2(-0.7);
 
     position *= rot;
     position *= 0.0008;
@@ -23,7 +23,7 @@
     float weight = 1.0;
     float totalWeight = 0.0;
 
-    c(vec2) windDir = vec2(0.0, 1.0);
+    cv(vec2) windDir = vec2(0.0, 1.0);
     vec2 wind = windDir * frametime;
     float windSpeed = 0.004;
 
@@ -47,11 +47,11 @@
 
     vec2 position = world.xz - world.y;
 
-    c(float) waveSpeed = 0.0013;
-    c(vec2) waveDirection = swizzle2 * waveSpeed;
+    cv(float) waveSpeed = 0.0013;
+    cv(vec2) waveDirection = swizzle2 * waveSpeed;
     vec2 move = waveDirection * frametime;
 
-    c(mat2) rot = rot2(0.7);
+    cv(mat2) rot = rot2(0.7);
 
     position *= 0.001;
     position *= rot;
@@ -78,11 +78,11 @@
 
     vec2 position = world.xz - world.y;
 
-    c(float) waveSpeed = 0.0013;
-    c(vec2) waveDirection = swizzle2 * waveSpeed;
+    cv(float) waveSpeed = 0.0013;
+    cv(vec2) waveDirection = swizzle2 * waveSpeed;
     vec2 move = waveDirection * frametime;
 
-    c(mat2) rot = rot2(0.7);
+    cv(mat2) rot = rot2(0.7);
 
     position *= 0.0005;
     position *= rot;
@@ -129,7 +129,7 @@
   float glass0(in vec3 world) {
     float height = 0.0;
 
-    c(mat2) rot = rot2(-0.6);
+    cv(mat2) rot = rot2(-0.6);
 
     vec2 position = world.xz - world.y;
 
@@ -159,7 +159,7 @@
   }
 
   vec3 getNormal(in vec3 world, in float objectID) {
-    c(float) normalDelta = 0.4;
+    cv(float) normalDelta = 0.4;
     cRCP(float, normalDelta);
 
     float height0 = getHeight(world, objectID);

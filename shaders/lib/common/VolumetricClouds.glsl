@@ -12,33 +12,33 @@
 
     #include "/lib/common/util/WeatherCycle.glsl"
 
-    c(int) cloudSteps = VC_QUALITY;
+    cv(int) cloudSteps = VC_QUALITY;
     cRCP(float, cloudSteps);
-    c(int) cloudOctaves = VC_OCTAVES;
+    cv(int) cloudOctaves = VC_OCTAVES;
     cRCP(float, cloudOctaves);
 
-    c(float) cloudAltitudeLower = VC_ALTITUDE;
-    c(float) cloudHeight = VC_HEIGHT;
+    cv(float) cloudAltitudeLower = VC_ALTITUDE;
+    cv(float) cloudHeight = VC_HEIGHT;
     cRCP(float, cloudHeight);
-    c(float) cloudHeightHalf = cloudHeight * 0.5;
-    c(float) cloudAltitudeUpper = cloudAltitudeLower + cloudHeight;
-    c(float) cloudAltitudeCenter = cloudAltitudeLower + cloudHeightHalf;
-    c(float) cloudDensityScale = cloudOctavesRCP * cloudHeightRCP;
+    cv(float) cloudHeightHalf = cloudHeight * 0.5;
+    cv(float) cloudAltitudeUpper = cloudAltitudeLower + cloudHeight;
+    cv(float) cloudAltitudeCenter = cloudAltitudeLower + cloudHeightHalf;
+    cv(float) cloudDensityScale = cloudOctavesRCP * cloudHeightRCP;
 
     float cloudDensity = mix(VC_DENSITY_CLEAR + weatherCycle * cloudOvercastOffsetDensity, VC_DENSITY_RAIN, rainStrength) * cloudDensityScale;
 
-    c(float) stepSize = cloudHeight * cloudStepsRCP;
+    cv(float) stepSize = cloudHeight * cloudStepsRCP;
 
     float getCloudFBM(in vec3 world) {
       float fbm = 0.0;
 
       world *= 0.0003;
 
-      c(mat2) rot = rot2(-0.7);
+      cv(mat2) rot = rot2(-0.7);
 
       float weight = 1.0;
 
-      c(vec2) windDir = vec2(0.0, 1.0);
+      cv(vec2) windDir = vec2(0.0, 1.0);
       vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
       float windSpeed = 0.04;
 
@@ -100,6 +100,7 @@
       if(getLandMask(backDepth)) return clouds;
 
       atmosphereLighting[1] *= 1.5;
+      atmosphereLighting[0] *= 4.0;
 
       #define scattering clouds.rgb
       #define transmittance clouds.a
@@ -127,7 +128,7 @@
 
         if(opticalDepth <= 0.0) continue;
 
-        float visibilityLight = vcVisibilityCheck(ray, wLightVector, opticalDepth, 0.7, dither, VC_LIGHTING_QUALITY_DIRECT);
+        float visibilityLight = vcVisibilityCheck(ray, wLightVector, opticalDepth, 1.3, dither, VC_LIGHTING_QUALITY_DIRECT);
         float visibilitySky = vcVisibilityCheck(ray, vec3(0.0, 1.0, 0.0), opticalDepth, 0.2, dither, VC_LIGHTING_QUALITY_SKY);
         float visibilityBounced = vcVisibilityCheck(ray, vec3(0.0, -1.0, 0.0), opticalDepth, 0.5, dither, VC_LIGHTING_QUALITY_BOUNCED);
 

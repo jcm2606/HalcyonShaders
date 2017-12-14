@@ -27,6 +27,8 @@ flat(vec3) moonVector;
 flat(vec3) lightVector;
 flat(vec3) wLightVector;
 
+flat(vec4) timeVector;
+
 // UNIFORM
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;

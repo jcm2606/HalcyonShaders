@@ -9,7 +9,7 @@
 
   #define io inout
   
-  #define c(type) const type
+  #define cv(type) const type
   #define cin(type) const in type
   #define cRCP(type, name) const type name##RCP = 1.0 / name
 

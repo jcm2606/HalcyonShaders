@@ -21,6 +21,8 @@ flat(vec3) moonVector;
 flat(vec3) lightVector;
 flat(vec3) wLightVector;
 
+flat(vec4) timeVector;
+
 // UNIFORM
 uniform vec3 sunPosition;
 
@@ -31,6 +33,8 @@ uniform mat4 gbufferModelViewInverse;
 // STRUCT
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/common/util/Time.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
@@ -42,4 +46,6 @@ void main() {
   getMoonVector();
   getLightVector();
   getWorldLightVector();
+
+  timeVector = getTimeVector();
 }

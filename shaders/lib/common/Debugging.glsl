@@ -10,7 +10,7 @@
   // SCREEN TILES
   bool isTile(in vec2 screenCoord, in ivec2 tile, cin(int) tiles) {
     cRCP(float, tiles);
-    c(int) lastTile = tiles - 1;
+    cv(int) lastTile = tiles - 1;
 
     tile = min(tile, lastTile);
 
@@ -22,7 +22,7 @@
       #ifndef VISUALISE_HDR_SLICES
         return frame;
       #else
-        c(int) tiles = 5;
+        cv(int) tiles = 5;
         cRCP(float, tiles);
 
         vec2 tileCoord = fract(screenCoord * tiles);

@@ -31,7 +31,7 @@
   #define NewMaskObject(name) MaskObject name = MaskObject(false, false, false, false, false, false, false, false, false, false, false, false, false, false, false)
 
   void populateMaskObject(io MaskObject mask, io GbufferObject gbuffer) {
-    c(float) width = ubyteMaxRCP;
+    cv(float) width = ubyteMaxRCP;
 
     mask.fallback = comparef(gbuffer.objectID, OBJECT_FALLBACK, width);
     mask.unlit = comparef(gbuffer.objectID, OBJECT_UNLIT, width);

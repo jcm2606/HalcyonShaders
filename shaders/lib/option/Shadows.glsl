@@ -11,7 +11,7 @@
 
   #define LIGHT_SOURCE_DISTANCE 2048.0 // How far from the world should the light source be?. This influences how soft shadows appear. The lower the distance, the softer shadows will appear. [1.0 2.0 4.0 8.0 16.0 32.0 64.0 128.0 256.0 512.0 1024.0 2048.0 4096.0 8192.0 16384.0 32768.0 65536.0]
 
-  c(float) lightSourceDistanceScaled = LIGHT_SOURCE_DISTANCE / 512.0;
+  cv(float) lightSourceDistanceScaled = LIGHT_SOURCE_DISTANCE / 512.0;
 
   #define SHADOW_FILTER_QUALITY 2 // How large should the filter be?. Larger sizes give smoother penumbras to shadows, but significantly impact performance. [1 2 3 4 5 6]
   #define SHADOW_FILTER_MIN_WIDTH 0.25 // What should the minimum width of the shadow penumbra be?. This is mostly used to combat aliasing on contact shadows.
@@ -46,7 +46,8 @@
 
   const float shadowDistance = 160.0; // This controls the render distance used for shadows. Set this to whatever render distance is equal to or below the render distance you've select in video settings. [96.0 160.0 224.0 288.0 352.0 416.0 480.0 544.0 608.0 672.0 736.0 800.0 862.0 928.0 992.0 1056.0]
   cRCP(float, shadowDistance);
-  c(float) shadowDistanceScale = 160.0 / shadowDistance;
+  const float shadowDistanceMult = 160.0;
+  cv(float) shadowDistanceScale = 160.0 / shadowDistance;
   cRCP(float, shadowDistanceScale);
 
   const int shadowMapResolution = 2048; // This controls the resolution of the shadow map. Higher resolutions mean higher detailed shadows, but can significantly impact performance. [512 1024 2048 3072 4096 8192]

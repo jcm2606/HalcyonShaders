@@ -9,6 +9,7 @@
 
   #include "/lib/common/data/BlockIDs.glsl"
   #include "/lib/common/data/ObjectIDs.glsl"
+  #include "/lib/common/data/Tiles.glsl"
 
   #include "/lib/common/syntax/Compat.glsl"
   #include "/lib/common/syntax/Vector.glsl"

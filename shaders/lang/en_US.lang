@@ -108,6 +108,47 @@ screen.FogLayers=Layers
 screen.FogLayers.comment=PLACEHOLDER
 
 #       Atmospherics\Fog\FogLayers\Options
+option.FOG_LAYER_HEIGHT=Height Fog
+screen.FogLayerHeight=Height Fog Options
+screen.FogLayerHeight.comment=PLACEHOLDER
+option.FOG_LAYER_HEIGHT_DENSITY=Density
+option.FOG_LAYER_HEIGHT_FALLOFF=Height
+option.FOG_LAYER_HEIGHT_EXPONENTIAL=Exponential Height Mode
+
+option.FOG_LAYER_SHEET=Sheet Fog
+screen.FogLayerSheet=Sheet Fog Options
+screen.FogLayerSheet.comment=PLACEHOLDER
+option.FOG_LAYER_SHEET_DENSITY=Density
+option.FOG_LAYER_SHEET_FALLOFF=Height
+option.FOG_LAYER_SHEET_HQ=Noise Variation
+option.FOG_LAYER_SHEET_OCTAVES=Noise Octaves
+
+option.FOG_LAYER_ROLLING=Rolling Fog
+screen.FogLayerRolling=Rolling Fog Options
+screen.FogLayerRolling.comment=PLACEHOLDER
+option.FOG_LAYER_ROLLING_DENSITY=Density
+option.FOG_LAYER_ROLLING_FALLOFF=Height
+option.FOG_LAYER_ROLLING_PRIMARY_OCTAVES=Volume Octaves
+option.FOG_LAYER_ROLLING_MIST_OCTAVES=Mist Octaves
+option.FOG_LAYER_ROLLING_COVERAGE=Coverage
+
+option.FOG_LAYER_CYCLE=Weather Cycle Fog
+screen.FogLayerCycle=Weather Cycle Fog Options
+screen.FogLayerCycle.comment=PLACEHOLDER
+
+option.FOG_LAYER_MORNING=Morning Fog
+screen.FogLayerMorning=Morning Fog Options
+screen.FogLayerMorning.comment=PLACEHOLDER
+
+option.FOG_LAYER_RAIN=Rain Fog
+screen.FogLayerRain=Rain Fog Options
+screen.FogLayerRain.comment=PLACEHOLDER
+option.FOG_LAYER_RAIN_DENSITY=Density
+
+option.FOG_LAYER_WATER=Water Fog
+screen.FogLayerWater=Water Fog Options
+screen.FogLayerWater.comment=PLACEHOLDER
+option.FOG_LAYER_WATER_DENSITY=Density
 
 #     Atmospherics\Fog\FogLighting
 screen.FogLighting=Lighting

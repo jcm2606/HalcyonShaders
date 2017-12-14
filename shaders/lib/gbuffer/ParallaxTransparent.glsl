@@ -8,10 +8,10 @@
   #define INTERNAL_INCLUDED_GBUFFER_PARALLAXTRANSPARENT
 
   vec3 getParallax(in vec3 world, in vec3 view, in float objectID) {
-    c(float) steps = 4;
+    cv(float) steps = 4;
     cRCP(float, steps);
 
-    c(float) height = PARALLAX_TRANSPARENT_DEPTH_WATER;
+    cv(float) height = PARALLAX_TRANSPARENT_DEPTH_WATER;
 
     float waveHeight = getHeight(world, objectID) * height;
 

@@ -8,11 +8,11 @@
   #define INTERNAL_INCLUDED_UTIL_ENCODING
 
   // 3xNf / COLOUR
-  c(vec3) values = exp2(vec3(5.0, 6.0, 5.0));
-  c(vec3) maxValues = values - 1.0;
+  cv(vec3) values = exp2(vec3(5.0, 6.0, 5.0));
+  cv(vec3) maxValues = values - 1.0;
   cRCP(vec3, maxValues);
-  c(vec3) positions = vec3(1.0, values.x, values.x * values.y);
-  c(vec3) uhalfMaxOverPositions = uhalfMax / positions;
+  cv(vec3) positions = vec3(1.0, values.x, values.x * values.y);
+  cv(vec3) uhalfMaxOverPositions = uhalfMax / positions;
 
   float encodeColour(in vec3 colour) {
     // TODO: Add a dither.
@@ -40,13 +40,13 @@
   }
 
   // NORMALS
-  c(float) bits = 11.0;
+  cv(float) bits = 11.0;
 
-  c(float) bitsExp2_a = exp2(bits);
-  c(float) bitsExp2_b = exp2(bits + 2.0);
+  cv(float) bitsExp2_a = exp2(bits);
+  cv(float) bitsExp2_b = exp2(bits + 2.0);
   cRCP(float, bitsExp2_b);
 
-  c(vec2) bitsExp2_cRCP = vec2(1.0) / exp2(vec2(bits, bits * 2.0 + 2.0));
+  cv(vec2) bitsExp2_cRCP = vec2(1.0) / exp2(vec2(bits, bits * 2.0 + 2.0));
 
   float encodeNormal(in vec3 normal) {
     normal = clamp(normal, -1.0, 1.0);

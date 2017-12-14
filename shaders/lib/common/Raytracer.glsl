@@ -14,9 +14,9 @@
   #define faceVisible() abs(pos.z - currDepth) < abs(stepLength * direction.z)
   #define onScreen() (floor(pos.xy) == vec2(0.0))
 
-  c(int) quality = 1;
+  cv(int) quality = 1;
   cRCP(float, quality);
-  c(int) steps = quality + 4;
+  cv(int) steps = quality + 4;
 
   vec4 raytraceClip(in sampler2D tex, in vec3 dir, in vec3 view) {
     vec3 clip = viewToClip(view);

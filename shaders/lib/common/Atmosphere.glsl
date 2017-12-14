@@ -7,16 +7,16 @@
 #ifndef INTERNAL_INCLUDED_COMMON_ATMOSPHERE
   #define INTERNAL_INCLUDED_COMMON_ATMOSPHERE
 
-  c(float) atmosphereHeight = 8000.0;
-  c(float) earthRadius = 6371000.0;
-  c(float) mieMultiplier = 1.3;
-  c(float) ozoneMultiplier = 1.0;
-  c(float) rayleighDistribution = 8.0;
+  cv(float) atmosphereHeight = 8000.0;
+  cv(float) earthRadius = 6371000.0;
+  cv(float) mieMultiplier = 1.3;
+  cv(float) ozoneMultiplier = 1.0;
+  cv(float) rayleighDistribution = 8.0;
   cRCP(float, rayleighDistribution);
-  c(float) mieDistribution = 1.8;
-  c(vec3) rayleighCoeff = vec3(5.8E-6, 1.35E-5, 3.31E-5);
-  c(vec3) ozoneCoeff = vec3(3.426, 8.298, 0.356) * 6.0E-5 / 100.0;
-  c(float) mieCoeff = 3.0E-6 * mieMultiplier;
+  cv(float) mieDistribution = 1.8;
+  cv(vec3) rayleighCoeff = vec3(5.8E-6, 1.35E-5, 3.31E-5);
+  cv(vec3) ozoneCoeff = vec3(3.426, 8.298, 0.356) * 6.0E-5 / 100.0;
+  cv(float) mieCoeff = 3.0E-6 * mieMultiplier;
 
   vec2 getThickness(in vec3 dir) {
     vec2 sr = earthRadius + vec2(atmosphereHeight, atmosphereHeight * mieDistribution * rayleighDistributionRCP);
@@ -32,9 +32,9 @@
   #define phaseRayleigh(a) (0.4 * a + 1.14)
 
   float phaseMie(in float x) {
-    c(vec3) c = vec3(0.25609, 0.132268, 0.010016);
-    c(vec3) d = vec3(-1.5, -1.74, -1.98);
-    c(vec3) e = vec3(1.5625, 1.7569, 1.9801);
+    cv(vec3) c = vec3(0.25609, 0.132268, 0.010016);
+    cv(vec3) d = vec3(-1.5, -1.74, -1.98);
+    cv(vec3) e = vec3(1.5625, 1.7569, 1.9801);
 
     return dot((x * x + 1.0) * c / pow(d * x + e, vec3(1.5)), vec3(0.333333));
   }
@@ -43,7 +43,7 @@
     return exp(-a.x * (ozoneCoeff * ozoneMultiplier + rayleighCoeff) - 1.11 * a.y * mieCoeff);
   }
 
-  c(int) atmosphereSteps = 8;
+  cv(int) atmosphereSteps = 8;
   cRCP(float, atmosphereSteps);
 
   vec3 getAtmosphere(in vec3 background, in vec3 view, in int mode) {
@@ -58,14 +58,16 @@
     vec3 scatterS = scatterCoeff.xyz * phaseRayleigh(VdotS) + (scatterCoeff.w * phaseMie((mode == 2) ? 0.0 : VdotS));
     vec3 scatterM = scatterCoeff.xyz * phaseRayleigh(VdotM) + (scatterCoeff.w * phaseMie((mode == 2) ? 0.0 : VdotM));
 
-    c(float) sunBrightness = 1.0;
-    c(float) moonBrightness = 0.01;
+    cv(float) sunBrightness = 1.5;
+    cv(float) moonBrightness = 0.001;
+    cv(float) moonLightBrightness = pow(16.0, 6.0);
+    cv(vec3) moonColour = vec3(0.2, 0.3, 1.0);
 
     vec3 absorbS = absorb(getThickness(sunVector) * atmosphereStepsRCP) * getEarth(sunVector) * sunBrightness;
     vec3 absorbM = absorb(getThickness(moonVector) * atmosphereStepsRCP) * getEarth(moonVector) * moonBrightness;
 
     vec3 skyS = mode != 0 ? vec3(0.0) : (sin(max0(pow(VdotS, 24.0 * sunSpotSizeRCP) - 0.9935) / 0.015 * pi) * absorbS * sunBrightness) * (SUN_BRIGHTNESS * 2.0) + background;
-    vec3 skyM = mode != 0 ? vec3(0.0) : (sin(max0(pow16(VdotM) - 0.9935) / 0.015 * pi) * absorbM * moonBrightness) * 1200.0 + background;
+    vec3 skyM = mode != 0 ? vec3(0.0) : (sin(max0(pow16(VdotM) - 0.9935) / 0.015 * pi) * absorbM * moonBrightness * moonColour) * moonLightBrightness + background;
 
     for(int i = 0; i < atmosphereSteps; i++) {
       scatterS *= absorbS;

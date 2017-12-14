@@ -179,7 +179,7 @@ void main() {
 
     vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
   #elif PROGRAM == GBUFFERS_HAND
-    c(float) normalMaxAngle = NORMAL_ANGLE_OPAQUE;
+    cv(float) normalMaxAngle = NORMAL_ANGLE_OPAQUE;
 
     vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
   #elif PROGRAM != GBUFFERS_BASIC && PROGRAM!= GBUFFERS_SKYBASIC && PROGRAM != GBUFFERS_SKYTEXTURED

@@ -33,17 +33,9 @@ uniform float frameTime;
 
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/deferred/Camera.glsl"
+
 // FUNCTIONS
-vec3 computeCameraExposure(io BufferObject buffers) {
-  float prevLuma = texture2D(colortex3, screenCoord).r;
-  float currLuma = getLuma(pow(texture2DLod(colortex0, vec2(0.5), 100).rgb, vec3(0.65)));
-  float avgLuma = mix(prevLuma, currLuma, clamp(frameTime * 0.5, 0.01, 0.99));
-
-  buffers.tex3.r = avgLuma;
-
-  return buffers.tex0.rgb * (EXPOSURE / max(avgLuma, mix(0.00001, 0.06, timeNight)));
-}
-
 // MAIN
 void main() {
   // CREATE STRUCTS
@@ -53,7 +45,7 @@ void main() {
   populateBufferObject(buffers, screenCoord);
 
   // PERFORM CAMERA EXPOSURE
-  buffers.tex0.rgb = computeCameraExposure(buffers);
+  buffers.tex0.rgb = getExposedFrame(buffers.tex3.a, buffers.tex0.rgb, screenCoord);
 
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:03 */

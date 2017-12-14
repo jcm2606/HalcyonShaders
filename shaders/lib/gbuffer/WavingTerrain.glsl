@@ -10,17 +10,17 @@
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == SHADOW
     // MOVEMENT
     vec3 moveFullVertex(in vec3 position, const vec2 speed0, const vec2 speed1, in vec3 strength0, in vec3 strength1) {
-      c(vec3) v0 = vec3(2.0) / 16.0;
-      c(vec3) v1 = vec3(-3.0, 3.0, 3.0) / 16.0;
-      c(vec3) v2 = vec3(5.0, 5.0, 6.0) / 16.0;
-      c(vec3) v3 = vec3(-6.0, 5.0, 5.0) / 16.0;
+      cv(vec3) v0 = vec3(2.0) / 16.0;
+      cv(vec3) v1 = vec3(-3.0, 3.0, 3.0) / 16.0;
+      cv(vec3) v2 = vec3(5.0, 5.0, 6.0) / 16.0;
+      cv(vec3) v3 = vec3(-6.0, 5.0, 5.0) / 16.0;
 
-      c(vec3) nv0 = normalize(v0);
-      c(vec3) nv1 = normalize(v1);
-      c(vec3) nv2 = normalize(v2);
-      c(vec3) nv3 = normalize(v3);
+      cv(vec3) nv0 = normalize(v0);
+      cv(vec3) nv1 = normalize(v1);
+      cv(vec3) nv2 = normalize(v2);
+      cv(vec3) nv3 = normalize(v3);
 
-      c(float) pi2 = 2.0 * pi;
+      cv(float) pi2 = 2.0 * pi;
 
       float pi2ft = pi2 * frametime;
 
@@ -44,8 +44,8 @@
 
       if(fy > 0.002) return vec3(0.0);
 
-      c(float) pi2 = 2.0 * pi;
-      c(float) rcp16 = 1.0 / 16.0;
+      cv(float) pi2 = 2.0 * pi;
+      cv(float) rcp16 = 1.0 / 16.0;
 
       float wave = 0.05 * sin(pi2 / 4.0 * frametime + pi2 * 2.0 * rcp16 * position.x + pi2 * 5.0 * rcp16 * position.z) + 0.05 * sin(pi2 / 3 * frametime - pi2 * 3.0 * rcp16 * position.x + pi2 * 4.0 * rcp16 * position.z);
 

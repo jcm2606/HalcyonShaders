@@ -44,6 +44,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform float near;
 uniform float far;
+uniform float frameTimeCounter;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
