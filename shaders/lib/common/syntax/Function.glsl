@@ -58,6 +58,7 @@
   float getLuma(in vec3 colour) { return dot(colour, lumaCoeff); }
 
   vec3 saturation(in vec3 colour, in float saturation) { return mix(colour, vec3(getLuma(colour)), saturation); }
+  #define _saturation(c, s) ( mix(c, vec3(dot(c, lumaCoeff)), s) )
 
   #define getLinearDepth(depth) linearDepth(depth, near, far)
   float linearDepth(in float depth, in float near, in float far) { return 2.0 * near * far / (far + near - (depth * 2.0 - 1.0) * (far - near)); }

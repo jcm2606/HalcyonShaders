@@ -7,7 +7,7 @@
 #ifndef INTERNAL_INCLUDED_UTIL_BICUBICSAMPLER
   #define INTERNAL_INCLUDED_UTIL_BICUBICSAMPLER
 
-  vec4 bicubic2DLod(in sampler2D tex, in vec2 screenCoord, in float lod) {
+  vec4 bicubic2DLod(in sampler2D tex, in vec2 screenCoord, cin(float) lod) {
     vec2 res = vec2(viewWidth, viewHeight);
 
     screenCoord = screenCoord * res - 0.5;

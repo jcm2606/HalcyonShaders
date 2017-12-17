@@ -64,7 +64,7 @@
 
   //#define WHITE_TEXTURES
 
-  #define SUN_BRIGHTNESS 32768.0
+  #define SUN_BRIGHTNESS 16384.0
 
   #define SUN_SIZE 0.25
   #define MOON_SIZE 1.0

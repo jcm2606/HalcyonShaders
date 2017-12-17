@@ -18,8 +18,8 @@
   #define VC_OCTAVES 5 // How many octaves of noise should be used for the cloud FBM?. Higher number means the shape of clouds is more detailed, at the expense of performance. [3 4 5 6 7 8 9]
   
   #define VC_DENSITY_CLEAR 2200.0 // How dense are clouds during clear weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
-  #define VC_DENSITY_OVERCAST 2800.0 // How much density is added during overcast weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
-  #define VC_DENSITY_RAIN 5400.0 // How dense are clouds during rainy weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
+  #define VC_DENSITY_OVERCAST 2400.0 // How much density is added during overcast weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
+  #define VC_DENSITY_RAIN 2800.0 // How dense are clouds during rainy weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
 
   cv(float) cloudOvercastOffsetDensity = abs(VC_DENSITY_OVERCAST - VC_DENSITY_CLEAR);
 

@@ -175,6 +175,8 @@ value.FOG_OCCLUSION_SKY.0=No Occlusion
 value.FOG_OCCLUSION_SKY.1=Direct Shadow
 value.FOG_OCCLUSION_SKY.2=Approximation
 
+option.FOG_OCCLUSION_SKY_CLOUD=Sky Cloud Shadowing
+
 #   Atmospherics\Clouds
 screen.Clouds=Volumetric Clouds
 screen.Clouds.comment=PLACEHOLDER

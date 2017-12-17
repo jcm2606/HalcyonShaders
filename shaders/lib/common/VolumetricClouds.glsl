@@ -105,15 +105,20 @@
       #define scattering clouds.rgb
       #define transmittance clouds.a
 
+      vec3 nView = normalize(view);
       vec3 world = viewToWorld(view);
       vec3 nWorld = normalize(world);
 
       vec3 start = world * (cloudAltitudeLower - cameraPosition.y) / world.y;
 
+      float horizonFade = smoothstep(0.0, 0.02, dot(nView, upVector));
+
       if(cameraPosition.y >= cloudAltitudeLower && cameraPosition.y <= cloudAltitudeUpper) {
         start = vec3(0.0);
+        horizonFade = 1.0;
       } else if(cameraPosition.y >= cloudAltitudeUpper) {
         start = world * (cloudAltitudeUpper - cameraPosition.y) / world.y;
+        horizonFade = smoothstep(0.0, 0.02, dot(nView, -upVector));
       }
 
       vec3 incr = (nWorld / nWorld.y) * stepSize;
@@ -147,7 +152,11 @@
       #undef scattering
       #undef transmittance
 
-      clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, smoothstep(0.0, 0.02, dot(normalize(view), upVector)));
+      clouds = mix(
+        vec4(0.0, 0.0, 0.0, 1.0),
+        clouds,
+        horizonFade
+      );
 
       return clouds;
     }

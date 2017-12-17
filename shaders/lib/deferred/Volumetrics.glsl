@@ -146,7 +146,7 @@
         return 0.0;
       #endif
 
-      return rainStrength * FOG_LAYER_RAIN_DENSITY;
+      return exp2(-max0(world.y - SEA_LEVEL) * 0.1) * rainStrength * FOG_LAYER_RAIN_DENSITY;
     }
 
     float getWaterFog(in float opticalDepth, in vec3 world, in bool differenceMask, in bool isWater) {
@@ -272,7 +272,7 @@
       shadowRay.pos = shadowRay.incr * dither + shadowRay.origin;
 
       // DEFINE MIE TAIL
-      float miePhase = volumetrics_miePhase((dot(viewRay.dir, lightVector)), 0.2) * 2.0;
+      float miePhase = volumetrics_miePhase((dot(worldRay.dir, wLightVector)), 0.2) * 2.0;
 
       // DEFINE FRONT VIEW DISTANCE
       float distanceToViewFront = distance(viewRay.origin, position.viewFront);
@@ -317,7 +317,7 @@
         bool isWater = comparef(objectID, OBJECT_WATER, ubyteMaxRCP);
 
         // DEFINE ABSORPTION COEFFICIENT
-        float absorptionCoeff = (differenceMask && isWater) ? 16.0 : 2.0;
+        float absorptionCoeff = (differenceMask && isWater) ? 16.0 : 3.0;
 
         // GET OPTICAL DEPTH
         float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater);
@@ -337,7 +337,10 @@
 
         // GET CLOUD SHADOWS
         visibilityDirect *= getCloudShadow(world, wLightVector);
-        visibilitySky *= getCloudShadow(world, vec3(0.0, 1.0, 0.0));
+
+        #ifdef FOG_OCCLUSION_SKY_CLOUD
+          visibilitySky *= getCloudShadow(world, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+        #endif
 
         // OCCLUDE RAY
         vec2 rayVisibility = vec2(1.0);
@@ -355,7 +358,7 @@
         #endif
 
         // ILLUMINATE RAY
-        vec3 lightColour = atmosphereLighting[0] * directVisibility + atmosphereLighting[1] * skyVisibility;
+        vec3 lightColour = atmosphereLighting[0] * directVisibility + (atmosphereLighting[1] * skyVisibility);
         vec3 rayColour = lightColour;
 
         #undef directVisibility
@@ -436,15 +439,21 @@
         #define cloudTransmittance cloud.a
       #endif
 
+      // SAMPLE CURRENT PIXEL'S FOG TRANSMITTANCE
+      float currentFogTransmittance = texture2D(colortex4, screenCoord).a;
+
       // FILTER
       for(int i = 0; i < samples; i++) {
-        vec2 offset = circlemap(
+        vec2 offset = (circlemap(
           lattice(i * ditherScale + dither, samples * ditherScale)
-        ) * radius + screenCoord;
-
+        )) * radius + screenCoord;
+        
         // ACCUMULATE FOG
         #ifdef VOLUMETRICS
-          fog += texture2DLod(colortex4, offset, fogLOD);
+          vec4 fogSample = texture2DLod(colortex4, offset, fogLOD);
+          
+          fogScattering += fogSample.rgb;
+          fogTransmittance += mix(fogSample.a, currentFogTransmittance, clamp01((fogSample.a - currentFogTransmittance) * 16.0));
         #endif
 
         // ACCUMULATE CLOUDS

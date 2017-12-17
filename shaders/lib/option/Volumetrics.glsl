@@ -18,6 +18,8 @@
 
   #define FOG_OCCLUSION_SKY 1 // Which method of occlusion should sky lighting use?. [0 1]
 
+  //#define FOG_OCCLUSION_SKY_CLOUD // When enabled, clouds project shadows through the sky light in fog.
+
   // FOG LAYERS
   #define FOG_LAYER_HEIGHT // Height fog is a layer of fog that gets thicker as it gets lower into the world.
   #define FOG_LAYER_HEIGHT_DENSITY 0.15 // How dense should height fog be?. [0.0 0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4]
@@ -39,7 +41,7 @@
   #define FOG_LAYER_ROLLING_COVERAGE 0.4
 
   #define FOG_LAYER_RAIN // Rain fog is a thick layer of fog that occurs during rain.
-  #define FOG_LAYER_RAIN_DENSITY 0.5 // How dense should rain fog be?. [0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0 4.0 8.0 16.0 32.0]
+  #define FOG_LAYER_RAIN_DENSITY 2.0 // How dense should rain fog be?. [0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0 4.0 8.0 16.0 32.0]
 
   #define FOG_LAYER_WATER // Water fog is a thick layer of fog that only occurs within volumes of water.
   #define FOG_LAYER_WATER_DENSITY 2.0 // How dense should water fog be?. [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0]

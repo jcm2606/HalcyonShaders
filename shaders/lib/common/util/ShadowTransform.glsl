@@ -19,7 +19,7 @@
   cv(float) distortFactor = SHADOW_DISTORTION_FACTOR;
   cv(float) distortFactorInverse = 1.0 - distortFactor;
 
-  vec2 distortShadowPosition(in vec2 shadow, in int rangeConversion) {
+  vec2 distortShadowPosition(in vec2 shadow, cin(int) rangeConversion) {
     shadow = (rangeConversion == 0) ? shadow : shadow * 2.0 - 1.0;
 
     shadow /= flength(shadow) * distortFactor + distortFactorInverse;

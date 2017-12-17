@@ -61,7 +61,7 @@
     cv(float) sunBrightness = 1.5;
     cv(float) moonBrightness = 0.002;
     cv(float) moonLightBrightness = pow(16.0, 6.0);
-    cv(vec3) moonColour = vec3(0.2, 0.3, 1.0);
+    cv(vec3) moonColour = _saturation(vec3(0.0, 0.0, 1.0), 0.7);
 
     vec3 absorbS = absorb(getThickness(sunVector) * atmosphereStepsRCP) * getEarth(sunVector) * sunBrightness;
     vec3 absorbM = absorb(getThickness(moonVector) * atmosphereStepsRCP) * getEarth(moonVector) * moonBrightness;
