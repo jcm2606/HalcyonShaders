@@ -1,3 +1,5 @@
+**REQUIRES OPTIFINE 1.12 C7 OR GREATER!**
+
 Halcyon shaders for Minecraft: Java Edition, using Optifine.
 
 Halcyon will be heavily relying on the new deferred programs that have been added into Optifine, which opens up new avenues for development.
