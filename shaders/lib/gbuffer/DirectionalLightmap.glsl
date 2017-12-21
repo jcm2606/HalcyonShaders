@@ -21,8 +21,8 @@
     #define blockDerivative derivatives[0]
     #define skyDerivative derivatives[1]
 
-    vec3 T = normalize(dFdx(vertex));
-    vec3 B = normalize(dFdy(vertex));
+    vec3 T = normalize(dFdx(vView));
+    vec3 B = normalize(dFdy(vView));
     vec3 N = cross(T, B);
 
     mat2x3 tangentL = mat2x3(
@@ -42,12 +42,12 @@
     #undef blockDerivative
     #undef skyDerivative
 
-    shading = min(vec2(0.85), clamp01(shading * 1.5));
+    shading = clamp01(min(vec2(0.85), clamp01(shading * 1.5)));
 
     #undef blockShading
     #undef skyShading
 
-    shading.y = lightmap.y;
+    //shading.y = lightmap.y;
 
     return shading;//vec2(shading.x, lightmap.y);
   }

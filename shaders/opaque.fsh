@@ -78,7 +78,7 @@ void main() {
 
       #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
         // GENERATE VIEW VECTOR
-        vec3 view = normalize(tbn * vertex);
+        vec3 view = normalize(tbn * vView);
       #endif
     #endif
 

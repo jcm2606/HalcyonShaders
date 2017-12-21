@@ -30,10 +30,13 @@
   cv(float) cloudOvercastOffsetCoverage = abs(VC_COVERAGE_CLEAR - VC_COVERAGE_OVERCAST);
 
   #define VC_LIGHTING_QUALITY_DIRECT 2 // How many steps should be taken for direct lighting?. Higher number means more accurate lighting, at the expense of performance. [1 2 4 6 8 10 12 14 16]
-  #define VC_LIGHTING_QUALITY_SKY 1 // How many steps should be taken for sky lighting?. Higher number means more accurate lighting, at the expense of performance. [1 2 4 6 8 10 12 14 16]
-  #define VC_LIGHTING_QUALITY_BOUNCED 1 // How many steps should be taken for bounced lighting?. Higher number means more accurate lighting, at the expense of performance. [1 2 4 6 8 10 12 14 16]
+  #define VC_LIGHTING_QUALITY_SKY 1 // How many steps should be taken for sky lighting?. Higher number means more accurate lighting, at the expense of performance. [0 1 2 4 6 8 10 12 14 16]
+  #define VC_LIGHTING_QUALITY_BOUNCED 1 // How many steps should be taken for bounced lighting?. Higher number means more accurate lighting, at the expense of performance. [0 1 2 4 6 8 10 12 14 16]
 
   #define VC_ALTITUDE 4096.0 // How high in the world should clouds start? [1024.0 2048.0 4096.0 8192.0 16384.0]
   #define VC_HEIGHT 1024.0 // How high should clouds themselves be? [256.0 512.0 768.0 1024.0 1280.0 1536.0 1792.0 2048.0]
+  #define VC_SCALE 1.0 // How large should clouds be? [0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0]
+
+  cv(float) cloudScale = 0.0003 * VC_SCALE;
 
 #endif /* INTERNAL_INCLUDED_OPTION_VOLUMETRICCLOUDS */

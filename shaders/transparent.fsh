@@ -131,7 +131,7 @@ void main() {
   // ALBEDO
   gbuffer.albedo = texture2D(texture, uvCoord);
 
-  gbuffer.albedo = (water) ? vec4(0.0, 0.0, 0.0, 0.0) : gbuffer.albedo;
+  gbuffer.albedo = (water) ? vec4(1.0, 1.0, 1.0, 0.0) : gbuffer.albedo;
 
   #ifdef WHITE_TEXTURES
     gbuffer.albedo.rgb = vec3(1.0);

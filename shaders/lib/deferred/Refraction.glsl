@@ -7,20 +7,22 @@
 #ifndef INTERNAL_INCLUDED_DEFERRED_REFRACTION
   #define INTERNAL_INCLUDED_DEFERRED_REFRACTION
 
-  vec3 getRefractPos(out float dist, in vec2 screenCoord, in vec3 viewBack, in vec3 viewFront, in vec3 normal) {
-    dist = distance(viewFront, viewBack);
+  vec3 refractView(out float dist, in vec3 viewBack, in vec3 viewFront, in vec3 normal, cin(float) ior) {
+    dist = distance(viewBack, viewFront);
 
-    if(dist == 0.0) return vec3(screenCoord, 0.0);
+    if(dist == 0.0) return viewFront;
 
-    vec3 refractDir = refract(normalize(viewFront), normalize(normal), 1.0 / 1.333) * clamp01(dist) + viewFront;
-    
-    return viewToClip(refractDir);
+    return refract(viewFront, normal, ior) * dist * 100.0 + viewFront;
+  }
+
+  vec3 refractClip(out float dist, in vec3 viewBack, in vec3 viewFront, in vec3 normal, cin(float) ior) {
+    return viewToClip(refractView(dist, viewBack, viewFront, normal, ior));
   }
 
   #if PROGRAM == COMPOSITE0
     vec3 drawRefraction(io GbufferObject gbuffer, io PositionObject position, in vec3 background, in vec2 screenCoord) {
       float dist = 0.0;
-      vec3 refractPos = getRefractPos(dist, screenCoord, position.viewBack, position.viewFront, gbuffer.normal);
+      vec3 refractPos = refractClip(dist, position.viewBack, position.viewFront, gbuffer.normal, refractInterfaceAirWater);
 
       if(dist == 0.0 || texture2D(depthtex1, refractPos.xy).x < position.depthFront) return background;
 

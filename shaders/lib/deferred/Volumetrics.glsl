@@ -357,6 +357,8 @@
           // TODO: Sky light occlusion approximation.
         #endif
 
+        if((differenceMask && isWater) || (isEyeInWater == 0 && mask.water && distanceToViewRay > distanceToViewFront) || (isEyeInWater == 1 && (!mask.water || distanceToViewRay < distanceToViewFront))) skyVisibility *= visibilityBack;
+
         // ILLUMINATE RAY
         vec3 lightColour = atmosphereLighting[0] * directVisibility + (atmosphereLighting[1] * skyVisibility);
         vec3 rayColour = lightColour;
@@ -378,6 +380,9 @@
 
           rayColour *= absorbWater(distance(waterAbsorptionOrigin, waterAbsorptionTarget));
         }
+
+        // GET INTERACTION WITH TRANSPARENCY
+        if(distanceToViewRay > distanceToViewFront) rayColour *= gbuffer.albedo;
 
         // ACCUMULATE RAY
         scattering += rayColour * transmittedScatteringIntegral(opticalDepth * stepSize, absorptionCoeff) * transmittance;
@@ -416,7 +421,7 @@
       // GET REFRACTED SCREEN COORDINATE
       vec2 originalCoord = screenCoord;
       float refractDist = 0.0;
-      screenCoord = getRefractPos(refractDist, screenCoord, position.viewBack, position.viewFront, gbuffer.normal).xy;
+      screenCoord = refractClip(refractDist, position.viewBack, position.viewFront, gbuffer.normal, refractInterfaceAirWater).xy;
 
       if(refractDist == 0.0 || texture2D(depthtex1, screenCoord.xy).x < position.depthFront) screenCoord = originalCoord;
 

@@ -12,7 +12,7 @@
   }
 
   float getRawSkyLightmap(in float skyLight) {
-    return pow(skyLight, 5.0);
+    return pow(skyLight, 8.0);
   }
 
   float getSkyLightmap(in float skyLight, in vec3 normal) {

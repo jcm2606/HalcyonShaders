@@ -84,10 +84,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/common/WaterAbsorption.glsl"
 
+#include "/lib/deferred/Refraction.glsl"
+
 #include "/lib/common/VolumetricClouds.glsl"
 #include "/lib/deferred/Volumetrics.glsl"
-
-#include "/lib/deferred/Refraction.glsl"
 
 // FUNCTIONS
 vec3 getWaterAbsorption(in vec3 colour, io PositionObject position) {
@@ -129,15 +129,15 @@ void main() {
   // WRITE TRANSPARENT REFLECTIONS TO TEX7 RGB
   buffers.tex7.rgb = buffers.tex4.rgb;
 
+  // GENERATE VOLUMETRIC CLOUDS
+  buffers.tex5 = getVolumetricClouds(gbuffer, position, atmosphereLighting);
+
   // GENERATE VOLUMETRICS
   float frontAbsorption = 0.0;
   buffers.tex4 = getVolumetrics(gbuffer, position, mask, frontAbsorption, screenCoord, atmosphereLighting);
 
   // WRITE FRONT TRANSMITTANCE TO TEX7 A
   buffers.tex7.a = frontAbsorption;
-
-  // GENERATE VOLUMETRIC CLOUDS
-  buffers.tex5 = getVolumetricClouds(position.viewBack, position.depthBack, atmosphereLighting);
   
   // POPULATE OUTGOING BUFFERS
 /* DRAWBUFFERS:0457 */

@@ -140,7 +140,7 @@
     position *= rot; height += texnoise2D(noisetex, position * 2.0) * 0.5;
     position *= rot; height += texnoise2D(noisetex, position * 4.0) * 0.25;
 
-    return height * 0.21;
+    return height * 0.05;
   }
 
   float getGlassHeight(in vec3 world) {

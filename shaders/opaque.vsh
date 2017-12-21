@@ -52,6 +52,8 @@ uniform float frameTimeCounter;
 // INCLUDED FILES
 #include "/lib/gbuffer/WavingTerrain.glsl"
 
+#include "/lib/common/util/TBN.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
@@ -101,11 +103,11 @@ void main() {
   #if PROGRAM != GBUFFERS_BASIC && PROGRAM != GBUFFERS_SKYBASIC && PROGRAM != GBUFFERS_SKYTEXTURED
     normal = normalize(gl_NormalMatrix * gl_Normal);
 
-    vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
-
+    vertex = normalize(gl_ModelViewMatrix * gl_Vertex).xyz;
+    
     ttn = mat3(0.0);
 
-    ttn[0] = normalize(gl_NormalMatrix * at_tangent.xyz);
+    ttn[0] = normalize(gl_NormalMatrix * at_tangent.xyz / at_tangent.w);
     ttn[1] = cross(ttn[0], normal);
     ttn[2] = normal;
   #endif

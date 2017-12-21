@@ -32,7 +32,7 @@
     float getCloudFBM(in vec3 world) {
       float fbm = 0.0;
 
-      world *= 0.0003;
+      world *= cloudScale;
 
       cv(mat2) rot = rot2(-0.7);
 
@@ -52,6 +52,7 @@
         weight *= 0.6;
       }
 
+      //float coverageScale = mix(1.0, 1.0, smoothstep(0.0, 0.1, dot(normalize(world), normalize(vec3(0.0, 1.0, 0.0)))));
       float coverage = mix(VC_COVERAGE_CLEAR - pow2(weatherCycle) * cloudOvercastOffsetCoverage, VC_COVERAGE_RAIN, rainStrength);
 
       fbm -= coverage;
@@ -65,7 +66,7 @@
       vec3 sampleDirection = light * ((cloudAltitudeUpper - world.y) / light.y) + world;
 
       float opticalDepth  = getCloudFBM(sampleDirection);
-            opticalDepth *= 1.5;
+            opticalDepth *= 2.0;
             //opticalDepth *= smoothstep(0.0, 0.1, dot(normalize(light), normalize(vec3(0.0, 1.0, 0.0))));
 
       return exp(-0.02 * stepSize * opticalDepth * cloudDensity);
@@ -90,14 +91,14 @@
       return exp((0.02 * visDensity) * visStepSize * opticalDepth * cloudDensity);
     }
 
-    vec4 getVolumetricClouds(in vec3 view, in float backDepth, in mat2x3 atmosphereLighting) {
+    vec4 getVolumetricClouds(io GbufferObject gbuffer, io PositionObject position, in mat2x3 atmosphereLighting) {
       #ifndef VOLUMETRIC_CLOUDS
         return vec4(0.0, 0.0, 0.0, 1.0);
       #endif
 
       vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-      if(getLandMask(backDepth)) return clouds;
+      if(getLandMask(position.depthBack)) return clouds;
 
       atmosphereLighting[1] *= 1.5;
       atmosphereLighting[0] *= 4.0;
@@ -105,8 +106,16 @@
       #define scattering clouds.rgb
       #define transmittance clouds.a
 
+      vec3 view = position.viewBack;
+
+      //view += refract(view, gbuffer.normal, refractInterfaceAirWater) * 100.0;
+
+      //float refractDist = 0.0;
+      //view = refractView(refractDist, position.viewFront, view, gbuffer.normal, refractInterfaceAirWater);
+
       vec3 nView = normalize(view);
       vec3 world = viewToWorld(view);
+      if(position.depthBack > position.depthFront) world += refract(normalize(world), normalize(mat3(gbufferModelView) * gbuffer.normal), refractInterfaceAirWater);
       vec3 nWorld = normalize(world);
 
       vec3 start = world * (cloudAltitudeLower - cameraPosition.y) / world.y;
@@ -133,15 +142,31 @@
 
         if(opticalDepth <= 0.0) continue;
 
-        float visibilityLight = vcVisibilityCheck(ray, wLightVector, opticalDepth, 1.3, dither, VC_LIGHTING_QUALITY_DIRECT);
-        float visibilitySky = vcVisibilityCheck(ray, vec3(0.0, 1.0, 0.0), opticalDepth, 0.2, dither, VC_LIGHTING_QUALITY_SKY);
-        float visibilityBounced = vcVisibilityCheck(ray, vec3(0.0, -1.0, 0.0), opticalDepth, 0.5, dither, VC_LIGHTING_QUALITY_BOUNCED);
+        #if VC_LIGHTING_QUALITY_DIRECT > 0
+          float visibilityLight = vcVisibilityCheck(ray, wLightVector, opticalDepth, 1.3, dither, VC_LIGHTING_QUALITY_DIRECT);
+        #else
+          float visibilityLight = 1.0;
+        #endif
+
+        #if VC_LIGHTING_QUALITY_SKY > 0
+          float visibilitySky = vcVisibilityCheck(ray, vec3(0.0, 1.0, 0.0), opticalDepth, 0.2, dither, VC_LIGHTING_QUALITY_SKY);
+        #else
+          float visibilitySky = 1.0;
+        #endif
+
+        #if VC_LIGHTING_QUALITY_BOUNCED > 0
+          float visibilityBounced = vcVisibilityCheck(ray, vec3(0.0, -1.0, 0.0), opticalDepth, 0.5, dither, VC_LIGHTING_QUALITY_BOUNCED);
+        #else
+          float visibilityBounced = 1.0;
+        #endif
 
         vec3 lightingDirect = atmosphereLighting[0] * visibilityLight;
         vec3 lightingSky = atmosphereLighting[1] * visibilitySky;
         vec3 lightingBounced = (atmosphereLighting[0] * max0(dot(lightVector, upVector)) + atmosphereLighting[1]) * 0.05 * visibilityBounced;
 
         vec3 lighting = lightingDirect + lightingSky + lightingBounced;
+
+        if(position.depthBack > position.depthFront) lighting *= gbuffer.albedo;
 
         scattering += lighting * transmittedScatteringIntegral(opticalDepth, 0.02) * transmittance;
         transmittance *= exp(-0.02 * stepSize * opticalDepth * cloudDensity);

@@ -40,8 +40,10 @@
     cv(float) blockerRadius = 1.0E-3;
     cv(float) blockerLOD = 0;
 
+    cv(float) shadowBias = 0.5 * shadowMapResolutionRCP;
+
     vec3 shadowPosition = worldToShadow(viewToWorld(view));
-    shadowPosition.z += 0.5 * shadowMapResolutionRCP;
+    shadowPosition.z += shadowBias;
 
     cv(float) ditherScale = pow(128.0, 2.0);
     float dither = bayer128(gl_FragCoord.xy) * ditherScale;
@@ -56,11 +58,11 @@
     #define blockerBack blockers.y
 
     for(int i = 0; i < blockerSamples; i++) {
-      vec2 offset = circlemap(
+      vec2 coord = circlemap(
         lattice(i * ditherScale + dither, blockerSamples * ditherScale)
-      ) * blockerRadius;
+      ) * blockerRadius + shadowPosition.xy;
 
-      vec3 shadow = vec3(distortShadowPosition(shadowPosition.xy + offset, 1), shadowPosition.z);
+      vec3 shadow = vec3(distortShadowPosition(coord, 1), shadowPosition.z);
 
       float backDepth = texture2DLod(shadowtex1, shadow.xy, blockerLOD).x;
       
@@ -99,8 +101,8 @@
         lattice(i * ditherScale + dither, shadowSamples * ditherScale)
       );
 
-      vec3 shadowFront = vec3(distortShadowPosition(shadowPosition.xy + offset * radiusFront, 1), shadowPosition.z);
-      vec3 shadowBack = vec3(distortShadowPosition(shadowPosition.xy + offset * radiusBack, 1), shadowPosition.z);
+      vec3 shadowFront = vec3(distortShadowPosition(offset * radiusFront + shadowPosition.xy, 1), shadowPosition.z);
+      vec3 shadowBack = vec3(distortShadowPosition(offset * radiusBack + shadowPosition.xy, 1), shadowPosition.z);
 
       vec2 depths = vec2(
         texture2DLod(shadowtex0, shadowFront.xy, 0).x,

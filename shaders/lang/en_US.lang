@@ -19,7 +19,8 @@ screen.ShaderConfig=Shader Configuration
 screen.ShaderConfig.comment=PLACEHOLDER
 
 #   ShaderConfig\Options
-option.GLOBAL_SPEED=Global Speed Multiplier
+option.GLOBAL_SPEED=Global Speed
+value.GLOBAL_SPEED.0.0=Frozen
 value.GLOBAL_SPEED.0.08333=12x Slower
 value.GLOBAL_SPEED.0.09090909=11x Slower
 value.GLOBAL_SPEED.0.1=10x Slower
@@ -193,9 +194,11 @@ suffix.VC_LIGHTING_QUALITY_DIRECT= Steps
 
 option.VC_LIGHTING_QUALITY_SKY=Sky Lighting Quality
 suffix.VC_LIGHTING_QUALITY_SKY= Steps
+value.VC_LIGHTING_QUALITY_SKY.0=No
 
 option.VC_LIGHTING_QUALITY_BOUNCED=Bounced Lighting Quality
 suffix.VC_LIGHTING_QUALITY_BOUNCED= Steps
+value.VC_LIGHTING_QUALITY_BOUNCED.0=No
 
 option.VC_ALTITUDE=Altitude
 prefix.VC_ALTITUDE=Y 
