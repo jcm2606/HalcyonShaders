@@ -14,4 +14,6 @@
   // TRANSPARENT
   #define NORMAL_ANGLE_TRANSPARENT 0.25
 
+  #define _WaterHeight water0 // [water0 water1]
+
 #endif /* INTERNAL_INCLUDED_OPTION_NORMALS */

@@ -7,7 +7,7 @@
 #ifndef INTERNAL_INCLUDED_COMMON_WATERABSORPTION
   #define INTERNAL_INCLUDED_COMMON_WATERABSORPTION
 
-  vec3 absorbWater(in float dist) { return pow(waterColour, vec3(dist) * WATER_ABSORPTION_COEFF); }
+  vec3 absorbWater(in float dist) { return exp2(-waterColour * dist * WATER_ABSORPTION_COEFF); }
 
   vec3 interactWater(in vec3 colour, in float dist) {
     return mix(

@@ -8,7 +8,7 @@
   #define INTERNAL_INCLUDED_COMMON_LIGHTMAPS
 
   float getBlockLightmap(in float blockLight) {
-    return pow(blockLight, 4.0);
+    return pow(blockLight, BLOCK_LIGHT_ATTENUATION) * BLOCK_LIGHT_STRENGTH;
   }
 
   float getRawSkyLightmap(in float skyLight) {

@@ -17,7 +17,7 @@
     cv(mat2) rot = rot2(-0.7);
 
     position *= rot;
-    position *= 0.0008;
+    position *= 0.0011;
     position.x *= 0.35;
 
     float weight = 1.0;
@@ -34,7 +34,8 @@
 
       position *= 2.2;
       //position.x *= 1.07;
-      //position *= rot;
+      position *= rot;
+      wind *= rot;
       windSpeed *= 1.6;
       weight *= 0.45;
     }
@@ -43,34 +44,36 @@
   }
 
   float water1(in vec3 world) {
-    float height = 0.0;
+    float height = 1.0;
 
     vec2 position = world.xz - world.y;
+    cv(mat2) rot = rot2(-0.7);
 
-    cv(float) waveSpeed = 0.0013;
-    cv(vec2) waveDirection = swizzle2 * waveSpeed;
-    vec2 move = waveDirection * frametime;
-
-    cv(mat2) rot = rot2(0.7);
-
-    position *= 0.001;
     position *= rot;
+    position *= 0.0013;
+    //position.x *= 0.35;
 
-    //position *= vec2(1.0, 0.75);
+    float weight = 1.0;
+    float totalWeight = 0.0;
 
-    position *= rot; height += texnoise2D(noisetex, position + move * 0.25);
-    position *= rot; height += texnoise2D(noisetex, position * 2.0 + move * 2.0) * 0.5;
-    position *= rot; height -= texnoise2D(noisetex, position * 4.0 + move * 4.0) * 0.25;
-    position *= rot; height += texnoise2D(noisetex, position * 8.0 + move * 8.0) * 0.125;
-    position *= rot; height -= texnoise2D(noisetex, position * 16.0 + move * 16.0) * 0.0625;
-    position *= rot; height += texnoise2D(noisetex, position * 32.0 + move * 32.0) * 0.03125;
-    position *= rot; height += texnoise2D(noisetex, position * 64.0 + move * 64.0) * 0.015625;
-    position *= rot; height += texnoise2D(noisetex, position * 128.0 + move * 128.0) * 0.0078125;
-    position *= rot; height += texnoise2D(noisetex, position * 256.0 + move * 256.0) * 0.00390625;
+    cv(vec2) windDir = vec2(0.0, 1.0);
+    vec2 wind = windDir * frametime;
+    float windSpeed = 0.004;
 
-    height *= 0.75;
+    for(int i = 0; i < 4; i++) {
+      totalWeight += weight;
 
-    return pow(abs(height * 2.0 - 1.0), 0.85) * 1.5;
+      height -= texnoise2D(noisetex, wind * windSpeed + position) * weight;
+
+      position *= 2.2;
+      //position.x *= 1.07;
+      position *= rot;
+      //wind *= rot;
+      windSpeed *= 1.6;
+      weight *= 0.4;
+    }
+
+    return height / totalWeight * 0.6;
   }
 
   float water2(in vec3 world) {
@@ -117,7 +120,7 @@
   }
 
   float getWaterHeight(in vec3 world) {
-    return water0(world);
+    return _WaterHeight(world);
   }
 
   // ICE

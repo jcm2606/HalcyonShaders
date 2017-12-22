@@ -12,10 +12,6 @@
 
     #include "/lib/common/Lightmaps.glsl"
 
-    // OPTIONS
-    cv(int) steps = 8;
-    cRCP(float, steps);
-
     // OPTICAL DEPTH
     float getHeightFog(in vec3 world) {
       #ifndef FOG_LAYER_HEIGHT
@@ -149,15 +145,15 @@
       return exp2(-max0(world.y - SEA_LEVEL) * 0.1) * rainStrength * FOG_LAYER_RAIN_DENSITY;
     }
 
-    float getWaterFog(in float opticalDepth, in vec3 world, in bool differenceMask, in bool isWater) {
+    float getWaterFog(in float opticalDepth, in bool differenceMask, in bool isWaterShadow, in bool isWaterPixel) {
       #ifndef FOG_LAYER_WATER
         return 0.0;
       #endif
 
-      return (differenceMask && isWater) ? FOG_LAYER_WATER_DENSITY : opticalDepth;
+      return ((isEyeInWater == 1 && differenceMask && isWaterShadow) || (isEyeInWater == 0 && differenceMask && isWaterShadow && isWaterPixel)) ? FOG_LAYER_WATER_DENSITY : opticalDepth;
     }
 
-    float getOpticalDepth(in vec3 world, in float eBS, in float objectID, in bool differenceMask, in bool isWater) {
+    float getOpticalDepth(in vec3 world, in float eBS, in float objectID, in bool differenceMask, in bool isWaterShadow, in bool isWaterPixel) {
       float opticalDepth = 0.0;
 
       opticalDepth += getHeightFog(world);
@@ -165,7 +161,7 @@
       opticalDepth += getRollingFog(world);
       opticalDepth += getRainFog(world);
 
-      opticalDepth  = getWaterFog(opticalDepth, world, differenceMask, isWater);
+      opticalDepth  = getWaterFog(opticalDepth, differenceMask, isWaterShadow, isWaterPixel);
 
       return opticalDepth * 0.01;
     }
@@ -191,7 +187,7 @@
 
     #define getRayDirection(ray) ( normalize(ray.target - ray.origin) )
     #define getRayDistance(ray) ( distance(ray.target, ray.origin) )
-    #define getRayIncrement(ray) ( ray.dir * ray.dist * stepsRCP )
+    #define getRayIncrement(ray) ( ray.dir * ray.dist * vfStepsRCP )
 
     float volVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, in float stepSize, in float absorptionCoeff, in float eBS, const int samples) {
       const float visStepSizeScale = 1.0 / (float(samples) + 0.5);
@@ -203,7 +199,7 @@
       float opticalDepth = 0.5 * odAtStart;
 
       for(int i = 0; i < samples; i++, ray += dir) {
-        opticalDepth -= getOpticalDepth(ray, eBS, 0.0, false, false);
+        opticalDepth -= getOpticalDepth(ray, eBS, 0.0, false, false, false);
       }
 
       return clamp01(exp((absorptionCoeff * visDensity) * visStepSize * (opticalDepth)));
@@ -281,7 +277,7 @@
       float stepSize = flength(worldRay.incr);
 
       // MARCH
-      for(int i = 0; i < steps; i++, viewRay.pos += viewRay.incr, worldRay.pos += worldRay.incr, shadowRay.pos += shadowRay.incr) {
+      for(int i = 0; i < vfSteps; i++, viewRay.pos += viewRay.incr, worldRay.pos += worldRay.incr, shadowRay.pos += shadowRay.incr) {
         // DEFINE POSITIONS
         vec3 shadow = vec3(distortShadowPosition(shadowRay.pos.xy, 0), shadowRay.pos.z) * 0.5 + 0.5;
         vec3 world = worldRay.pos + cameraPosition;
@@ -317,10 +313,10 @@
         bool isWater = comparef(objectID, OBJECT_WATER, ubyteMaxRCP);
 
         // DEFINE ABSORPTION COEFFICIENT
-        float absorptionCoeff = (differenceMask && isWater) ? 16.0 : 3.0;
+        float absorptionCoeff = (differenceMask && isWater) ? vfAbsorptionCoeffWater : vfAbsorptionCoeffAir;
 
         // GET OPTICAL DEPTH
-        float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater);
+        float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater, mask.water);
 
         // GET VOLUME VISIBILITY
         #ifdef FOG_LIGHTING_DIRECT
@@ -477,9 +473,11 @@
       #endif
 
       // PERFORM WATER ABSORPTION ON CLOUDS
-      if(isEyeInWater == 1) {
-        cloudScattering *= absorbWater(distance(vec3(0.0), position.viewFront));
-      }
+      #ifdef VOLUMETRIC_CLOUDS
+        if(isEyeInWater == 1) {
+          cloudScattering *= absorbWater(distance(vec3(0.0), position.viewFront));
+        }
+      #endif
 
       // DRAW CLOUDS
       #ifdef VOLUMETRIC_CLOUDS
