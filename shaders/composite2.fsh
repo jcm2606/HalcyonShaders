@@ -24,6 +24,7 @@ uniform sampler2D colortex3;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+uniform sampler2D depthtex2;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"

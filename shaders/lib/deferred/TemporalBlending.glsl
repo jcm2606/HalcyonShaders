@@ -23,7 +23,7 @@
     cv(float) depthSpeed = 2.0;
     
     float prevDepth = readFromTile(colortex3, TILE_TEMPORAL_CENTER_DEPTH, 5).a;
-    float currDepth = texture2D(depthtex0, vec2(0.5)).x;
+    float currDepth = texture2D(depthtex1, vec2(0.5)).x;
     float centerDepth = mix(prevDepth, currDepth, clamp(frameTime * depthSpeed, 0.01, 0.99));
 
     blend = (canWriteTo(screenCoord, TILE_TEMPORAL_CENTER_DEPTH, 5)) ? centerDepth : blend;

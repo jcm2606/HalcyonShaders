@@ -38,6 +38,7 @@ uniform sampler2D colortex7;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+uniform sampler2D depthtex2;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
