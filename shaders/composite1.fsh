@@ -12,6 +12,7 @@
 #include "/lib/Header.glsl"
 
 // CONST
+const bool colortex0MipmapEnabled = true;
 const bool colortex4MipmapEnabled = true;
 const bool colortex5MipmapEnabled = true;
 
@@ -19,6 +20,7 @@ const bool colortex5MipmapEnabled = true;
 #define IN_TEX0
 #define IN_TEX1
 #define IN_TEX2
+#define IN_TEX3
 #define IN_TEX5
 #define IN_TEX7
 
@@ -29,6 +31,7 @@ varying vec2 screenCoord;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
+uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex7;
@@ -41,6 +44,8 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
+uniform float frameTime;
+
 uniform int isEyeInWater;
 
 // STRUCT
@@ -50,6 +55,8 @@ uniform int isEyeInWater;
 
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/deferred/TemporalBlending.glsl"
+
 #include "/lib/common/util/SpaceTransform.glsl"
 
 #include "/lib/deferred/Volumetrics.glsl"
@@ -74,7 +81,11 @@ void main() {
   // DRAW TRANSPARENT REFLECTIONS
   buffers.tex0.rgb += buffers.tex7.rgb * buffers.tex7.a;
 
+  // PERFORM TEMPORAL BLENDING
+  getTemporalBlending(buffers.tex3.a, screenCoord);
+
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:03 */
   gl_FragData[0] = buffers.tex0;
+  gl_FragData[1] = buffers.tex3;
 }

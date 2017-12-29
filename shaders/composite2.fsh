@@ -12,43 +12,42 @@
 #include "/lib/Header.glsl"
 
 // CONST
-const bool colortex0MipmapEnabled = true;
-
 // USED BUFFERS
 #define IN_TEX0
 
 // VARYING
 varying vec2 screenCoord;
 
-flat(vec4) timeVector;
-
 // UNIFORM
 uniform sampler2D colortex0;
 uniform sampler2D colortex3;
 
-uniform float frameTime;
+uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"
+#include "/lib/common/struct/StructPosition.glsl"
 
 // ARBITRARY
 // INCLUDED FILES
-#include "/lib/deferred/Camera.glsl"
+#include "/lib/deferred/DOF.glsl"
 
 // FUNCTIONS
 // MAIN
 void main() {
   // CREATE STRUCTS
   NewBufferObject(buffers);
+  NewPositionObject(position);
 
   // POPULATE STRUCTS
   populateBufferObject(buffers, screenCoord);
+  populateDepths(position, screenCoord);
 
-  // PERFORM CAMERA EXPOSURE
-  buffers.tex0.rgb = getExposedFrame(buffers.tex3.a, buffers.tex0.rgb, screenCoord);
+  // DRAW DEPTH-OF-FIELD
+  buffers.tex0.rgb = drawDOF(position, buffers.tex0.rgb, screenCoord, readFromTile(colortex3, TILE_TEMPORAL_CENTER_DEPTH, 5).a);
 
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:03 */
+/* DRAWBUFFERS:0 */
   gl_FragData[0] = buffers.tex0;
-  gl_FragData[1] = buffers.tex3;
 }

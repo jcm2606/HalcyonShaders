@@ -59,9 +59,13 @@
 
   vec3 saturation(in vec3 colour, in float saturation) { return mix(colour, vec3(getLuma(colour)), saturation); }
   #define _saturation(c, s) ( mix(c, vec3(dot(c, lumaCoeff)), s) )
+  
+  float getLinearDepth(in float depth) { return 0.1 / (1.05 - depth * 0.95); }
 
+  /*
   #define getLinearDepth(depth) linearDepth(depth, near, far)
   float linearDepth(in float depth, in float near, in float far) { return 2.0 * near * far / (far + near - (depth * 2.0 - 1.0) * (far - near)); }
+  */
 
   #define getExpDepth(depth) expDepth(depth, near, far)
   float expDepth(in float dist, in float near, in float far) { return (far * (dist - near)) / (dist * (far - near)); }
@@ -87,6 +91,11 @@
   }
 
   vec2 lattice(in float i, cin(float) n) { return vec2(mod(i * pi, sqrt(n)) * inversesqrt(n), i / n); }
+
+  vec2 mapSpiral0(float index, float total) {
+    float theta = index * tau / (phi * phi);
+    return vec2(sin(theta), cos(theta)) * sqrt(index / total);
+  }
 
   float length8(in vec2 v) {
     v *= v;

@@ -58,9 +58,7 @@
     #define blockerBack blockers.y
 
     for(int i = 0; i < blockerSamples; i++) {
-      vec2 coord = circlemap(
-        lattice(i * ditherScale + dither, blockerSamples * ditherScale)
-      ) * blockerRadius + shadowPosition.xy;
+      vec2 coord = mapSpiral0(i * ditherScale + dither, blockerSamples * ditherScale) * blockerRadius + shadowPosition.xy;
 
       vec3 shadow = vec3(distortShadowPosition(coord, 1), shadowPosition.z);
 
@@ -97,9 +95,7 @@
 
     // FILTER
     for(int i = 0; i < shadowSamples; i++) {
-      vec2 offset = circlemap(
-        lattice(i * ditherScale + dither, shadowSamples * ditherScale)
-      );
+      vec2 offset = mapSpiral0(i * ditherScale + dither, shadowSamples * ditherScale);
 
       vec3 shadowFront = vec3(distortShadowPosition(offset * radiusFront + shadowPosition.xy, 1), shadowPosition.z);
       vec3 shadowBack = vec3(distortShadowPosition(offset * radiusBack + shadowPosition.xy, 1), shadowPosition.z);

@@ -12,7 +12,7 @@
     const int colortex0Format = RGBA16F;
     const int colortex1Format = RGB32F;
     const int colortex2Format = RGB32F;
-    const int colortex3Format = RGBA16F;
+    const int colortex3Format = RGBA32F;
     const int colortex4Format = RGBA16F;
     const int colortex5Format = RGBA16F;
     const int colortex6Format = RGBA16;
@@ -50,6 +50,7 @@
   #include "/lib/option/WavingTerrain.glsl"
   #include "/lib/option/Bloom.glsl"
   #include "/lib/option/AmbientLighting.glsl"
+  #include "/lib/option/DOF.glsl"
 
   // OPTIONS
   #define GLOBAL_SPEED 1.0 // How fast should the shader run?. This is a multiple of real-world time. For cinematics, '12x Slower' allows you to record the game at 5 FPS, then speed it up in post to get 60 FPS, and the shader will run at its normal speed. [0.0 0.08333 0.09090909 0.1 0.111 0.125 0.142857 0.1666 0.2 0.25 0.333 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0]
