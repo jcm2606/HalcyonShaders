@@ -33,7 +33,7 @@
       height -= texnoise2D(noisetex, wind * windSpeed + position) * weight;
 
       position *= 2.2;
-      //position.x *= 1.07;
+      position.x *= 1.07;
       position *= rot;
       wind *= rot;
       windSpeed *= 1.6;

@@ -79,8 +79,7 @@
     if(layer == 0) specular.rgb *= fresnel;
 
     // APPLY SPECULAR HIGHLIGHT
-    vec3 light = sunMRP(nnormal, nview, lightVector);
-    float highlight = ggx(nview, nnormal, light, alpha.y, f0);
+    float highlight = ggx(nview, nnormal, sunMRP(nnormal, nview, lightVector), alpha.y, f0);
 
     #if PROGRAM == DEFERRED2
       highlight *= getCloudShadow(viewToWorld(view) + cameraPosition, wLightVector);

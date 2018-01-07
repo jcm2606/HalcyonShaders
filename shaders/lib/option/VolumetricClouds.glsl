@@ -19,13 +19,13 @@
   
   #define VC_DENSITY_CLEAR 2200.0 // How dense are clouds during clear weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
   #define VC_DENSITY_OVERCAST 2400.0 // How much density is added during overcast weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
-  #define VC_DENSITY_RAIN 2800.0 // How dense are clouds during rainy weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
+  #define VC_DENSITY_RAIN 3600.0 // How dense are clouds during rainy weather? [1800.0 2000.0 2200.0 2400.0 2600.0 2800.0 3000.0 3200.0 3400.0 3600.0 3800.0 4000.0 4200.0 4400.0 4600.0 4800.0 5000.0 5200.0 5400.0 5600.0 5800.0 6000.0 6200.0]
 
   cv(float) cloudOvercastOffsetDensity = abs(VC_DENSITY_OVERCAST - VC_DENSITY_CLEAR);
 
-  #define VC_COVERAGE_CLEAR 1.3 // How large are clouds during clear weather?. Smaller number = larger clouds. [1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7]
-  #define VC_COVERAGE_OVERCAST 0.9 // How large are clouds during overcast weather?. Smaller number = larger clouds. [0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2]
-  #define VC_COVERAGE_RAIN 0.3 // How large are clouds during rainy weather?. Smaller number = larger clouds. [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+  #define VC_COVERAGE_CLEAR 0.4 // How large are clouds during clear weather?. Smaller number = larger clouds. [0.1 0.2 0.3 0.4 0.5 0.6]
+  #define VC_COVERAGE_OVERCAST 0.08 // How large are clouds during overcast weather?. Smaller number = larger clouds. [0.02 0.04 0.06 0.08 0.1]
+  #define VC_COVERAGE_RAIN 0.0002 // How large are clouds during rainy weather?. Smaller number = larger clouds. [0.0002]
 
   cv(float) cloudOvercastOffsetCoverage = abs(VC_COVERAGE_CLEAR - VC_COVERAGE_OVERCAST);
 

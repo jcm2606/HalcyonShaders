@@ -43,13 +43,18 @@
       float windSpeed = 0.04;
 
       for(int i = 0; i < cloudOctaves; i++) {
-        fbm += texnoise3D(noisetex, wind * windSpeed + world) * weight;
+        float noiseSample = texnoise3D(noisetex, wind * windSpeed + world) * weight;
+
+        if(mod(i, 2) == 0)
+          fbm += noiseSample;
+        else
+          fbm -= noiseSample;
 
         world *= 2.2;
         world.xz *= rot;
         //world.yz *= rot;
         windSpeed *= 1.4;
-        weight *= 0.6;
+        weight *= 0.55;
       }
 
       //float coverageScale = mix(1.0, 1.0, smoothstep(0.0, 0.1, dot(normalize(world), normalize(vec3(0.0, 1.0, 0.0)))));
@@ -57,12 +62,16 @@
 
       fbm -= coverage;
       fbm  = max0(fbm);
-      fbm *= 1.2;
+      fbm *= 1.3;
 
       return clamp01(fbm);
     }
 
     float getCloudShadow(in vec3 world, in vec3 light) {
+      #ifndef VOLUMETRIC_CLOUDS
+        return 1.0;
+      #endif
+
       vec3 sampleDirection = light * ((cloudAltitudeUpper - world.y) / light.y) + world;
 
       float opticalDepth  = getCloudFBM(sampleDirection);
@@ -89,6 +98,14 @@
       }
 
       return exp((0.02 * visDensity) * visStepSize * opticalDepth * cloudDensity);
+    }
+
+    float vc_miePhase(in float theta, cin(float) G) {
+      cv(float) gg = G * G;
+      cv(float) p1 = (0.75 * (1.0 - gg)) / (tau * (2.0 + gg));
+      float p2 = (theta * theta + 1.0) * pow(1.0 + gg - 2.0 * G * theta, -1.5);
+    
+      return p1 * p2;
     }
 
     vec4 getVolumetricClouds(io GbufferObject gbuffer, io PositionObject position, in mat2x3 atmosphereLighting) {
@@ -135,7 +152,7 @@
       float dither = bayer128(gl_FragCoord.xy);
       vec3 ray = incr * dither + start + cameraPosition;
 
-      float miePhase = phaseMie(dot(nWorld, wLightVector));
+      float miePhase = vc_miePhase(dot(nWorld, normalize(wLightVector)), 0.8) * 8.0 + 0.8;
 
       for(int i = 0; i < cloudSteps; i++, ray += incr) {
         float opticalDepth = getCloudFBM(ray);
@@ -149,7 +166,7 @@
         #endif
 
         #if VC_LIGHTING_QUALITY_SKY > 0
-          float visibilitySky = vcVisibilityCheck(ray, vec3(0.0, 1.0, 0.0), opticalDepth, 0.2, dither, VC_LIGHTING_QUALITY_SKY);
+          float visibilitySky = vcVisibilityCheck(ray, vec3(0.0, 1.0, 0.0), opticalDepth, 0.5, dither, VC_LIGHTING_QUALITY_SKY);
         #else
           float visibilitySky = 1.0;
         #endif
@@ -160,7 +177,7 @@
           float visibilityBounced = 1.0;
         #endif
 
-        vec3 lightingDirect = atmosphereLighting[0] * visibilityLight;
+        vec3 lightingDirect = atmosphereLighting[0] * visibilityLight * miePhase;
         vec3 lightingSky = atmosphereLighting[1] * visibilitySky;
         vec3 lightingBounced = (atmosphereLighting[0] * max0(dot(lightVector, upVector)) + atmosphereLighting[1]) * 0.05 * visibilityBounced;
 
@@ -169,7 +186,7 @@
         if(position.depthBack > position.depthFront) lighting *= gbuffer.albedo;
 
         scattering += lighting * transmittedScatteringIntegral(opticalDepth, 0.02) * transmittance;
-        transmittance *= exp(-0.02 * stepSize * opticalDepth * cloudDensity);
+        transmittance *= exp(-0.07 * stepSize * opticalDepth * cloudDensity);
       }
 
       scattering *= cloudStepsRCP;

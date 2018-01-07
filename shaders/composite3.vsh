@@ -16,14 +16,22 @@
 // VARYING
 varying vec2 screenCoord;
 
+flat(vec4) timeVector;
+
 // UNIFORM
+uniform float sunAngle;
+
 // STRUCT
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/common/util/Time.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
   gl_Position = reprojectVertex(gl_ModelViewMatrix, gl_Vertex.xyz);
 
   screenCoord = gl_MultiTexCoord0.xy;
+
+  timeVector = getTimeVector();
 }

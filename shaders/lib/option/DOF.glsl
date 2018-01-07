@@ -10,7 +10,7 @@
   #define DOF
 
   #define DOF_DISPERSION
-  #define DOF_DISPERSION_INTENSITY 0.15
+  #define DOF_DISPERSION_INTENSITY 0.2
   
   cv(float) dofDispersionR = 1.0 - (DOF_DISPERSION_INTENSITY * 2.0);
   cv(float) dofDispersionG = 1.0 - DOF_DISPERSION_INTENSITY;

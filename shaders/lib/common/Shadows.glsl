@@ -113,7 +113,7 @@
 
       if(forward) continue;
 
-      shadowObject.difference += sign(depthBack - depthFront);
+      shadowObject.difference += ceil(depthBack - depthFront);
 
       if(depthBack <= depthFront) continue;
 

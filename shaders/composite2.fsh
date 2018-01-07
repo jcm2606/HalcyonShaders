@@ -12,6 +12,8 @@
 #include "/lib/Header.glsl"
 
 // CONST
+const bool colortex0MipmapEnabled = true;
+
 // USED BUFFERS
 #define IN_TEX0
 
@@ -25,6 +27,9 @@ uniform sampler2D colortex3;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
+
+uniform float viewWidth;
+uniform float viewHeight;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"

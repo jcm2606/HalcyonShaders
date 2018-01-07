@@ -97,6 +97,14 @@
     return vec2(sin(theta), cos(theta)) * sqrt(index / total);
   }
 
+  vec2 circleMap(in float point) {
+    return vec2(cos(point), sin(point));
+  }
+
+  vec2 mapBokeh(in float index, in float total, cin(float) scale, cin(float) tauScale) {
+    return clamp01(abs(cos(total * scale))) * circleMap(total * tauScale) * index;
+  }
+
   float length8(in vec2 v) {
     v *= v;
     v *= v;

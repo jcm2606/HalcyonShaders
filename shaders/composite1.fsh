@@ -21,11 +21,15 @@ const bool colortex5MipmapEnabled = true;
 #define IN_TEX1
 #define IN_TEX2
 #define IN_TEX3
-#define IN_TEX5
-#define IN_TEX7
+#define IN_TEX6
 
 // VARYING
 varying vec2 screenCoord;
+
+flat(vec3) sunVector;
+flat(vec3) moonVector;
+flat(vec3) lightVector;
+flat(vec3) wLightVector;
 
 // UNIFORM
 uniform sampler2D colortex0;
@@ -34,7 +38,7 @@ uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
-uniform sampler2D colortex7;
+uniform sampler2D colortex6;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -46,6 +50,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
 uniform float frameTime;
+uniform float frameTimeCounter;
 
 uniform int isEyeInWater;
 
@@ -59,6 +64,10 @@ uniform int isEyeInWater;
 #include "/lib/deferred/TemporalBlending.glsl"
 
 #include "/lib/common/util/SpaceTransform.glsl"
+
+#include "/lib/deferred/Refraction.glsl"
+
+#include "/lib/common/Reflections.glsl"
 
 #include "/lib/deferred/Volumetrics.glsl"
 
@@ -76,11 +85,21 @@ void main() {
   populateDepths(position, screenCoord);
   populateViewPositions(position, screenCoord);
 
+  // DRAW REFRACTION
+  buffers.tex0.rgb = drawRefraction(gbuffer, position, buffers.tex0.rgb, screenCoord);
+
+  if(position.depthBack > position.depthFront) {
+    buffers.tex0.rgb *= gbuffer.albedo;
+    buffers.tex0.rgb  = mix(buffers.tex0.rgb, buffers.tex6.rgb, buffers.tex6.a);
+  }
+
   // DRAW VOLUMETRICS
   buffers.tex0.rgb = drawCombinedVolumetrics(gbuffer, position, buffers.tex0.rgb, screenCoord);
 
   // DRAW TRANSPARENT REFLECTIONS
-  buffers.tex0.rgb += buffers.tex7.rgb * buffers.tex7.a;
+  //if(position.depthBack > position.depthFront) buffers.tex0.rgb = drawReflectionOnSurface(buffers.tex0, colortex0, position.viewFront, getAtmosphereLighting(), gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, vec4(1.0), gbuffer.skyLight);
+  if(position.depthBack > position.depthFront) buffers.tex0.rgb = getReflections(0, colortex0, position.viewFront, getAtmosphereLighting(), gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, vec4(1.0), gbuffer.skyLight).rgb * buffers.tex0.a + buffers.tex0.rgb;
+  //buffers.tex0.rgb += buffers.tex7.rgb * buffers.tex7.a;
 
   // PERFORM TEMPORAL BLENDING
   getTemporalBlending(buffers.tex3.a, screenCoord);

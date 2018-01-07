@@ -220,18 +220,9 @@ void main() {
   // POPULATE BUFFERS IN GBUFFER OBJECT
   populateBuffers(gbuffer);
 
-  // DRAW REFLECTIONS
-  vec4 reflection = getTransparentReflections(vView, gbuffer.albedo.xyz, gbuffer.normal, materialVector.x, materialVector.y, atmosphereLighting, shadowObject.occlusionFront);
-
-  // DRAW WATER ABSORPTION
-  vec3 background = texture2D(gaux4, screenCoord).rgb;
-  vec4 absorbedBackground = (water && isEyeInWater == 0) ? vec4(getWaterInteraction(background, screenCoord, vView, backView), 1.0) : vec4(0.0);
-
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:12460 */
+  /* DRAWBUFFERS:126 */
   gl_FragData[0] = gbuffer.gbuffer0;
   gl_FragData[1] = gbuffer.gbuffer1;
-  gl_FragData[2] = reflection;
-  gl_FragData[3] = vec4(diffuse, gbuffer.albedo.a);
-  gl_FragData[4] = absorbedBackground;
+  gl_FragData[2] = vec4(diffuse, gbuffer.albedo.a);
 }

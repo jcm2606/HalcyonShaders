@@ -42,8 +42,9 @@
 
       vec3 interval = view * intervalMult;
       vec3 coord = vec3(uvCoord, 1.0);
+      float pn = parallaxSample(normals, coord.xy).a;
 
-      for(int i = 0; i < maxOcclusionPoints && parallaxSample(normals, coord.xy).a < coord.p; i++) {
+      for(int i = 0; i < maxOcclusionPoints && pn < coord.p; i++) {
         coord += interval;
       }
       

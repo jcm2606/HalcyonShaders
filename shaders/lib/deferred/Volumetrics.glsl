@@ -220,6 +220,8 @@
         return vec4(0.0, 0.0, 0.0, 1.0);
       #endif
 
+      atmosphereLighting[0] *= 4.0;
+
       vec4 volumetrics = vec4(0.0, 0.0, 0.0, 1.0);
 
       #define scattering volumetrics.rgb
@@ -417,7 +419,7 @@
       // GET REFRACTED SCREEN COORDINATE
       vec2 originalCoord = screenCoord;
       float refractDist = 0.0;
-      screenCoord = refractClip(refractDist, position.viewBack, position.viewFront, gbuffer.normal, refractInterfaceAirWater).xy;
+      screenCoord = refractClip(refractDist, position.viewBack, position.viewFront, screenCoord, gbuffer.normal, refractInterfaceAirWater).xy;
 
       if(refractDist == 0.0 || texture2D(depthtex1, screenCoord.xy).x < position.depthFront) screenCoord = originalCoord;
 

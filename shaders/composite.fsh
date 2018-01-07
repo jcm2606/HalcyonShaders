@@ -16,8 +16,6 @@
 #define IN_TEX0
 #define IN_TEX1
 #define IN_TEX2
-#define IN_TEX4
-#define IN_TEX6
 
 // VARYING
 varying vec2 screenCoord;
@@ -33,8 +31,6 @@ flat(vec4) timeVector;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
-uniform sampler2D colortex4;
-uniform sampler2D colortex6;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -84,18 +80,16 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/common/WaterAbsorption.glsl"
 
-#include "/lib/deferred/Refraction.glsl"
-
 #include "/lib/common/VolumetricClouds.glsl"
 #include "/lib/deferred/Volumetrics.glsl"
 
 // FUNCTIONS
-vec3 getWaterAbsorption(in vec3 colour, io PositionObject position) {
-  if(isEyeInWater == 0) return colour;
+vec3 getWaterAbsorption(io PositionObject position, io MaskObject mask, in vec3 colour) {
+  if(isEyeInWater == 0 && !mask.water) return colour;
 
-  float dist = distance(vec3(0.0), position.viewFront);
+  float dist = distance((isEyeInWater == 0) ? position.viewBack : vec3(0.0), position.viewFront);
 
-  return interactWater(colour, dist);
+  return colour * absorbWater(dist);
 }
 
 // MAIN
@@ -116,18 +110,8 @@ void main() {
   // GENERATE ATMOSPHERE LIGHTING
   mat2x3 atmosphereLighting = getAtmosphereLighting();
 
-  // DRAW REFRACTION
-  buffers.tex0.rgb = drawRefraction(gbuffer, position, buffers.tex0.rgb, screenCoord);
-
-  // DRAW TRANSPARENT BLOCKS
-  buffers.tex0.rgb *= (buffers.tex6.a > 0.0) ? gbuffer.albedo : vec3(1.0);
-  buffers.tex0.rgb  = mix(buffers.tex0.rgb, buffers.tex6.rgb, buffers.tex6.a);
-
-  // DRAW UNDERWATER ABSORPTION
-  buffers.tex0.rgb = getWaterAbsorption(buffers.tex0.rgb, position);
-
-  // WRITE TRANSPARENT REFLECTIONS TO TEX7 RGB
-  buffers.tex7.rgb = buffers.tex4.rgb;
+  // DRAW WATER ABSORPTION
+  buffers.tex0.rgb = getWaterAbsorption(position, mask, buffers.tex0.rgb);
 
   // GENERATE VOLUMETRIC CLOUDS
   buffers.tex5 = getVolumetricClouds(gbuffer, position, atmosphereLighting);
@@ -136,13 +120,12 @@ void main() {
   float frontAbsorption = 0.0;
   buffers.tex4 = getVolumetrics(gbuffer, position, mask, frontAbsorption, screenCoord, atmosphereLighting);
 
-  // WRITE FRONT TRANSMITTANCE TO TEX7 A
-  buffers.tex7.a = frontAbsorption;
+  // WRITE FRONT TRANSMITTANCE TO TEX0 A
+  buffers.tex0.a = frontAbsorption;
   
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:0457 */
+/* DRAWBUFFERS:045 */
   gl_FragData[0] = buffers.tex0;
   gl_FragData[1] = buffers.tex4;
   gl_FragData[2] = buffers.tex5;
-  gl_FragData[3] = buffers.tex7;
 }
