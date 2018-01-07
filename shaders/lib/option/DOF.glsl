@@ -9,6 +9,8 @@
 
   #define DOF
 
+  #define DOF_INTENSITY 0.05
+
   #define DOF_DISPERSION
   #define DOF_DISPERSION_INTENSITY 0.2
   

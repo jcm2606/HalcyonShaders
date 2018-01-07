@@ -38,7 +38,7 @@
     cv(int) blockerSamples = 8;
     cRCP(float, blockerSamples);
     cv(float) blockerRadius = 1.0E-3;
-    cv(float) blockerLOD = 0;
+    cv(int) blockerLOD = 0;
 
     cv(float) shadowBias = 0.5 * shadowMapResolutionRCP;
 
@@ -113,7 +113,7 @@
 
       if(forward) continue;
 
-      shadowObject.difference += ceil(depthBack - depthFront);
+      shadowObject.difference += min1(ceil(depthBack - depthFront));
 
       if(depthBack <= depthFront) continue;
 

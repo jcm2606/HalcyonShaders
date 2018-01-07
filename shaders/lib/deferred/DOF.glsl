@@ -19,7 +19,7 @@
     cv(int) samples = 8;
     cRCP(float, samples);
 
-    cv(float) intensity = 0.05;
+    cv(float) intensity = DOF_INTENSITY;
 
     cv(float) ditherScale = pow(16.0, 2.0);
     float dither = bayer128(gl_FragCoord.xy) * ditherScale;
