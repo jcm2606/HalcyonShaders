@@ -27,7 +27,7 @@
   #define circlemap(p) (vec2(cos((p).y*tau), sin((p).y*tau)) * p.x)
 
   void getShadows(io ShadowObject shadowObject, in vec3 view, in float cloudShadow, in bool forward) {
-    cv(int) shadowSamples = 16;
+    cv(int) shadowSamples = SHADOW_FILTER_QUALITY;
     cRCP(float, shadowSamples);
 
     cv(float) lightDistance = lightSourceDistanceScaled;
