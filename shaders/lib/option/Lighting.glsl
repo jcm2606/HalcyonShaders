@@ -20,12 +20,17 @@
   #endif
 
   // SKY LIGHT
-  #define SKY_LIGHT_STRENGTH 8.0
+  #define SKY_LIGHT_STRENGTH 6.0
 
   // DIRECTIONAL LIGHTMAPS
-  #define DIRECTIONAL_LIGHTMAP_STEEPNESS 0.45
+  #define DL_BLOCK_STEEPNESSS 0.5
 
-  cv(float) dlSteepnessA = DIRECTIONAL_LIGHTMAP_STEEPNESS;
-  cv(float) dlSteepnessB = 1.0 - dlSteepnessA;
+  cv(float) dlBlSteepnessA = DL_BLOCK_STEEPNESSS;
+  cv(float) dlBlSteepnessB = 1.0 - dlBlSteepnessA;
+
+  #define DL_SKY_STEEPNESSS 0.4
+
+  cv(float) dlSlSteepnessA = DL_SKY_STEEPNESSS;
+  cv(float) dlSlSteepnessB = 1.0 - dlSlSteepnessA;
 
 #endif /* INTERNAL_INCLUDED_OPTION_LIGHTING */

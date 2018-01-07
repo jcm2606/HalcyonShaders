@@ -33,8 +33,8 @@
     #define lightBlock tangentL[0]
     #define lightSky tangentL[1]
 
-    blockShading = max0(dot(surfaceNormal, lightBlock) * dlSteepnessA + dlSteepnessB);
-    skyShading = max0(dot(surfaceNormal, lightSky) * dlSteepnessA + dlSteepnessB);
+    blockShading = max0(dot(surfaceNormal, lightBlock) * dlBlSteepnessA + dlBlSteepnessB);
+    skyShading = max0(dot(surfaceNormal, lightSky) * dlSlSteepnessA + dlSlSteepnessB);
 
     #undef lightBlock
     #undef lightSky
