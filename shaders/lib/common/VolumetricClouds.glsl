@@ -152,7 +152,7 @@
       float dither = bayer128(gl_FragCoord.xy);
       vec3 ray = incr * dither + start + cameraPosition;
 
-      float miePhase = vc_miePhase(dot(nWorld, normalize(wLightVector)), 0.8) * 8.0 + 0.8;
+      float miePhase = vc_miePhase(dot(nWorld, normalize(wLightVector)), 0.8) * 2.0 + 0.8;
 
       for(int i = 0; i < cloudSteps; i++, ray += incr) {
         float opticalDepth = getCloudFBM(ray);
