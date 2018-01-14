@@ -12,8 +12,8 @@
   #define NORMAL_ANGLE_WET 0.0
   
   // TRANSPARENT
-  #define NORMAL_ANGLE_TRANSPARENT 0.25
+  #define NORMAL_ANGLE_TRANSPARENT 0.2
 
-  #define _WaterHeight water0 // [water0 water1]
+  #define _WaterHeight water0 // [water0 water1 water2]
 
 #endif /* INTERNAL_INCLUDED_OPTION_NORMALS */

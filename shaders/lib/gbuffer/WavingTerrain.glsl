@@ -71,6 +71,15 @@
         position.xyz += moveFullVertex(world, vec2(0.3, 0.31), vec2(1.1, 0.9), vec3(0.03, 0.0, 0.03), vec3(0.03, 0.0, 0.03));
       }
 
+      if(
+        false
+        #ifdef WAVING_LEAVES
+          || entity.x == LEAVES1.x || entity.x == LEAVES2.x
+        #endif
+      ) {
+        position.xyz += moveFullVertex(world, vec2(0.3), vec2(0.7), vec3(0.04), vec3(0.02));
+      }
+
       return position;
     }
   #endif

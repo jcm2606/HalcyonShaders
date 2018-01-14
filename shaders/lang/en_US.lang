@@ -67,12 +67,61 @@ value.RESOURCE_FORMAT.3=Old PBR, Emission
 value.RESOURCE_FORMAT.4=New PBR
 
 option.wetnessHalflife=Wetness Halflife
+suffix.wetnessHalflife= Seconds
+value.wetnessHalflife.200.0=10
+value.wetnessHalflife.240.0=12
+value.wetnessHalflife.280.0=14
+value.wetnessHalflife.320.0=16
+value.wetnessHalflife.360.0=18
+value.wetnessHalflife.400.0=20
+value.wetnessHalflife.440.0=22
+value.wetnessHalflife.480.0=24
+value.wetnessHalflife.520.0=26
+value.wetnessHalflife.560.0=28
+value.wetnessHalflife.600.0=30
+value.wetnessHalflife.640.0=32
+value.wetnessHalflife.680.0=34
+value.wetnessHalflife.720.0=36
+value.wetnessHalflife.760.0=38
+value.wetnessHalflife.800.0=40
+value.wetnessHalflife.840.0=42
+value.wetnessHalflife.880.0=44
+value.wetnessHalflife.920.0=46
+value.wetnessHalflife.960.0=48
+value.wetnessHalflife.1000.0=50
+value.wetnessHalflife.1040.0=52
+value.wetnessHalflife.1080.0=54
+value.wetnessHalflife.1120.0=56
+value.wetnessHalflife.1160.0=58
+value.wetnessHalflife.1200.0=60
 
 option.drynessHalflife=Dryness Halflife
+suffix.drynessHalflife= Seconds
+value.drynessHalflife.20.0=1
+value.drynessHalflife.40.0=2
+value.drynessHalflife.60.0=3
+value.drynessHalflife.80.0=4
+value.drynessHalflife.100.0=5
+value.drynessHalflife.120.0=6
+value.drynessHalflife.140.0=7
+value.drynessHalflife.160.0=8
+value.drynessHalflife.180.0=9
+value.drynessHalflife.200.0=10
 
 option.sunPathRotation=Sun Rotation
 
 option.eyeBrightnessHalflife=Eye Brightness Halflife
+
+option.noiseTextureResolution=Noise Resolution
+value.noiseTextureResolution.128=128x128
+value.noiseTextureResolution.256=256x256
+value.noiseTextureResolution.512=512x512
+value.noiseTextureResolution.1024=1024x1024
+value.noiseTextureResolution.2048=2048x2048
+value.noiseTextureResolution.4096=4096x4096
+
+option.ambientOcclusionLevel=Minecraft AO Intensity
+suffix.ambientOcclusionLevel=x
 
 option.shadowDistance=Shadow Render Distance
 value.shadowDistance.96.0=4
@@ -269,6 +318,26 @@ screen.Tonemapping.comment=PLACEHOLDER
 #   Post\Bloom
 screen.Bloom=Bloom
 screen.Bloom.comment=PLACEHOLDER
+
+#   Post\DOF
+screen.DOF=Depth of Field
+screen.DOF.comment=PLACEHOLDER
+
+#   Post\DOF\Options
+option.DOF=Depth of Field
+
+option.DOF_INTENSITY=Strength
+
+option.DOF_FOCAL_POINT_AUTO=Automatic Focus Adjustment
+
+option.DOF_FOCAL_POINT_AUTO_SPEED=Automatic Focus Speed
+
+option.DOF_FOCAL_POINT=Manual Focus Adjustment
+suffix.DOF_FOCAL_POINT=m
+
+option.DOF_DISPERSION=Dispersion
+
+option.DOF_DISPERSION_INTENSITY=Dispersion Strength
 
 # Surface
 screen.Surface=Surface

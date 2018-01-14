@@ -20,7 +20,7 @@
   #endif
 
   // SKY LIGHT
-  #define SKY_LIGHT_STRENGTH 6.0
+  #define SKY_LIGHT_STRENGTH 4.0
 
   // DIRECTIONAL LIGHTMAPS
   #define DL_BLOCK_STEEPNESSS 0.5

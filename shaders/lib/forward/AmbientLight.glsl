@@ -145,7 +145,7 @@
       #endif
 
       // AD
-      #ifdef AMBIENT_DIFFUSE
+      #if 0
         bool trueHorizon = dot(horizon2, normal) > dot(horizon1, normal);
 
         vec3 horizon = trueHorizon ? horizon2 : horizon1;
@@ -170,7 +170,7 @@
       #endif
     }
 
-    float ao = clamp01(pow2(min(viewVisibility * 2.0, normalVisibility) * stepsRCP));
+    float ao = pow(clamp01(pow2(min(viewVisibility * 2.0, normalVisibility) * stepsRCP)), 1.0);
 
     #if 1
     return vec3(ao);

@@ -30,6 +30,9 @@ uniform sampler2D depthtex2;
 
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float near;
+uniform float far;
+uniform float aspectRatio;
 
 // STRUCT
 #include "/lib/common/struct/StructBuffer.glsl"

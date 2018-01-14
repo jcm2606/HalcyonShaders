@@ -33,6 +33,8 @@ uniform mat4 gbufferModelViewInverse;
 // STRUCT
 // ARBITRARY
 // INCLUDED FILES
+#include "/lib/common/util/Time.glsl"
+
 // FUNCTIONS
 // MAIN
 void main() {
@@ -44,4 +46,6 @@ void main() {
   getMoonVector();
   getLightVector();
   getWorldLightVector();
+
+  timeVector = getTimeVector();
 }

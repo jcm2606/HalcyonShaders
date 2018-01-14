@@ -20,7 +20,7 @@
     blend = (canWriteTo(screenCoord, TILE_TEMPORAL_AVERAGE_LUMA, 5)) ? avgLuma : blend;
 
     // CENTER DEPTH
-    cv(float) depthSpeed = 2.0;
+    cv(float) depthSpeed = DOF_FOCAL_POINT_AUTO_SPEED;
     
     float prevDepth = readFromTile(colortex3, TILE_TEMPORAL_CENTER_DEPTH, 5).a;
     float currDepth = texture2D(depthtex1, vec2(0.5)).x;

@@ -52,7 +52,7 @@
     return (LdotR < d) ? normalize(d * light + (normalize(reflected - LdotR * light) * sin(radius))) : reflected;
   }
 
-  vec4 getReflections(in int layer, in sampler2D tex, in vec3 view, in mat2x3 atmosphereLighting, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in vec4 highlightTint, in float skyOcclusion) {
+  vec4 getReflections(in vec2 screenCoord, in float depth, in vec3 view, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in float skyOcclusion, in mat2x3 atmosphereLighting, in vec4 highlightTint) {
     // CREATE DATA
     vec3 nview = normalize(view);
     vec3 nnormal = normalize(normal);
@@ -64,37 +64,29 @@
     vec3 reflView = reflect(nview, nnormal);
 
     // RAYTRACE
-    vec4 specular = raytraceClip(tex, -reflect(dir, nnormal), view);
-
-    // SAMPLE SKY IN REFLECTED DIRECTION
-    vec3 sky = drawSky(reflView, 2) * pow4(skyOcclusion) * 1.5;
-
-    // ADD-IN POINT: Volumetric cloud reflection.
-
-    // BLEND BETWEEN RAYTRACED AND SKY SAMPLES
-    specular.rgb = mix(sky, specular.rgb, specular.a);
+    //vec4 specular = raytraceClip(tex, -reflect(dir, nnormal), view);
+    vec3 specular = raytraceRough(vec3(screenCoord, depth), view, nnormal, dir, roughness, vec3(f0), skyOcclusion);
 
     // APPLY FRESNEL
     float fresnel = ((1.0 - f0) * pow5(1.0 - max0(dot(dir, normalize(reflView + dir)))) + f0) * max0(1.0 - alpha.x);
-    if(layer == 0) specular.rgb *= fresnel;
 
     // APPLY SPECULAR HIGHLIGHT
-    float highlight = ggx(nview, nnormal, sunMRP(nnormal, nview, lightVector), alpha.y, f0);
+    float highlight = ggx(nview, nnormal, sunMRP(nnormal, nview, lightVector), roughness, f0);
 
     #if PROGRAM == DEFERRED2
       highlight *= getCloudShadow(viewToWorld(view) + cameraPosition, wLightVector);
     #endif
 
-    specular.rgb += min(vec3(SUN_BRIGHTNESS), atmosphereLighting[0] * highlight * highlightTint.rgb * highlightTint.a);
+    specular += min(vec3(SUN_BRIGHTNESS), atmosphereLighting[0] * highlight * highlightTint.rgb * highlightTint.a);
 
     // APPLY METALLIC TINTING
-    if(metallic > 0.5) specular.rgb *= albedo;
+    if(metallic > 0.5) specular *= albedo;
 
-    return vec4(specular.rgb, fresnel);
+    return vec4(specular, fresnel);
   }
 
-  vec3 drawReflectionOnSurface(in vec4 diffuse, in sampler2D tex, in vec3 view, in mat2x3 atmosphereLighting, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in vec4 highlightTint, in float skyOcclusion) {
-    return diffuse.rgb * ((f0 > 0.5) ? 0.0 : 1.0) + getReflections(0, tex, view, atmosphereLighting, albedo, normal, roughness, f0, highlightTint, skyOcclusion).rgb;
+  vec3 drawReflectionOnSurface(in vec4 diffuse, in vec2 screenCoord, in float depth, in vec3 view, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in float skyOcclusion, in mat2x3 atmosphereLighting, in vec4 highlightTint) {
+    return diffuse.rgb * ((f0 > 0.5) ? 0.0 : 1.0) + getReflections(screenCoord, depth, view, albedo, normal, roughness, f0, skyOcclusion, atmosphereLighting, highlightTint).rgb;
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_REFLECTIONS */

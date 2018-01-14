@@ -15,7 +15,7 @@
   
   #define MATERIAL_FOLIAGE vec4(0.32, 0.02, 0.0, 0.0)
 
-  #define MATERIAL_WATER vec4(0.82, 0.05, 0.0, 0.0)
+  #define MATERIAL_WATER vec4(0.94, 0.05, 0.0, 0.0)
   #define MATERIAL_STAINED_GLASS vec4(0.93, 0.02, 0.0, 0.0)
 
 #endif /* INTERNAL_INCLUDED_OPTION_MATERIAL */

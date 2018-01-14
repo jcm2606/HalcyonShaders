@@ -12,7 +12,7 @@
 
     if(dist == 0.0) return viewFront;
 
-    return refract(normalize(viewFront), normalize(normal), ior) * 2.0 * clamp01(dist) + (viewFront);
+    return refract(normalize(viewFront), normalize(normal), ior) * 1.0 * clamp01(dist) + (viewFront);
   }
 
   vec3 refractClip(out float dist, in vec3 viewBack, in vec3 viewFront, in vec2 screenCoord, in vec3 normal, cin(float) ior) {

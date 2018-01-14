@@ -74,7 +74,8 @@ uniform vec3 cameraPosition;
 
 // ARBITRARY
 // INCLUDED FILES
-#include "/lib/common/Reflections.glsl"
+#include "/lib/common/util/SpaceTransform.glsl"
+#include "/lib/common/AtmosphereLighting.glsl"
 
 #include "/lib/common/WaterAbsorption.glsl"
 
@@ -89,14 +90,6 @@ uniform vec3 cameraPosition;
 #include "/lib/common/Lightmaps.glsl"
 
 // FUNCTIONS
-vec4 getTransparentReflections(in vec3 view, in vec3 albedo, in vec3 normal, in float roughness, in float f0, in mat2x3 atmosphereLighting, in float shadowOcclusion) {
-  if(isEyeInWater == 1) return vec4(0.0);
-
-  vec4 reflection = getReflections(1, gaux4, vertex, atmosphereLighting, albedo, normal, roughness, f0, vec4(shadowOcclusion), lmCoord.y);
-
-  return vec4(reflection.rgb, reflection.a);
-}
-
 vec3 getWaterInteraction(in vec3 colour, in vec2 screenCoord, in vec3 view, in vec3 backView) {
   float dist = distance(view, backView);
 

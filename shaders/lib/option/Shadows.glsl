@@ -9,9 +9,7 @@
 
   #define SHADOW_DISTORTION_FACTOR 0.9
 
-  #define LIGHT_SOURCE_DISTANCE 2048.0 // How far from the world should the light source be?. This influences how soft shadows appear. The lower the distance, the softer shadows will appear. [1.0 2.0 4.0 8.0 16.0 32.0 64.0 128.0 256.0 512.0 1024.0 2048.0 4096.0 8192.0 16384.0 32768.0 65536.0]
-
-  cv(float) lightSourceDistanceScaled = LIGHT_SOURCE_DISTANCE / 512.0;
+  #define LIGHT_SOURCE_DISTANCE 4096.0 // How far from the world should the light source be?. This influences how soft shadows appear. The lower the distance, the softer shadows will appear. [1.0 2.0 4.0 8.0 16.0 32.0 64.0 128.0 256.0 512.0 1024.0 2048.0 4096.0 8192.0 16384.0 32768.0 65536.0]
 
   #define SHADOW_FILTER_QUALITY 12 // How many samples should be taken for filtering?. More samples hides noise, but impacts performance. [6 8 10 12 14 16 18 20 22 24 26 28 30 32]
   #define SHADOW_FILTER_MIN_WIDTH 0.0625 // What should the minimum width of the shadow penumbra be?. This is mostly used to combat aliasing on contact shadows.

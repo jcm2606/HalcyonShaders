@@ -337,7 +337,7 @@
         visibilityDirect *= getCloudShadow(world, wLightVector);
 
         #ifdef FOG_OCCLUSION_SKY_CLOUD
-          visibilitySky *= getCloudShadow(world, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+          visibilitySky *= getCloudShadow(world, vec3(0.0, 1.0, 0.0)) * 0.25 + 0.75;
         #endif
 
         // OCCLUDE RAY

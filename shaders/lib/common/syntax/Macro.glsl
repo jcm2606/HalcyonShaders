@@ -39,4 +39,6 @@
   #define timeHorizon timeVector.z
   #define timeMorning timeVector.w
 
+  #define inversesqrt(x) (1./sqrt(x))
+
 #endif /* INTERNAL_INCLUDED_SYNTAX_MACRO */

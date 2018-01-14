@@ -97,9 +97,7 @@ void main() {
   buffers.tex0.rgb = drawCombinedVolumetrics(gbuffer, position, buffers.tex0.rgb, screenCoord);
 
   // DRAW TRANSPARENT REFLECTIONS
-  //if(position.depthBack > position.depthFront) buffers.tex0.rgb = drawReflectionOnSurface(buffers.tex0, colortex0, position.viewFront, getAtmosphereLighting(), gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, vec4(1.0), gbuffer.skyLight);
-  if(position.depthBack > position.depthFront) buffers.tex0.rgb = getReflections(0, colortex0, position.viewFront, getAtmosphereLighting(), gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, vec4(1.0), gbuffer.skyLight).rgb * buffers.tex0.a + buffers.tex0.rgb;
-  //buffers.tex0.rgb += buffers.tex7.rgb * buffers.tex7.a;
+  if(position.depthBack > position.depthFront && isEyeInWater == 0) buffers.tex0.rgb = getReflections(screenCoord, position.depthFront, position.viewFront, gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, gbuffer.skyLight, getAtmosphereLighting(), vec4(1.0)).rgb * buffers.tex0.a + buffers.tex0.rgb;
 
   // PERFORM TEMPORAL BLENDING
   getTemporalBlending(buffers.tex3.a, screenCoord);

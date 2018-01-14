@@ -69,6 +69,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform float rainStrength;
 uniform float frameTimeCounter;
+uniform float sunAngle;
 
 uniform vec3 cameraPosition;
 

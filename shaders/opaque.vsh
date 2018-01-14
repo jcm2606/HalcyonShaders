@@ -22,10 +22,12 @@
   #endif
 #endif
 
+#if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
+  varying vec3 world;
+#endif
+
 #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
   varying vec4 parallax;
-
-  varying vec3 world;
 
   flat(vec2) entity;
 
@@ -81,7 +83,7 @@ void main() {
     uvCoord = sign(uvMinusMid) * 0.5 + 0.5;
   #endif
 
-  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
     vec3 position = deprojectVertex(gbufferModelViewInverse, gl_ModelViewMatrix, gl_Vertex.xyz);
     world = position + cameraPosition;
   #endif
@@ -92,7 +94,7 @@ void main() {
     position = getMovedVertex(position, world, entity, objectID);
   #endif
 
-  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
     vView = transMAD(gbufferModelView, position);
 
     gl_Position = reprojectVertex(gbufferModelView, position);

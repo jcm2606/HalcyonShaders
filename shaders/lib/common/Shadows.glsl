@@ -14,13 +14,15 @@
     float occlusionFront;
     float occlusionSolid;
 
+    float bounceWeight;
+
     float difference;
     vec3 colour;
 
     float edgePrediction;
   };
 
-  #define NewShadowObject(name) ShadowObject name = ShadowObject(0.0, 0.0, 0.0, 0.0, vec3(0.0), 0.0)
+  #define NewShadowObject(name) ShadowObject name = ShadowObject(0.0, 0.0, 0.0, 0.0, 0.0, vec3(0.0), 0.0)
 
   // NEW
   #define hammersley(i, N) vec2( float(i) / float(N), float( bitfieldReverse(i) ) * 2.3283064365386963e-10 )
@@ -30,17 +32,17 @@
     cv(int) shadowSamples = SHADOW_FILTER_QUALITY;
     cRCP(float, shadowSamples);
 
-    cv(float) lightDistance = lightSourceDistanceScaled;
+    cv(float) lightDistance = LIGHT_SOURCE_DISTANCE / 512.0;
     cRCP(float, lightDistance);
-    cv(float) minWidth = SHADOW_FILTER_MIN_WIDTH;
+    cv(float) minWidth = SHADOW_FILTER_MIN_WIDTH * shadowMapResolutionRCP;
     cv(float) maxWidth = SHADOW_FILTER_MAX_WIDTH;
 
-    cv(int) blockerSamples = 8;
+    cv(int) blockerSamples = 5;
     cRCP(float, blockerSamples);
     cv(float) blockerRadius = 1.0E-3;
     cv(int) blockerLOD = 0;
 
-    cv(float) shadowBias = 0.5 * shadowMapResolutionRCP;
+    cv(float) shadowBias = 0.75 * shadowMapResolutionRCP;
 
     vec3 shadowPosition = worldToShadow(viewToWorld(view));
     shadowPosition.z += shadowBias;
@@ -111,6 +113,9 @@
       shadowObject.occlusionFront += CutShadow(compareShadow(depthFront, shadowFront.z));
       shadowObject.occlusionBack += CutShadow(compareShadow(depthBack, shadowBack.z));
 
+      cv(float) bounceWeightDist = shadowDepthBlocks / 16.0;
+      shadowObject.bounceWeight += 1.0 - clamp01(max0(shadowBack.z - depthBack) * bounceWeightDist);
+
       if(forward) continue;
 
       shadowObject.difference += sign(depthBack - depthFront);
@@ -131,6 +136,8 @@
     // NORMALIZE DATA
     shadowObject.occlusionFront *= shadowSamplesRCP;
     shadowObject.occlusionBack *= shadowSamplesRCP;
+
+    shadowObject.bounceWeight *= shadowSamplesRCP;
 
     shadowObject.difference *= shadowSamplesRCP;
 

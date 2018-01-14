@@ -22,10 +22,12 @@
   #endif
 #endif
 
+#if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
+  varying vec3 world;
+#endif
+
 #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
   varying vec4 parallax;
-
-  varying vec3 world;
 
   flat(vec2) entity;
 
@@ -46,11 +48,21 @@ flat(float) objectID;
   uniform sampler2D specular;
 #endif
 
+#if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
+  uniform sampler2D noisetex;
+
+  uniform float wetness;
+#endif
+
 // STRUCT
 #include "/lib/gbuffer/struct/StructGbuffer.glsl"
 
 // ARBITRARY
 // INCLUDED FILES
+#if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
+  #include "/lib/gbuffer/Wetness.glsl"
+#endif
+
 #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
   #include "/lib/gbuffer/ParallaxOpaque.glsl"
 
@@ -97,6 +109,11 @@ void main() {
       // SAMPLE NORMAL MAP (PARALLAX)
       normalMap[1] = textureSample(normals, uv);
     #endif
+  #endif
+
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
+    // GENERATE WETNESS MASK
+    float wetnessMask = getWetness(world);
   #endif
 
   // GENERATE GBUFFER DATA
@@ -163,8 +180,16 @@ void main() {
     materialPlaceholder = 0.0;
   #endif
 
+  #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
+    smoothness = mix(smoothness, MATERIAL_WATER.x, wetnessMask);
+    f0 = mix(f0, max(f0, MATERIAL_WATER.y), wetnessMask);
+    //materialVector = mix(materialVector, MATERIAL_WATER, wetnessMask);
+  #endif
+
   smoothness = max(0.000001, smoothness);
   smoothness = 1.0 - smoothness;
+
+  f0 = max(0.02, f0);
 
   #undef smoothness
   #undef f0
@@ -175,7 +200,7 @@ void main() {
 
   // NORMAL
   #if   PROGRAM == GBUFFERS_TERRAIN
-    float normalMaxAngle = mix(NORMAL_ANGLE_OPAQUE, NORMAL_ANGLE_WET, 0.0);
+    float normalMaxAngle = mix(NORMAL_ANGLE_OPAQUE, NORMAL_ANGLE_WET, wetnessMask);
 
     vec3 surfaceNormal = normalMap[1].xyz * 2.0 - 1.0;
   #elif PROGRAM == GBUFFERS_HAND

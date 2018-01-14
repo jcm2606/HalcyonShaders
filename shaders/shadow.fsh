@@ -51,10 +51,12 @@ void main() {
     #if 0
       vec3 nworld = normalize(world);
       vec3 refractPos = refract(nworld, normalize(customNormal), refractInterfaceAirWater);
-      float caustic = pow(( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) ), 0.0625);
+      float caustic = 1.0 - ( flength(dFdx(nworld)) * flength(dFdy(nworld)) ) / ( flength(dFdx(refractPos)) * flength(dFdy(refractPos)) );
+
+      caustic = 1.0 - max0(clamp01(pow(caustic, 1.0e6)) * 2.0 - 1.0);
     #else
       cv(float) causticWaterHigh = 2.0;
-      cv(float) causticWaterLow = 0.6;
+      cv(float) causticWaterLow = 0.3;
       cv(float) causticWaterPow = 8.0;
 
       float caustic = mix(causticWaterHigh, causticWaterLow, pow(customNormal.z, causticWaterPow));
