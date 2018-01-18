@@ -1,0 +1,13 @@
+/*
+  JCM2606.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
+*/
+
+#ifndef INTERNAL_INCLUDED_SYNTAX_EXTENSIONS
+  #define INTERNAL_INCLUDED_SYNTAX_EXTENSIONS
+
+  #extension GL_EXT_gpu_shader4 : require
+  #extension GL_ARB_shader_texture_lod : enable
+
+#endif /* INTERNAL_INCLUDED_SYNTAX_EXTENSIONS */

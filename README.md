@@ -2,10 +2,6 @@
 
 Halcyon shaders for Minecraft: Java Edition, using Optifine.
 
-Halcyon will be heavily relying on the new deferred programs that have been added into Optifine, which opens up new avenues for development.
-
-There will be some files in the root directory, that go over the specifics of the shader, as well as explains some of the more technical details that go into shader development.
-
 # Installation
 1. Find the `Clone or Download` button on this page, click it, then select `Download ZIP`.
 2. Once your ZIP is downloaded, open the `shaderpacks` folder for your Minecraft install. An easy way to do this is simply open Minecraft, then go to Options -> Video Options -> Shaders and click `Open Shaders Folder` or a similarly named button.
