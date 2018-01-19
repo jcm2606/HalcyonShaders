@@ -25,6 +25,8 @@ const bool colortex7MipmapEnabled = true;
 #define IN_TEX2
 #define IN_TEX3
 #define IN_TEX4
+#define IN_TEX5
+#define IN_TEX6
 
 /* VARYING */
 varying vec2 screenCoord;
@@ -94,7 +96,7 @@ void main() {
   vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
 
   // DRAW VOLUMETRIC EFFECTS & TRANSPARENT REFLECTIONS
-  bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
+  bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
 
   // PERFORM TEMPORAL SMOOTHING
   getTemporalSmoothing(bufferList.tex3.a, screenCoord);

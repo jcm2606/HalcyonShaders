@@ -66,4 +66,9 @@
     return vec2(float(index) / total, mod(index, total));
   }
 
+  float max3(in vec3 v) { return max(v.x, max(v.y, v.z)); }
+  float min3(in vec3 v) { return min(v.x, min(v.y, v.z)); }
+
+  float avg3(in vec3 v) { return (v.x + v.y + v.z) * 0.333333333; }
+
 #endif /* INTERNAL_INCLUDED_SYNTAX_FUNCTIONS */

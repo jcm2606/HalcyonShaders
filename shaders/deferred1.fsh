@@ -43,8 +43,10 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
-uniform mat4 shadowProjection;
+uniform mat4 shadowProjection, shadowProjectionInverse;
 uniform mat4 shadowModelView;
+
+uniform vec3 cameraPosition;
 
 uniform float sunAngle;
 uniform float near;

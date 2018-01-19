@@ -43,8 +43,11 @@
     // PERFORM EARLY FORWARD PREPARATIONS
     if(forward) shadowData.colour = vec3(1.0);
 
+    // COMPUTE WORLD POSITION
+    vec3 world = viewToWorld(view);
+
     // COMPUTE SHADOW POSITION
-    vec3 shadowPosition = worldToShadow(viewToWorld(view));
+    vec3 shadowPosition = worldToShadow(world);
 
     // APPLY BIAS
     cv(float) shadowBias = 0.75 * shadowMapResolutionRCP;
@@ -93,14 +96,23 @@
       
       if(forward) continue;
 
-      shadowData.occlusionDifference = sign(_max0(depths.x - depths.y)) * filterSamplesRCP + shadowData.occlusionDifference;
+      shadowData.occlusionDifference = float(depths.x - depths.y > 0.0);
 
       if(depths.x - depths.y <= 0.0) continue;
 
-      float objectID = texture2DLod(shadowcolor1, shadowFront.xy, 0).a * objectIDMax;
+      bool isWater = texture2D(shadowcolor1, shadowFront.xy).a > 0.5;
 
       vec3 shadowColour = toHDR(texture2DLod(shadowcolor0, shadowFront.xy, 0).rgb, dynamicRangeShadow);
-      shadowData.colour = shadowColour * filterSamplesRCP + shadowData.colour; // TODO: Water absorption on shadow colour.
+
+      if(isWater) {
+        float waterDepth = depths.y * 8.0 - 4.0;
+              waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
+              waterDepth = (_transMAD(shadowModelView, world)).z - waterDepth;
+
+        if(waterDepth < 0.0) shadowColour *= exp(waterTransmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
+      }
+
+      shadowData.colour = shadowColour * filterSamplesRCP + shadowData.colour;
     }
 
     #undef radiusBack

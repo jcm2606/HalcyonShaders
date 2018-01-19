@@ -11,7 +11,7 @@
   #if PROGRAM == COMPOSITE1
     #include "/lib/common/Reflections.glsl"
 
-    vec3 drawVolumetricEffects(in GbufferData gbufferData, in PositionData positionData, in vec3 background, in vec2 screenCoord, in mat2x3 atmosphereLighting, in float highlightOcclusion, in vec2 dither) {
+    vec3 drawVolumetricEffects(in GbufferData gbufferData, in PositionData positionData, in BufferList bufferList, in vec3 background, in vec2 screenCoord, in mat2x3 atmosphereLighting, in float highlightOcclusion, in vec2 dither) {
       cv(int) samples = 9; // 4, 9, 16, 25
       cRCP(float, samples);
 
@@ -41,16 +41,24 @@
       mat3 volumetrics = mat3(0.0);
       vec4 clouds = vec4(0.0);
 
-      // FILTER VOLUMETRIC EFFECTS
-      mat4 filtered = mat4(0.0);
-
       for(int i = 0; i < samples; i++) {
         vec2 sampleCoord = spiralMap(i, samples) * scale + screenCoord;
 
+        float outlineCompensationScale = 1.0 * far;
+
+        // VOLUMETRICS SCATTERING
         volumetrics[0] = texture2DLod(colortex4, sampleCoord, volumetricsLOD).rgb * samplesRCP + volumetrics[0];
-        volumetrics[1] = texture2DLod(colortex5, sampleCoord, volumetricsLOD).rgb * samplesRCP + volumetrics[1];
-        volumetrics[2] = texture2DLod(colortex6, sampleCoord, volumetricsLOD).rgb * samplesRCP + volumetrics[2];
-        clouds         = texture2DLod(colortex7, sampleCoord, cloudLOD)     * samplesRCP + clouds;
+
+        // FRONT ABSORPTION
+        vec3 frontAbsorptionSample = texture2DLod(colortex5, sampleCoord, volumetricsLOD).rgb;
+        volumetrics[1] = mix(frontAbsorptionSample, bufferList.tex5.rgb, saturate((frontAbsorptionSample - bufferList.tex5.rgb) * far)) * samplesRCP + volumetrics[1];
+
+        // BACK ABSORPTION
+        vec3 backAbsorptionSample = texture2DLod(colortex6, sampleCoord, volumetricsLOD).rgb;
+        volumetrics[2] = mix(backAbsorptionSample, bufferList.tex6.rgb, saturate((backAbsorptionSample - bufferList.tex6.rgb) * far)) * samplesRCP + volumetrics[2];
+
+        // CLOUDS
+        clouds = texture2DLod(colortex7, sampleCoord, cloudLOD) * samplesRCP + clouds;
       }
 
       // DRAW CLOUDS
@@ -112,14 +120,12 @@
     );
 
     // WATER
-    cv(vec3) waterScatterCoeff = vec3(0.001) / log(2.0);
-    cv(vec3) waterAbsorptionCoeff = vec3(0.4510, 0.0867, 0.0476) / log(2.0);
     cv(AtmosphereLayerSimple) layerWater = AtmosphereLayerSimple(
       waterScatterCoeff,
-      waterScatterCoeff + waterAbsorptionCoeff
+      waterTransmittanceCoeff
     );
 
-    #define _waterPartialAbsorption() ( (underWater && !isWater) ? exp(-layerWater.transmittanceCoeff * distanceToFront) : vec3(1.0) )
+    #define _waterPartialAbsorption() ( (underWater && !isWater) ? exp(-layerWater.transmittanceCoeff * distanceToFront * VOLUMETRIC_WATER_DENSITY) : vec3(1.0) )
 
     void computeAtmosphereContribution(io vec3 scattering, io vec3 transmittance, cin(AtmosphereLayerComplex) atmosphereLayer, in bool isWater, in float distanceToFront, in vec3 directLight, in vec3 skyLight, in vec3 phase, in float opticalDepth) {
       mat2x3 scatterCoeff = mat2x3(
@@ -216,6 +222,13 @@
       // COMPUTE TRANSPARENT SHADOW MASK
       isTransparentShadow = visibilityBack - visibilityFront > 0.0;
 
+      // SAMPLE SHADOW COLOUR
+      if(isTransparentShadow) {
+        shadowColourEye = texture2DLod(shadowcolor0, eyeRay.shadowPos.xy, 0).rgb;
+      } else {
+        shadowColourEye = vec3(1.0);
+      }
+
       if(!isTransparentPixel) return;
 
       // COMPUTE WATER SHADOW
@@ -224,6 +237,17 @@
 
       // COMPUTE BACK SHADOW VISIBILITY
       visibilityWater = _cutShadow(compareShadowDepth(texture2DLod(shadowtex1, waterRay.shadowPos.xy, 0).x, waterRay.shadowPos.z));
+
+      // SAMPLE SHADOW COLOUR
+      shadowColourWater = texture2DLod(shadowcolor0, waterRay.shadowPos.xy, 0).rgb;
+
+      // COMPUTE WATER DEPTH
+      float waterDepth = texture2DLod(shadowtex0, waterRay.shadowPos.xy, 0).x * 8.0 - 4.0;
+            waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
+            waterDepth = (_transMAD(shadowModelView, waterRay.worldPos)).z - waterDepth;
+    
+      // ABSORB SHADOW COLOUR
+      if(waterDepth < 0.0) shadowColourWater *= exp(layerWater.transmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
 
       #undef visibilityBack
       #undef visibilityFront
@@ -320,7 +344,7 @@
         // COMPUTE ATMOSPHERE CONTRIBUTION
         // WATER
         if(isTransparentPixel) {
-          computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * visibilityWater, skyLight * visibilityWater, 1.0, 2.0 * waterRay.worldStepSize);
+          computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * shadowColourWater * visibilityWater, skyLight * shadowColourWater * visibilityWater, 1.0, VOLUMETRIC_WATER_DENSITY * waterRay.worldStepSize);
         }
 
         if(eye_isWaterStep) continue;

@@ -28,8 +28,10 @@ uniform sampler2D texture;
 void main() {
   vec4 albedo = texture2D(texture, uvCoord) * colour;
 
-  if(compare(objectID, OBJECT_WATER)) albedo = vec4(1.0);
+  bool isWater = compare(objectID, OBJECT_WATER);
+
+  if(isWater) albedo = vec4(1.0);
 
   gl_FragData[0] = toLDR(albedo, dynamicRangeShadow);
-  gl_FragData[1] = vec4(vec3(0.0), objectID * objectIDMaxRCP);
+  gl_FragData[1] = vec4(vec3(0.0), float(isWater));
 }

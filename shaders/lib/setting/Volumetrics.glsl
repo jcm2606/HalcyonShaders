@@ -19,4 +19,10 @@
   // WATER
   #define VOLUMETRIC_WATER
 
+  cv(vec3) waterScatterCoeff = vec3(0.12, 0.9, 0.75) * 0.003 / log(2.0);
+  cv(vec3) waterAbsorptionCoeff = vec3(0.4510, 0.0867, 0.0476) * 1.0 / log(2.0);
+  cv(vec3) waterTransmittanceCoeff = waterScatterCoeff + waterAbsorptionCoeff;
+
+  #define VOLUMETRIC_WATER_DENSITY 1.0
+
 #endif /* INTERNAL_INCLUDED_SETTING_VOLUMETRICS */
