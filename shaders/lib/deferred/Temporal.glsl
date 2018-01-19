@@ -10,7 +10,7 @@
   void getTemporalSmoothing(out float blend, in vec2 screenCoord) {
     // SMOOTHED LUMA
     cv(float) exposureSpeed = 0.5;
-    cv(float) exposureBias = 0.75;
+    cv(float) exposureBias = 0.65;
     cv(vec3) exposureBias3 = vec3(exposureBias);
 
     float smoothedLuma = mix(

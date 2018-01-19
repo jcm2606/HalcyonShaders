@@ -26,7 +26,8 @@
 
   #define _newShadowData(name) ShadowData name = ShadowData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vec3(0.0) )
 
-  void populateShadowData(io ShadowData shadowData, in vec3 view, in vec2 dither, in float cloudShadow, in bool forward) {
+  void computeShadowing(io ShadowData shadowData, in vec3 view, in vec2 dither, in float cloudShadow, in bool forward) {
+    // OPTIONS
     cv(int) filterSamples = SHADOW_QUALITY;
     cRCP(float, filterSamples);
 
@@ -39,24 +40,27 @@
     cv(float) minWidth = 2.0 * shadowMapResolutionRCP;
     cv(float) maxWidth = 4.0;
     
-    cv(float) shadowBias = 0.75 * shadowMapResolutionRCP;
+    // PERFORM EARLY FORWARD PREPARATIONS
+    if(forward) shadowData.colour = vec3(1.0);
 
+    // COMPUTE SHADOW POSITION
     vec3 shadowPosition = worldToShadow(viewToWorld(view));
+
+    // APPLY BIAS
+    cv(float) shadowBias = 0.75 * shadowMapResolutionRCP;
     shadowPosition.z += shadowBias;
 
     // BLOCKER SEARCH
     vec2 blockers = vec2(0.0);
 
     for(int i = 0; i < blockerSamples; i++) {
-      vec3 shadow = vec3(distortShadowPosition(spiralMap(i * dither.y + dither.x, blockerSamples * dither.y) * blockerRadius + shadowPosition.xy, true), shadowPosition.z);
+      vec2 shadow = distortShadowPosition(spiralMap(i * dither.y + dither.x, blockerSamples * dither.y) * blockerRadius + shadowPosition.xy, true);
 
-      blockers += vec2(
+      blockers = vec2(
         texture2DLod(shadowtex1, shadow.xy, blockerLOD).x,
         texture2DLod(shadowtex0, shadow.xy, blockerLOD).x
-      );
+      ) * blockerSamplesRCP + blockers;
     }
-
-    blockers *= blockerSamplesRCP;
 
     // PENUMBRA RADIUS ESTIMATION
     cv(float) radiiScale = lightRadius * shadowDepthBlocks * shadowDistanceScale;
@@ -81,36 +85,23 @@
         texture2DLod(shadowtex0, shadowFront.xy, 0).x
       );
 
-      shadowData.depthBack += depths.x;
-      shadowData.depthFront += depths.y;
+      shadowData.depthBack = depths.x * filterSamplesRCP + shadowData.depthBack;
+      shadowData.depthFront = depths.y * filterSamplesRCP + shadowData.depthFront;
 
-      shadowData.occlusionBack += _cutShadow(compareShadowDepth(depths.x, shadowBack.z));
-      shadowData.occlusionFront += _cutShadow(compareShadowDepth(depths.y, shadowFront.z));
+      shadowData.occlusionBack = _cutShadow(compareShadowDepth(depths.x, shadowBack.z)) * filterSamplesRCP + shadowData.occlusionBack;
+      shadowData.occlusionFront = _cutShadow(compareShadowDepth(depths.y, shadowFront.z)) * filterSamplesRCP + shadowData.occlusionFront;
       
       if(forward) continue;
 
-      shadowData.occlusionDifference += sign(_max0(depths.x - depths.y));
+      shadowData.occlusionDifference = sign(_max0(depths.x - depths.y)) * filterSamplesRCP + shadowData.occlusionDifference;
 
       if(depths.x - depths.y <= 0.0) continue;
 
       float objectID = texture2DLod(shadowcolor1, shadowFront.xy, 0).a * objectIDMax;
 
       vec3 shadowColour = toHDR(texture2DLod(shadowcolor0, shadowFront.xy, 0).rgb, dynamicRangeShadow);
-      shadowData.colour += shadowColour; // TODO: Water absorption on shadow colour.
+      shadowData.colour = shadowColour * filterSamplesRCP + shadowData.colour; // TODO: Water absorption on shadow colour.
     }
-
-    // NORMALIZE DATA
-    shadowData.depthBack *= filterSamplesRCP;
-    shadowData.depthFront *= filterSamplesRCP;
-
-    shadowData.occlusionBack *= filterSamplesRCP;
-    shadowData.occlusionFront *= filterSamplesRCP;
-
-    shadowData.bouncedWeight *= filterSamplesRCP;
-
-    shadowData.occlusionDifference *= filterSamplesRCP;
-
-    shadowData.colour *= filterSamplesRCP;
 
     #undef radiusBack
     #undef radiusFront

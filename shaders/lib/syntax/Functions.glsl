@@ -7,6 +7,11 @@
 #ifndef INTERNAL_INCLUDED_SYNTAX_FUNCTIONS
   #define INTERNAL_INCLUDED_SYNTAX_FUNCTIONS
 
+  #define nullop_(type) type nullop(type x) { return x; }
+  DEFINE_genFType(nullop_)
+  DEFINE_genIType(nullop_)
+  DEFINE_genBType(nullop_)
+
   #define toGamma_(type) type toGamma(type x) { return _pow(x, type(gammaCurveScreenRCP)); }
   DEFINE_genFType(toGamma_)
 
@@ -54,6 +59,11 @@
     cv(vec3) c =  1.0 / coeff;
 
     return exp2(a * od) * b + c;
+  }
+
+  vec2 to2D(int index, cin(int) total) {
+    cRCP(float, total);
+    return vec2(float(index) / total, mod(index, total));
   }
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_FUNCTIONS */

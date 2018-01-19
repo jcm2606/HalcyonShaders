@@ -75,8 +75,8 @@
     cv(float) sunSpotIntensity = SUN_LIGHT_INTENSITY * SUN_SPOT_MULTIPLIER;
     cv(float) moonSpotIntensity = MOON_LIGHT_INTENSITY * MOON_SPOT_MULTIPLIER;
 
-    vec3 skyS = background + vec3(float(mode == 0)) * getBodyMask(VoS, SUN_SIZE) * sunSpotIntensity;
-    vec3 skyM = background + vec3(float(mode == 0)) * getBodyMask(VoM, MOON_SIZE) * moonSpotIntensity;
+    vec3 skyS = (vec3(float(mode == 0)) * getBodyMask(VoS, SUN_SIZE)) * sunSpotIntensity + background;
+    vec3 skyM = (vec3(float(mode == 0)) * getBodyMask(VoM, MOON_SIZE)) * moonSpotIntensity + background;
 
     for(int i = 0; i < steps; i++) {
       scatterS *= absorbS;

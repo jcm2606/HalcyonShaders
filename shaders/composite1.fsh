@@ -12,10 +12,19 @@
 #include "/lib/Syntax.glsl"
 
 /* CONST */
+const bool colortex0MipmapEnabled = true;
+
+const bool colortex4MipmapEnabled = true;
+const bool colortex5MipmapEnabled = true;
+const bool colortex6MipmapEnabled = true;
+const bool colortex7MipmapEnabled = true;
+
 /* USED BUFFER */
 #define IN_TEX0
 #define IN_TEX1
 #define IN_TEX2
+#define IN_TEX3
+#define IN_TEX4
 
 /* VARYING */
 varying vec2 screenCoord;
@@ -28,29 +37,29 @@ flat(vec3) lightDirection;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
+uniform sampler2D colortex3;
 uniform sampler2D colortex4;
+uniform sampler2D colortex5;
+uniform sampler2D colortex6;
+uniform sampler2D colortex7;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
-
-uniform sampler2D shadowtex0;
-uniform sampler2D shadowtex1;
-uniform sampler2D shadowcolor0;
-uniform sampler2D shadowcolor1;
+uniform sampler2D depthtex2;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
-uniform mat4 shadowProjection;
-uniform mat4 shadowModelView;
-
-uniform vec3 cameraPosition;
-
 uniform int isEyeInWater;
 
 uniform float sunAngle;
+uniform float near;
+uniform float far;
+uniform float frameTime;
+uniform float viewWidth;
+uniform float aspectRatio;
 
 /* GLOBAL */
 /* STRUCT */
@@ -62,7 +71,7 @@ uniform float sunAngle;
 /* INCLUDE */
 #include "/lib/deferred/Volumetrics.glsl"
 
-#include "/lib/common/AtmosphereLighting.glsl"
+#include "/lib/deferred/Temporal.glsl"
 
 /* FUNCTION */
 /* MAIN */
@@ -84,16 +93,14 @@ void main() {
   cv(float) ditherScale = pow(128.0, 2.0);
   vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
 
-  // COMPUTE ATMOSPHERE LIGHTING
-  mat2x3 atmosphereLighting = getAtmosphereLighting();
+  // DRAW VOLUMETRIC EFFECTS & TRANSPARENT REFLECTIONS
+  bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
 
-  // COMPUTE VOLUMETRICS
-  computeVolumetrics(positionData, gbufferData, maskList, bufferList.tex6.rgb, bufferList.tex5.rgb, bufferList.tex4.rgb, dither, atmosphereLighting);
+  // PERFORM TEMPORAL SMOOTHING
+  getTemporalSmoothing(bufferList.tex3.a, screenCoord);
 
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:0456 */
+  /* DRAWBUFFERS:03 */
   gl_FragData[0] = bufferList.tex0;
-  gl_FragData[1] = bufferList.tex4;
-  gl_FragData[2] = bufferList.tex5;
-  gl_FragData[3] = bufferList.tex6;
+  gl_FragData[1] = bufferList.tex3;
 }

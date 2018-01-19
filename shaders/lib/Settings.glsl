@@ -14,11 +14,17 @@
     const int colortex2Format = RGB32F;
     const int colortex3Format = RGBA16F;
     const int colortex4Format = RGBA16F;
-    const int colortex5Format = RGBA16F;
-    const int colortex6Format = RGBA16F;
-    const int colortex7Format = RGBA16F;
+    const int colortex5Format = RGB16;
+    const int colortex6Format = RGB16;
+    const int colortex7Format = RGBA16;
 
+    const bool colortex1Clear = false;
+    const bool colortex2Clear = false;
     const bool colortex3Clear = false;
+    const bool colortex4Clear = false;
+    const bool colortex5Clear = false;
+    const bool colortex6Clear = false;
+    const bool colortex7Clear = false;
 
     const bool shadowtex0Mipmap = false;
     const bool shadowtex1Mipmap = false;

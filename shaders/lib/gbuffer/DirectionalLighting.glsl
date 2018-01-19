@@ -8,10 +8,12 @@
   #define INTERNAL_INCLUDED_GBUFFER_DIRECTIONALLIGHTING
 
   vec2 getDirectionalLightmaps(in vec2 lightmap, in vec3 normal, in vec3 view, in float roughness) {
-    vec2 shading = lightmap;
+    #if PROGRAM != GBUFFERS_TERRAIN && PROGRAM != GBUFFERS_HAND && PROGRAM != GBUFFERS_BLOCK && PROGRAM != GBUFFERS_ITEM && PROGRAM != GBUFFERS_ENTITIES
+      return lightmap;
+    #endif
 
-    #define blockShading shading.x
-    #define skyShading shading.y
+    #define blockShading lightmap.x
+    #define skyShading lightmap.y
 
     mat2 derivatives = mat2(
       vec2(dFdx(blockShading), dFdy(blockShading)) * 256.0,
@@ -21,13 +23,13 @@
     #define blockDerivative derivatives[0]
     #define skyDerivative derivatives[1]
 
-    vec3 T = normalize(dFdx(view));
-    vec3 B = normalize(dFdy(view));
+    vec3 T = _normalize(dFdx(view));
+    vec3 B = _normalize(dFdy(view));
     vec3 N = cross(T, B);
 
     mat2x3 L = mat2x3(
-      normalize(vec3(blockDerivative.x * T + 0.0005 * N + blockDerivative.y * B)),
-      normalize(vec3(skyDerivative.x * T + 0.0005 * N + skyDerivative.y * B))
+      _normalize(vec3(blockDerivative.x * T + 0.0005 * N + blockDerivative.y * B)),
+      _normalize(vec3(skyDerivative.x * T + 0.0005 * N + skyDerivative.y * B))
     );
 
     #define blockL L[0]
@@ -45,9 +47,9 @@
     #undef blockShading
     #undef skyShading
 
-    shading = saturate(_min(vec2(0.85), saturate(shading * 1.5)));
+    lightmap = saturate(_min(vec2(0.85), saturate(lightmap * 1.5)));
 
-    return shading;
+    return lightmap;
   }
 
 #endif /* INTERNAL_INCLUDED_GBUFFER_DIRECTIONALLIGHTING */

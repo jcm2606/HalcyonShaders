@@ -58,7 +58,13 @@ void main() {
   #endif
 
   // ALBEDO
-  vec4 albedo = _textureSample(texture, coord) * colour;
+  #if   PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ITEM || PROGRAM == GBUFFERS_BLOCK
+    vec4 albedo = _textureSample(texture, coord) * colour;
+  #elif PROGRAM == GBUFFERS_ENTITIES || PROGRAM == GBUFFERS_EYES || PROGRAM == GBUFFERS_GLINT || PROGRAM == GBUFFERS_TEXTUREDLIT || PROGRAM == GBUFFERS_TEXTURED || PROGRAM == GBUFFERS_WEATHER
+    vec4 albedo = _textureSample(texture, coord);
+  #else
+    vec4 albedo = vec4(0.0, 0.0, 0.0, 1.0);
+  #endif
 
   // PUDDLE GENERATION
   //float wetness = 0.0;
@@ -78,7 +84,7 @@ void main() {
 
   normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
 
-  normal = normalize(normal * tbn);
+  normal = _normalize(normal * tbn);
 
   // MATERIAL PROPERTIES
   vec4 material = MATERIAL_DEFAULT;

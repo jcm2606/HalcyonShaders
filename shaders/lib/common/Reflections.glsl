@@ -17,8 +17,8 @@
 
   vec3 drawReflections(in GbufferData gbufferData, in PositionData positionData, in vec3 diffuse, in vec2 screenCoord, in mat2x3 atmosphereLighting, in vec4 highlightTint, in vec2 dither) {
     // DEFINE DATA
-    vec3 viewDirection = -normalize(positionData.viewFront);
-    vec3 normal = normalize(gbufferData.normal);
+    vec3 viewDirection = -_normalize(positionData.viewFront);
+    vec3 normal = _normalize(gbufferData.normal);
 
     // COMPUTE METALLIC MASK
     float metalness = float(gbufferData.f0 > 0.5);

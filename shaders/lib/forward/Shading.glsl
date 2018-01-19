@@ -17,13 +17,7 @@
     return _max0(dot(normal, light));
   }
 
-  vec3 getShadedSurface(in GbufferData gbufferData, in PositionData positionData, in MaskList maskList, in vec3 albedo, in vec2 dither, in mat2x3 atmosphereLighting, out vec4 highlightOcclusion) {
-    // CREATE SHADOW DATA INSTANCE
-    _newShadowData(shadowData);
-
-    // COMPUTE SHADOWS
-    populateShadowData(shadowData, positionData.viewBack, dither, 0.0, false);
-
+  vec3 getShadedSurface(in ShadowData shadowData, in GbufferData gbufferData, in PositionData positionData, in MaskList maskList, in vec3 albedo, in vec2 dither, in mat2x3 atmosphereLighting, out vec4 highlightOcclusion) {
     // OUTPUT HIGHLIGHT OCCLUSION
     highlightOcclusion = vec4(mix(vec3(shadowData.occlusionFront), shadowData.colour, shadowData.occlusionDifference), shadowData.occlusionBack);
 
@@ -33,14 +27,14 @@
     // COMPUTE LAYERS OF LIGHTING
     // DIRECT
     vec3 direct  = directColour;
-         direct *= getDiffuseShading(positionData.viewBack, normalize(gbufferData.normal), lightDirection, gbufferData.roughness, gbufferData.f0);
+         direct *= getDiffuseShading(positionData.viewBack, _normalize(gbufferData.normal), lightDirection, gbufferData.roughness, gbufferData.f0);
          direct *= (maskList.subsurface) ? 0.5 : 1.0;
 
     // SUBSURFACE
     vec3 subsurface  = directColour;
-         subsurface *= _pow(gbufferData.albedo, 0.5);
+         subsurface *= sqrt(gbufferData.albedo);
          subsurface *= float(maskList.subsurface) * 0.5;
-         subsurface *= _pow(_max0(dot(normalize(positionData.viewBack), lightDirection)), 6.0) * 4.0 + 1.0;
+         subsurface *= _pow(_max0(dot(_normalize(positionData.viewBack), lightDirection)), 6.0) * 4.0 + 1.0;
 
     // SKY
     vec3 sky  = atmosphereLighting[1];
@@ -52,6 +46,17 @@
 
     // COMPUTE SUM OF ALL LIGHTING AND APPLY TO ALBEDO TO GET FINAL SHADED SURFACE
     return albedo * (direct + subsurface + sky + block);
+  }
+
+  vec3 getShadedSurface(in GbufferData gbufferData, in PositionData positionData, in MaskList maskList, in vec3 albedo, in vec2 dither, in mat2x3 atmosphereLighting, out vec4 highlightOcclusion) {
+    // CREATE SHADOW DATA INSTANCE
+    _newShadowData(shadowData);
+
+    // COMPUTE SHADOWS
+    computeShadowing(shadowData, positionData.viewBack, dither, 0.0, false);
+
+    // DEFER TO FUNCTION THAT TAKES SHADOW DATA INSTANCE
+    return getShadedSurface(shadowData, gbufferData, positionData, maskList, albedo, dither, atmosphereLighting, highlightOcclusion);
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_SHADING */

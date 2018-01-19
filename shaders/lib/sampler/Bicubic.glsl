@@ -15,13 +15,13 @@
     vec2 f = fract(screenCoord);
     screenCoord -= f;
 
-    vec2 f2 = _pow(f, 2.0);
+    vec2 f2 = _sqr(f);
 
     vec4 w0 = vec4(0.0);
     vec4 w1 = vec4(0.0);
 
     w0.xz  = 1.0 - f;
-    w0.xz *= _pow(w0.xz, 2.0);
+    w0.xz *= _sqr(w0.xz);
 
     w1.yw = f2 * f;
     w1.xz = 3.0 * w1.yw + 4.0 - 6.0 * f2;

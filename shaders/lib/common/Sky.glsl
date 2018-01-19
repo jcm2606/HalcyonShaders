@@ -12,7 +12,7 @@
   #include "/lib/common/Atmosphere.glsl"
 
   vec3 drawSky(in vec3 view, in int mode) {
-    return getAtmosphere(vec3(0.0), normalize(view), mode);
+    return getAtmosphere(vec3(0.0), _normalize(view), mode);
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_SKY */

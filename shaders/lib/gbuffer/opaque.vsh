@@ -42,7 +42,7 @@ uniform vec3 cameraPosition;
 /* MAIN */
 void main() {
   uvCoord = gl_MultiTexCoord0.xy;
-  lightmap = _pow((gl_TextureMatrix[1] * gl_MultiTexCoord1).xy, 2.0);
+  lightmap = _sqr((gl_TextureMatrix[1] * gl_MultiTexCoord1).xy);
 
   colour = gl_Color;
 
@@ -54,10 +54,10 @@ void main() {
 
   gl_Position = _transMAD(gbufferModelView, world - cameraPosition).xyzz * _diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 
-  vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
+  vec3 normal = _normalize(gl_NormalMatrix * gl_Normal);
 
   ttn    = mat3(0.0);
-  ttn[0] = normalize(gl_NormalMatrix * at_tangent.xyz * sign(at_tangent.w));
+  ttn[0] = _normalize(gl_NormalMatrix * at_tangent.xyz * sign(at_tangent.w));
   ttn[1] = cross(ttn[0], normal);
   ttn[2] = normal;
 

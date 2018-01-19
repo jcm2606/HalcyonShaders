@@ -18,14 +18,19 @@
 /* VARYING */
 varying vec2 screenCoord;
 
+flat(vec4) timeVector;
+
 /* UNIFORM */
 uniform sampler2D colortex0;
+uniform sampler2D colortex3;
 
 /* GLOBAL */
 /* STRUCT */
 #include "/lib/struct/Buffers.glsl"
 
 /* INCLUDE */
+#include "/lib/deferred/Camera.glsl"
+
 /* FUNCTION */
 /* MAIN */
 void main() {
@@ -34,6 +39,9 @@ void main() {
 
   // POPULATE STRUCT INSTANCES
   populateBufferList(bufferList, screenCoord);
+
+  // PERFORM CAMERA EXPOSURE
+  bufferList.tex0.rgb = getExposedFrame(bufferList.tex0.rgb, screenCoord);
 
   // POPULATE OUTGOING BUFFERS
   /* DRAWBUFFERS:0 */

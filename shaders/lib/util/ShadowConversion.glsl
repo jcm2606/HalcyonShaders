@@ -28,4 +28,8 @@
     return shadow;
   }
 
+  vec3 distortShadowPosition(in vec3 shadow, cin(bool) rangeConversion) {
+    return vec3(distortShadowPosition(shadow.xy, rangeConversion), shadow.z);
+  }
+
 #endif /* INTERNAL_INCLUDED_UTIL_SHADOWCONVERSION */

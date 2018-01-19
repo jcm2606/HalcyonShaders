@@ -24,11 +24,11 @@
     cv(float) quality = SPECULAR_QUALITY;
     int refines = SPECULAR_REFINEMENTS;
     cv(float) maxLength = 1.0 / quality;
-    cv(float) minLength = 0.1 / quality;
+    cv(float) minLength = 0.01 / quality;
 
     vec3 skyReflection = reflectSky(viewDirection) * skyOcclusion * _max0(dot(viewDirection, upDirection) * 0.5 + 0.5);
 
-    vec3 direction = normalize(viewToClip(viewPosition + viewDirection) - p);
+    vec3 direction = _normalize(viewToClip(viewPosition + viewDirection) - p);
     float rz = 1.0 / abs(direction.z);
 
     float stepLength = minLength;
@@ -76,7 +76,7 @@
 
     float NoV = saturate(dot(n, v));
 
-    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, n));
+    vec3 tangent = _normalize(cross(gbufferModelView[1].xyz, n));
     mat3 tbn = mat3(tangent, cross(n, tangent), n);
 
     vec3 colour = vec3(0.0);
@@ -88,10 +88,10 @@
       float NoL = saturate(dot(n, l));
       float VoH = saturate(dot(v, h));
 
-      colour += raytrace(l, viewSpacePosition, screenSpacePosition, skyOcclusion) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(alpha, NoV, NoL);
+      colour = (raytrace(l, viewSpacePosition, screenSpacePosition, skyOcclusion) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(alpha, NoV, NoL)) * reflectionSamplesRCP + colour;;
     }
 
-    return colour * reflectionSamplesRCP;
+    return colour;
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_RAYTRACER */

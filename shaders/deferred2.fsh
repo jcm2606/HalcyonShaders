@@ -67,17 +67,19 @@ void main() {
 
   // POPULATE STRUCT INSTANCES
   populateBufferList(bufferList, screenCoord);
-  populateGbufferData(gbufferData, bufferList);
-  populateMaskList(maskList, gbufferData);
-  populateDepths(positionData, screenCoord);
-  populateViewPositions(positionData, screenCoord);
+  #ifdef SPECULAR_DUAL_LAYER
+    populateGbufferData(gbufferData, bufferList);
+    populateMaskList(maskList, gbufferData);
+    populateDepths(positionData, screenCoord);
+    populateViewPositions(positionData, screenCoord);
 
-  // COMPUTE DITHER
-  cv(float) ditherScale = pow(128.0, 2.0);
-  vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
+    // COMPUTE DITHER
+    cv(float) ditherScale = pow(128.0, 2.0);
+    vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
 
-  // DRAW REFLECTIONS
-  if(_getLandMask(positionData.depthBack)) bufferList.tex0.rgb = drawReflections(gbufferData, positionData, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4, dither);
+    // DRAW REFLECTIONS
+    if(_getLandMask(positionData.depthBack)) bufferList.tex0.rgb = drawReflections(gbufferData, positionData, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4, dither);
+  #endif
 
   //bufferList.tex0.rgb = vec3(gbufferData.f0);
 

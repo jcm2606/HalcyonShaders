@@ -60,7 +60,7 @@ void main() {
 
   normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
 
-  normal = normalize(normal * tbn);
+  normal = _normalize(normal * tbn);
 
   // MATERIAL PROPERTIES
   vec4 material = MATERIAL_DEFAULT;
@@ -93,6 +93,8 @@ void main() {
     emission = (1.0 - specularMap.a) * (float(compare(objectID, OBJECT_SUBSURFACE)));
     pourosity = specularMap.g;
   #endif
+
+  if(objectID == OBJECT_WATER) material = MATERIAL_WATER;
 
   smoothness = _max(0.0001, smoothness);
   smoothness = 1.0 - smoothness;

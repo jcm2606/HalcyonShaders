@@ -14,7 +14,7 @@
     );
 
     // NOON
-    timeVector.x = 1.0 - saturate(_pow(abs(noonNight.x) * 4.0, 2.0));
+    timeVector.x = 1.0 - saturate(_sqr(abs(noonNight.x) * 4.0));
 
     // NIGHT
     timeVector.y = 1.0 - saturate(_pow(abs(noonNight.y) * 4.0, 128.0));
@@ -23,7 +23,7 @@
     timeVector.z = 1.0 - (timeVector.x + timeVector.y);
 
     // MORNING
-    timeVector.w = 1.0 - ((1.0 - saturate(_pow(_max0(noonNight.x) * 4.0, 2.0))) + (1.0 - saturate(_pow(_max0(noonNight.y) * 4.0, 128.0))));
+    timeVector.w = 1.0 - ((1.0 - saturate(_sqr(_max0(noonNight.x) * 4.0))) + (1.0 - saturate(_pow(_max0(noonNight.y) * 4.0, 128.0))));
   }
 
 #endif /* INTERNAL_INCLUDED_UTIL_TIME */

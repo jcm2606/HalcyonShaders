@@ -27,10 +27,10 @@
 
   #define _getLandMask(x) ( x < 1.0 - near / far / far )
 
-  #define _getSunDirection()  ( sunDirection  = normalize( sunPosition) )
-  #define _getMoonDirection() ( moonDirection = normalize(-sunPosition) )
-  #define _getLightDirection() ( lightDirection = normalize(shadowLightPosition) )
-  #define _getWorldLightDirection() ( wLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition) )
+  #define _getSunDirection()  ( sunDirection  = _normalize( sunPosition) )
+  #define _getMoonDirection() ( moonDirection = _normalize(-sunPosition) )
+  #define _getLightDirection() ( lightDirection = _normalize(shadowLightPosition) )
+  #define _getWorldLightDirection() ( wLightDirection = _normalize(mat3(gbufferModelViewInverse) * shadowLightPosition) )
 
   #define _getSmoothedMoonPhase() ( (float(moonPhase) * 24000.0 + float(worldTime)) * 0.00000595238095238 )
 

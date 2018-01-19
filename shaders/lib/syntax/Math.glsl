@@ -22,6 +22,10 @@
 
   #define _pow(x, y) exp2(log2((x)) * y)
 
+  #define sqr_(type) type _sqr(type x) { return x * x; }
+  DEFINE_genFType(sqr_)
+  DEFINE_genIType(sqr_)
+
   #define lengthsqr_(type) float _lengthsqr(type x) { return dot(x, x); }
   DEFINE_genFType(lengthsqr_)
 
@@ -30,6 +34,9 @@
 
   #define inverseLength_(type) float _inverseLength(type x) { return inversesqrt(dot(x, x)); }
   DEFINE_genFType(inverseLength_)
+
+  #define normalize_(type) type _normalize(type x) { return x * _inverseLength(x); }
+  DEFINE_genVType(normalize_)
 
   #define length8_(type) float length8(type x) { \
     x *= x; \

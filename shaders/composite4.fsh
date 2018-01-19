@@ -12,24 +12,25 @@
 #include "/lib/Syntax.glsl"
 
 /* CONST */
-/* USED BUFFER */
-#define IN_TEX0
+const bool colortex0MipmapEnabled = true;
 
+/* USED BUFFER */
 /* VARYING */
 varying vec2 screenCoord;
 
-flat(vec4) timeVector;
-
 /* UNIFORM */
 uniform sampler2D colortex0;
-uniform sampler2D colortex3;
+
+uniform float viewWidth;
+uniform float viewHeight;
+uniform float aspectRatio;
 
 /* GLOBAL */
 /* STRUCT */
 #include "/lib/struct/Buffers.glsl"
 
 /* INCLUDE */
-#include "/lib/deferred/Camera.glsl"
+#include "/lib/common/Bloom.glsl"
 
 /* FUNCTION */
 /* MAIN */
@@ -40,10 +41,10 @@ void main() {
   // POPULATE STRUCT INSTANCES
   populateBufferList(bufferList, screenCoord);
 
-  // PERFORM CAMERA EXPOSURE
-  bufferList.tex0.rgb = getExposedFrame(bufferList.tex0.rgb, screenCoord);
+  // COMPUTE BLOOM TILES
+  bufferList.tex4.rgb = computeBloomTiles(screenCoord);
 
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:0 */
-  gl_FragData[0] = bufferList.tex0;
+  /* DRAWBUFFERS:4 */
+  gl_FragData[0] = bufferList.tex4;
 }
