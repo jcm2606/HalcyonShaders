@@ -1,8 +1,13 @@
+**READ THE INSTALLATION INSTRUCTIONS BELOW!**
 **REQUIRES OPTIFINE 1.12 C7 OR GREATER!**
 
 Halcyon shaders for Minecraft: Java Edition, using Optifine.
 
 # Installation
+1. Download and install Optifine C9, and install the shader like a normal shader, as C9 now includes support for shaders using the Github folder structure.
+
+OR
+
 1. Find the `Clone or Download` button on this page, click it, then select `Download ZIP`.
 2. Once your ZIP is downloaded, open the `shaderpacks` folder for your Minecraft install. An easy way to do this is simply open Minecraft, then go to Options -> Video Options -> Shaders and click `Open Shaders Folder` or a similarly named button.
 3. With the `shaderpacks` folder open, move the ZIP into this folder.
