@@ -9,6 +9,7 @@
 
   struct MaskList {
     bool fallback;
+    bool unlit;
 
     bool hand;
     bool entity;
@@ -26,12 +27,13 @@
     bool metal;
   };
 
-  #define _newMaskList(name) MaskList name = MaskList(false, false, false, false, false, false, false, false, false, false, false, false, false)
+  #define _newMaskList(name) MaskList name = MaskList(false, false, false, false, false, false, false, false, false, false, false, false, false, false)
 
   void populateMaskList(io MaskList maskList, in GbufferData gbufferData) {
     float objectID = gbufferData.objectID;
 
     maskList.fallback = compare(objectID, OBJECT_FALLBACK);
+    maskList.unlit = compare(objectID, OBJECT_UNLIT);
 
     maskList.hand = compare(objectID, OBJECT_HAND);
     maskList.entity = compare(objectID, OBJECT_ENTITY);

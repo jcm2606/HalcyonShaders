@@ -7,7 +7,7 @@
 #version 120
 
 #include "/lib/Header.glsl"
-#define PROGRAM GBUFFERS_SPIDEREYES
+#define PROGRAM GBUFFERS_EYES
 #define SHADER FSH
 #include "/lib/Syntax.glsl"
 

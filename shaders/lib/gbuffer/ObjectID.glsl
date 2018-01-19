@@ -55,6 +55,8 @@
       objectID = OBJECT_PARTICLE;
     #elif PROGRAM == GBUFFERS_WEATHER
       objectID = OBJECT_WEATHER;
+    #elif PROGRAM == GBUFFERS_EYES || PROGRAM == BUFFERS_BEAM
+      objectID = OBJECT_EMISSIVE;
     #endif
 
     return objectID;

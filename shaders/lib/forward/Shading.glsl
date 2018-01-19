@@ -45,7 +45,7 @@
 
     // BLOCK
     vec3 block  = blockLightColour;
-         block *= mix(getBlockLightmap(gbufferData.blockLight), 1.0, _min1(float(maskList.emissive) + gbufferData.emission));
+         block *= mix(getBlockLightmap(gbufferData.blockLight), 2.0, _min1(float(maskList.emissive) + gbufferData.emission));
 
     // COMPUTE SUM OF ALL LIGHTING AND APPLY TO ALBEDO TO GET FINAL SHADED SURFACE
     return albedo * (direct + subsurface + sky + block);

@@ -9,7 +9,7 @@
 
   vec2 getDirectionalLightmaps(in vec2 lightmap, in vec3 normal, in vec3 view, in float roughness) {
     #if PROGRAM != GBUFFERS_TERRAIN && PROGRAM != GBUFFERS_HAND && PROGRAM != GBUFFERS_BLOCK && PROGRAM != GBUFFERS_ITEM && PROGRAM != GBUFFERS_ENTITIES
-      return lightmap;
+      return vec2(1.0);
     #endif
 
     #define blockShading lightmap.x

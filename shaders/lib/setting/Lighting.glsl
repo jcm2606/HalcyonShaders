@@ -24,7 +24,7 @@
 
   #define BLOCK_LIGHT_COLOUR 0
 
-  cv(vec3) blockLightColour = vec3(1.0, 0.45, 0.15);
+  cv(vec3) blockLightColour = vec3(1.0, 0.45, 0.2);
 
   // SKY LIGHTMAP
   #define SKY_LIGHT_ANISOTROPY 0.45

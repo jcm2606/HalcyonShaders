@@ -179,11 +179,12 @@
       ray.worldStepSize = _length(ray.worldStep);
 
       // SHADOW
+      cv(vec3) shadowBias = vec3(vec2(0.0), 0.75 * shadowMapResolutionRCP);
       ray.shadowStart = worldToShadow(ray.worldStart);
       ray.shadowEnd = worldToShadow(ray.worldEnd);
 
       ray.shadowStep = (ray.shadowEnd - ray.shadowStart) * volStepsRCP;
-      ray.shadowPos = ray.shadowStep * dither.x + ray.shadowStart;
+      ray.shadowPos = (ray.shadowStep * dither.x + ray.shadowStart) + shadowBias;
     }
 
     // LIGHTING
