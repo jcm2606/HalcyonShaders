@@ -259,7 +259,7 @@
     }
 
     float opticalDepthFog(in vec3 world) {
-      return exp2(-_max0(world.y - SEA_LEVEL) * 1.) * 2.;
+      return exp2(-_max0(world.y - SEA_LEVEL) * 0.25) * 0.025;
     }
 
     // VOLUMETRICS FUNCTION

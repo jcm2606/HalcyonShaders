@@ -26,10 +26,16 @@ uniform sampler2D texture;
 uniform sampler2D normals;
 uniform sampler2D specular;
 
+uniform sampler2D noisetex;
+
+uniform float frameTimeCounter;
+
 /* GLOBAL */
 /* STRUCT */
 /* INCLUDE */
 #include "/lib/common/Normals.glsl"
+
+#include "/lib/gbuffer/ParallaxWater.glsl"
 
 /* FUNCTION */
 /* MAIN */
@@ -50,7 +56,7 @@ void main() {
   //float wetness = 0.0;
 
   // NORMALS
-  cv(float) normalAnisotropy = 1.0;
+  cv(float) normalAnisotropy = 0.3;
   vec3 normal = vec3(0.5, 0.5, 1.0);
 
   #define NORMAL_MAPPING
@@ -61,7 +67,7 @@ void main() {
   normal = normal * 2.0 - 1.0;
 
   #if PROGRAM == GBUFFERS_WATER
-    if(objectID == OBJECT_WATER) normal = getNormal(world, objectID);
+    if(objectID == OBJECT_WATER) normal = getNormal(getParallax(world, view * ttn, objectID), objectID);
   #endif
 
   normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);

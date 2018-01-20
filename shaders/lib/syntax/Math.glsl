@@ -68,4 +68,13 @@
   #define bayer64(a)  (bayer32(.5*(a))*.25+bayer2(a))
   #define bayer128(a) (bayer64(.5*(a))*.25+bayer2(a))
 
+  vec2 rotatec(in vec2 vector, cin(float) rad) {
+    cv(float) rad_c = cos(rad);
+    cv(float) rad_s = sin(rad);
+    return vector * mat2(rad_c, -rad_s, rad_s, rad_c);
+  }
+  vec2 rotate(in vec2 vector, in float rad) {
+    return vector * mat2(cos(rad), -sin(rad), sin(rad), cos(rad));
+  }
+
 #endif /* INTERNAL_INCLUDED_SYNTAX_MATH */

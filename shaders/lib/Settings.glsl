@@ -46,6 +46,7 @@
   #include "/lib/setting/Shadow.glsl"
   #include "/lib/setting/Parallax.glsl"
   #include "/lib/setting/Materials.glsl"
+  #include "/lib/setting/Normals.glsl"
 
   /* SETTINGS */
   #define TEXTURE_RESOLUTION 128 // [16 32 64 128 256 512 1024 2048 4096]
@@ -59,7 +60,7 @@
   cv(float) gammaCurveScreen = 2.2;
   cRCP(float, gammaCurveScreen);
 
-  cv(float) dynamicRangeShadow = 2.0;
+  cv(float) dynamicRangeShadow = 4.0;
   cRCP(float, dynamicRangeShadow);
 
 #endif /* INTERNAL_INCLUDED_SETTINGS */

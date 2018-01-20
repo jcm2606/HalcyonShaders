@@ -10,14 +10,17 @@ varying vec2 uvCoord;
 
 varying vec4 colour;
 
+varying vec3 vertex;
 varying vec3 view;
 varying vec3 world;
 varying vec3 shadow;
 
 flat(vec2) entity;
 flat(float) objectID;
+flat(mat3) ttn;
 
 /* ATTRIBUTE */
+attribute vec4 at_tangent;
 attribute vec4 mc_Entity;
 
 /* UNIFORM */
@@ -53,4 +56,13 @@ void main() {
 
   gl_Position.xy = distortShadowPosition(gl_Position.xy, false);
   gl_Position.z *= shadowDepthMult;
+
+  vertex = gl_Vertex.xyz;
+
+  vec3 normal = _normalize(gl_NormalMatrix * gl_Normal);
+
+  ttn    = mat3(0.0);
+  ttn[0] = _normalize(gl_NormalMatrix * at_tangent.xyz * sign(at_tangent.w));
+  ttn[1] = cross(ttn[0], normal);
+  ttn[2] = normal;
 }

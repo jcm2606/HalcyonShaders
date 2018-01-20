@@ -21,7 +21,7 @@
 
   #define io inout
 
-  #define time ( GLOBAL_SPEED * frameTimeCounter )
+  #define globalTime ( GLOBAL_SPEED * frameTimeCounter )
 
   #define flat(type) flat varying type
 
