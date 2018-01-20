@@ -11,13 +11,16 @@
   #if PROGRAM == COMPOSITE1
     #include "/lib/common/Reflections.glsl"
 
+    #include "/lib/sampler/Bicubic.glsl"
+
     vec3 drawVolumetricEffects(in GbufferData gbufferData, in PositionData positionData, in BufferList bufferList, in vec3 background, in vec2 screenCoord, in mat2x3 atmosphereLighting, in float highlightOcclusion, in vec2 dither) {
       cv(int) samples = 9; // 4, 9, 16, 25
       cRCP(float, samples);
 
       cv(float) radius = 4.5 / samples;
 
-      cv(int) volumetricsLOD = 2;
+      cv(float) volumetricsLOD = 0;
+      cv(float) depthLookupScale = volumetricsLOD * 0.0;
       cv(int) cloudLOD = 0;
 
       vec2 scale = radius * (1.0 / viewWidth) * vec2(1.0, aspectRatio);
@@ -27,11 +30,8 @@
           colortex4.rgb = volumetrics scattering
           colortex5.rgb = volumetrics front absorption (air + fog + other layers)
           colortex6.rgb = volumetrics back absorption (water)
-          colortex7.rgb = cloud scattering
-          colortex7.a   = cloud absorption
 
         Order:
-          clouds absorption/scattering
           volumetrics back absorption
           transparent reflections
           volumetrics front absorption
@@ -39,33 +39,30 @@
       */
 
       mat3 volumetrics = mat3(0.0);
-      vec4 clouds = vec4(0.0);
+
+      float centerDepth = _linearDepth(positionData.depthFront);
+      bool centerSkyMask = !_getLandMask(positionData.depthFront);
 
       for(int i = 0; i < samples; i++) {
-        vec2 sampleCoord = spiralMap(i, samples) * scale + screenCoord;
+        vec2 offset = to2D(i, samples);
 
-        float outlineCompensationScale = 1.0 * far;
+        float sampleDepthIn = texture2D(depthtex0, offset * -3.0 * scale + screenCoord).x;
+        float sampleDepthOut = texture2D(depthtex0, offset * 3.0 * scale + screenCoord).x;
 
-        // VOLUMETRICS SCATTERING
-        volumetrics[0] = texture2DLod(colortex4, sampleCoord, volumetricsLOD).rgb * samplesRCP + volumetrics[0];
-
-        // FRONT ABSORPTION
-        vec3 frontAbsorptionSample = texture2DLod(colortex5, sampleCoord, volumetricsLOD).rgb;
-        volumetrics[1] = mix(frontAbsorptionSample, bufferList.tex5.rgb, saturate((frontAbsorptionSample - bufferList.tex5.rgb) * far)) * samplesRCP + volumetrics[1];
-
-        // BACK ABSORPTION
-        vec3 backAbsorptionSample = texture2DLod(colortex6, sampleCoord, volumetricsLOD).rgb;
-        volumetrics[2] = mix(backAbsorptionSample, bufferList.tex6.rgb, saturate((backAbsorptionSample - bufferList.tex6.rgb) * far)) * samplesRCP + volumetrics[2];
-
-        // CLOUDS
-        clouds = texture2DLod(colortex7, sampleCoord, cloudLOD) * samplesRCP + clouds;
+        cv(float) threshold = 0.1;
+        float weight  = float( abs(centerDepth - _linearDepth(sampleDepthIn)) > threshold || abs(centerDepth - _linearDepth(sampleDepthOut)) > threshold );
+        
+        volumetrics[0] = texture2DLod(colortex4, offset * scale + screenCoord, volumetricsLOD).rgb * samplesRCP + volumetrics[0];
+        volumetrics[1] = mix(texture2DLod(colortex5, offset * scale + screenCoord, volumetricsLOD).rgb, bufferList.tex5.rgb, weight) * samplesRCP + volumetrics[1];
+        volumetrics[2] = mix(texture2DLod(colortex6, offset * scale + screenCoord, volumetricsLOD).rgb, bufferList.tex6.rgb, weight) * samplesRCP + volumetrics[2];
+        
       }
-
-      // DRAW CLOUDS
-      // TODO: Clouds.
 
       // PERFORM BACK ABSORPTION
       if((underWater) || (positionData.depthBack > positionData.depthFront)) background *= volumetrics[2];
+
+      // DRAW TRANSPARENT OBJECTS
+      background = mix(background, bufferList.tex7.rgb, bufferList.tex7.a);
 
       // DRAW TRANSPARENT REFLECTIONS
       if(!underWater &&
@@ -112,7 +109,7 @@
     );
 
     // FOG
-    cv(vec3) scatterCoeff = vec3(0.01) / log(2.0);
+    cv(vec3) scatterCoeff = vec3(0.002) / log(2.0);
     cv(vec3) absorbCoeff = vec3(0.05) / log(2.0);
     cv(AtmosphereLayerSimple) layerFog = AtmosphereLayerSimple(
       scatterCoeff,
@@ -199,7 +196,7 @@
       return p1 * p2;
     }
 
-    void computeShadowing(io vec2 visibilityEye, io float visibilityWater, io vec3 shadowColourEye, io vec3 shadowColourWater, io float depthFront, io float objectID, io bool isTransparentShadow, in RayVolumetric eyeRay, in RayVolumetric waterRay, in bool isTransparentPixel, in bool isSkyPixel) {
+    void computeShadowing(io vec2 visibilityEye, io float visibilityWater, io vec3 shadowColourEye, io vec3 shadowColourWater, io float depthFront, io float objectID, io bool isTransparentShadow, in RayVolumetric eyeRay, in RayVolumetric waterRay, in bool isTransparentPixel, in bool isWaterPixel, in bool isSkyPixel) {
       #define visibilityBack visibilityEye.x
       #define visibilityFront visibilityEye.y
 
@@ -242,6 +239,8 @@
       // SAMPLE SHADOW COLOUR
       shadowColourWater = texture2DLod(shadowcolor0, waterRay.shadowPos.xy, 0).rgb;
 
+      if(!isWaterPixel) return;
+
       // COMPUTE WATER DEPTH
       float waterDepth = texture2DLod(shadowtex0, waterRay.shadowPos.xy, 0).x * 8.0 - 4.0;
             waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
@@ -256,11 +255,11 @@
 
     // OPTICAL DEPTH FUNCTIONS
     float opticalDepthAir(in vec3 world) {
-      return exp2(-world.y * 0.001) * 10.0;
+      return exp2(-world.y * 0.001) * 4.0;
     }
 
     float opticalDepthFog(in vec3 world) {
-      return exp2(-_max0(world.y - SEA_LEVEL) * 0.01) * 0.025;
+      return exp2(-_max0(world.y - SEA_LEVEL) * 1.) * 2.;
     }
 
     // VOLUMETRICS FUNCTION
@@ -274,7 +273,8 @@
       #endif
 
       // COMPUTE TRANSPARENT PIXEL MASK
-      bool isTransparentPixel = (!underWater && positionData.depthBack > positionData.depthFront && maskList.water) || (underWater);
+      bool isTransparentPixel = (!underWater && positionData.depthBack > positionData.depthFront) || (underWater);
+      bool isWaterPixel = (isTransparentPixel && maskList.water) || (underWater);
 
       // COMPUTE SKY MASK
       bool isSkyPixel = !_getLandMask(positionData.depthBack);
@@ -291,7 +291,7 @@
 
       // CREATE EYE RAY
       _newRay(eyeRay);
-      createRay(eyeRay, gbufferModelViewInverse[3].xyz, worldBack, dither);
+      createRay(eyeRay, (underWater) ? worldFront : gbufferModelViewInverse[3].xyz, (underWater) ? worldBack : worldFront, dither);
 
       // CREATE WATER RAY
       _newRay(waterRay);
@@ -302,7 +302,7 @@
 
       // PREALLOCATE VARIABLES
       // Doing this improves FPS slightly, still, it's an improvement.
-      vec3 world, directLight, skyLight, shadowColourEye, shadowColourWater = vec3(0.0);
+      vec3 eyeWorld, waterWorld, directLight, skyLight, shadowColourEye, shadowColourWater = vec3(0.0);
 
       vec2 visibilityEye = vec2(0.0);
 
@@ -313,7 +313,8 @@
       // MARCH
       for(int i = 0; i < volSteps; i++, eyeRay.worldPos += eyeRay.worldStep, eyeRay.shadowPos += eyeRay.shadowStep, waterRay.worldPos += waterRay.worldStep, waterRay.shadowPos += waterRay.shadowStep) {
         // COMPUTE WORLD POSITION
-        world = eyeRay.worldPos + cameraPosition;
+        eyeWorld = eyeRay.worldPos + cameraPosition;
+        waterWorld = waterRay.worldPos + cameraPosition;
 
         // COMPUTE DISTANCE TO RAY
         distanceToRay = _length(eyeRay.worldPos);
@@ -340,24 +341,34 @@
 
         depthFront = 0.0;
         
-        computeShadowing(visibilityEye, visibilityWater, shadowColourEye, shadowColourWater, depthFront, objectID, isTransparentShadow, eyeRay, waterRay, isTransparentPixel, isSkyPixel);
+        computeShadowing(visibilityEye, visibilityWater, shadowColourEye, shadowColourWater, depthFront, objectID, isTransparentShadow, eyeRay, waterRay, isTransparentPixel, isWaterPixel, isSkyPixel);
         
         // COMPUTE ATMOSPHERE CONTRIBUTION
         // WATER
         if(isTransparentPixel) {
-          computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * shadowColourWater * visibilityWater, skyLight * shadowColourWater * visibilityWater, 1.0, VOLUMETRIC_WATER_DENSITY * waterRay.worldStepSize);
-        }
+          if(isWaterPixel) {
+            computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * shadowColourWater * visibilityWater, skyLight * shadowColourWater * visibilityWater, 1.0, VOLUMETRIC_WATER_DENSITY * waterRay.worldStepSize);
+          } else {
+            // AIR
+            {
+              computeAtmosphereContribution(scattering, backTransmittance, layerAir, false, distanceToFront, directLight * visibilityWater, skyLight * visibilityWater, phaseAir, opticalDepthAir(waterWorld) * waterRay.worldStepSize);
+            }
 
-        if(eye_isWaterStep) continue;
+            // FOG
+            {
+              computeAtmosphereContribution(scattering, backTransmittance, layerFog, false, distanceToFront, directLight * visibilityWater * 6.0, skyLight * visibilityWater, phaseFog, opticalDepthFog(waterWorld) * waterRay.worldStepSize);
+            } 
+          }
+        }
 
         // AIR
         {
-          computeAtmosphereContribution(scattering, frontTransmittance, layerAir, false, distanceToFront, directLight * visibilityBack, skyLight * visibilityBack, phaseAir, opticalDepthAir(world) * eyeRay.worldStepSize);
+          computeAtmosphereContribution(scattering, frontTransmittance, layerAir, false, distanceToFront, directLight * shadowColourEye * visibilityBack, skyLight * shadowColourEye * visibilityBack, phaseAir, opticalDepthAir(eyeWorld) * eyeRay.worldStepSize);
         }
 
         // FOG
         {
-          computeAtmosphereContribution(scattering, frontTransmittance, layerFog, false, distanceToFront, directLight * 6.0 * visibilityBack, skyLight * visibilityBack, phaseFog, opticalDepthFog(world) * eyeRay.worldStepSize);
+          computeAtmosphereContribution(scattering, frontTransmittance, layerFog, false, distanceToFront, directLight * shadowColourEye * visibilityBack * 6.0, skyLight * shadowColourEye * visibilityBack, phaseFog, opticalDepthFog(eyeWorld) * eyeRay.worldStepSize);
         }
 
         #undef visibilityBack

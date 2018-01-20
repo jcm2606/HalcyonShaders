@@ -23,6 +23,8 @@ uniform sampler2D texture;
 /* GLOBAL */
 /* STRUCT */
 /* INCLUDE */
+#include "/lib/common/Normals.glsl"
+
 /* FUNCTION */
 /* MAIN */
 void main() {
@@ -30,7 +32,11 @@ void main() {
 
   bool isWater = compare(objectID, OBJECT_WATER);
 
-  if(isWater) albedo = vec4(1.0);
+  if(isWater) {
+    albedo = vec4(1.0);
+
+    albedo.rgb = vec3(getNormal(world, objectID).z * 0.5 + 0.5);
+  }
 
   gl_FragData[0] = toLDR(albedo, dynamicRangeShadow);
   gl_FragData[1] = vec4(vec3(0.0), float(isWater));

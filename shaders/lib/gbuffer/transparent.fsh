@@ -29,6 +29,8 @@ uniform sampler2D specular;
 /* GLOBAL */
 /* STRUCT */
 /* INCLUDE */
+#include "/lib/common/Normals.glsl"
+
 /* FUNCTION */
 /* MAIN */
 void main() {
@@ -57,6 +59,10 @@ void main() {
   #endif
 
   normal = normal * 2.0 - 1.0;
+
+  #if PROGRAM == GBUFFERS_WATER
+    if(objectID == OBJECT_WATER) normal = getNormal(world, objectID);
+  #endif
 
   normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
 
@@ -102,7 +108,7 @@ void main() {
   f0 = max(0.02, f0);
 
   // OUTGOING DATA
-  /* DRAWBUFFERS:120 */
+  /* DRAWBUFFERS:127 */
   gl_FragData[0] = vec4(
     encodeColour(albedo.rgb), encode2x8(lightmap),
     encode2x8(vec2(objectID * objectIDMaxRCP, 1.0)), 1.0

@@ -12,8 +12,6 @@
 #include "/lib/Syntax.glsl"
 
 /* CONST */
-const bool colortex0MipmapEnabled = true;
-
 const bool colortex4MipmapEnabled = true;
 const bool colortex5MipmapEnabled = true;
 const bool colortex6MipmapEnabled = true;
@@ -23,10 +21,10 @@ const bool colortex7MipmapEnabled = true;
 #define IN_TEX0
 #define IN_TEX1
 #define IN_TEX2
-#define IN_TEX3
 #define IN_TEX4
 #define IN_TEX5
 #define IN_TEX6
+#define IN_TEX7
 
 /* VARYING */
 varying vec2 screenCoord;
@@ -39,7 +37,6 @@ flat(vec3) lightDirection;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
-uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
@@ -61,6 +58,7 @@ uniform float near;
 uniform float far;
 uniform float frameTime;
 uniform float viewWidth;
+uniform float viewHeight;
 uniform float aspectRatio;
 
 /* GLOBAL */
@@ -72,8 +70,6 @@ uniform float aspectRatio;
 
 /* INCLUDE */
 #include "/lib/deferred/Volumetrics.glsl"
-
-#include "/lib/deferred/Temporal.glsl"
 
 /* FUNCTION */
 /* MAIN */
@@ -92,17 +88,13 @@ void main() {
   populateViewPositions(positionData, screenCoord);
 
   // COMPUTE DITHER
-  cv(float) ditherScale = pow(128.0, 2.0);
-  vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
+  cv(float) ditherScale = pow(16.0, 2.0);
+  vec2 dither = vec2(bayer16(gl_FragCoord.xy * 4.0), ditherScale);
 
   // DRAW VOLUMETRIC EFFECTS & TRANSPARENT REFLECTIONS
   bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
 
-  // PERFORM TEMPORAL SMOOTHING
-  getTemporalSmoothing(bufferList.tex3.a, screenCoord);
-
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:03 */
+  /* DRAWBUFFERS:0 */
   gl_FragData[0] = bufferList.tex0;
-  gl_FragData[1] = bufferList.tex3;
 }

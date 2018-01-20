@@ -15,6 +15,7 @@
 /* USED BUFFER */
 #define IN_TEX1
 #define IN_TEX2
+#define IN_TEX7
 
 /* VARYING */
 varying vec2 screenCoord;
@@ -28,6 +29,7 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex4;
+uniform sampler2D colortex7;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -102,9 +104,13 @@ void main() {
   // COMPUTE VOLUMETRICS
   computeVolumetrics(positionData, gbufferData, maskList, bufferList.tex6.rgb, bufferList.tex5.rgb, bufferList.tex4.rgb, dither, atmosphereLighting);
 
+  // PUSH TRANSPARENT OBJECTS INTO LINEAR SPACE
+  bufferList.tex7.rgb = toLinear(bufferList.tex7.rgb);
+
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:456 */
+  /* DRAWBUFFERS:4567 */
   gl_FragData[0] = bufferList.tex4;
   gl_FragData[1] = bufferList.tex5;
   gl_FragData[2] = bufferList.tex6;
+  gl_FragData[3] = bufferList.tex7;
 }

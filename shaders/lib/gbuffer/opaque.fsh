@@ -8,17 +8,18 @@
 /* VARYING */
 varying vec2 uvCoord;
 varying vec2 lightmap;
-varying vec4 parallax;
 
 varying vec4 colour;
 
 varying vec3 view;
+varying vec3 worldView;
 varying vec3 world;
 
 varying mat3 ttn;
 
 flat(vec2) entity;
 flat(float) objectID;
+flat(mat2) tileInfo;
 
 varying float dist;
 
@@ -26,6 +27,8 @@ varying float dist;
 uniform sampler2D texture;
 uniform sampler2D normals;
 uniform sampler2D specular;
+
+uniform ivec2 atlasSize;
 
 /* GLOBAL */
 /* STRUCT */
@@ -35,7 +38,7 @@ uniform sampler2D specular;
 #include "/lib/gbuffer/ParallaxTerrain.glsl"
 
 #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
-  #define _textureSample(tex, coord) texture2DGradARB(tex, coord, parallaxDerivatives[0], parallaxDerivatives[1])
+  #define _textureSample(tex, coord) texture2DGradARB(tex, coord, texD[0], texD[1])
 #else
   #define _textureSample(tex, coord) texture2D(tex, coord)
 #endif
@@ -52,7 +55,9 @@ void main() {
 
   // PARALLAX
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
-    vec2 coord = getParallaxCoord(tbn * view);
+    mat2 texD = mat2(dFdx(uvCoord), dFdy(uvCoord));
+
+    vec2 coord = getParallaxCoord(uvCoord, view * ttn, texD);
   #else
     vec2 coord = uvCoord;
   #endif

@@ -8,17 +8,18 @@
 /* VARYING */
 varying vec2 uvCoord;
 varying vec2 lightmap;
-varying vec4 parallax;
 
 varying vec4 colour;
 
 varying vec3 view;
+varying vec3 worldView;
 varying vec3 world;
 
 varying mat3 ttn;
 
 flat(vec2) entity;
 flat(float) objectID;
+flat(mat2) tileInfo;
 
 varying float dist;
 
@@ -66,12 +67,10 @@ void main() {
   ttn[2] = normal;
 
   #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
-    vec2 mid = (gl_TextureMatrix[0] * mc_midTexCoord).xy;
-    vec2 uvMinusMid = gl_MultiTexCoord0.xy - mid;
-    parallax.zw = abs(uvMinusMid) * 2.0;
-    parallax.xy = _min(uvCoord, mid - uvMinusMid);
+    worldView = view * gl_NormalMatrix;
 
-    uvCoord = sign(uvMinusMid) * 0.5 + 0.5;
+    vec2 coordOffset = abs(gl_MultiTexCoord0.xy - mc_midTexCoord.xy);
+    tileInfo = mat2(coordOffset * 2.0, mc_midTexCoord.xy - coordOffset);
 
     dist = _length(view);
   #endif

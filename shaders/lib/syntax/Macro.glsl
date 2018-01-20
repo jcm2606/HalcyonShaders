@@ -34,7 +34,7 @@
 
   #define _getSmoothedMoonPhase() ( (float(moonPhase) * 24000.0 + float(worldTime)) * 0.00000595238095238 )
 
-  #define _linearDepth(x) ( 0.1 / (1.05 - x * 0.95) )
+  #define _linearDepth(x) ( (2.0 * near) / (far + near - x * (far - near)) )
   #define _expDepth(x) ( (far * (x - near)) / (x * (far - near)) )
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_MACRO */

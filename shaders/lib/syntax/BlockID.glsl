@@ -63,4 +63,19 @@
   #define WATER vec2(9, 8)
   #define LAVA vec2(11, 10)
 
+  // MACROS
+  #define _isGroundFoliage(id) ( \
+    id == SAPLING.x || \
+    id == TALLGRASS.x || \
+    id == DEADBUSH.x || \
+    id == FLOWER.x || id == FLOWER.y || \
+    id == MUSHROOM.x || id == MUSHROOM.y || \
+    id == WHEAT.x || \
+    id == REEDS.x || \
+    id == NETHERWART.x || \
+    id == CARROTS.x || \
+    id == POTATOES.x || \
+    id == DOUBLE_PLANT.x \
+  )
+
 #endif /* INTERNAL_INCLUDED_UTIL_BLOCKIDS */
