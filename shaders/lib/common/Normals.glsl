@@ -7,7 +7,7 @@
 #ifndef INTERNAL_INCLUDED_COMMON_NORMALS
   #define INTERNAL_INCLUDED_COMMON_NORMALS
 
-  #if PROGRAM == GBUFFERS_WATER || PROGRAM == SHADOW
+  #if PROGRAM == GBUFFERS_WATER || PROGRAM == SHADOW || PROGRAM == DEFERRED0
     #include "/lib/util/Noise.glsl"
 
     // WATER HEIGHT
@@ -39,20 +39,53 @@
       float waveLength = 8.0;
       float rotation = 0.0;
 
-      for(int i = 0; i < octaves; i++) {
-        float noise = texnoise2D(noisetex, noisePosition / sqrt(waveLength));
+      float noise = 0.0;
 
-        height += -gerstner(position + noise * sqrt(waveLength), move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise * waveAmplitude;
+      for(int i = 0; i < octaves; i++) {
+        noise = texnoise2DSmooth(noisetex, noisePosition / sqrt(waveLength));
+
+        height += -gerstner(position + (noise * 2.0 - 1.0) * sqrt(waveLength), move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise * waveAmplitude;
 
         waveSteepness *= 1.025;
-        waveAmplitude *= 0.645;
+        waveAmplitude *= 0.685;
         waveLength *= 0.725;
-        waveDirection = rotate(waveDirection, rotation);
-        move *= 1.07;
-        rotation += pi + 0.33333;
+        //waveDirection = rotate(waveDirection, rotation);
+        move *= 1.05;
+        //rotation += tau + 0.33333;
       }
 
       return height;
+    }
+
+    float water1(in vec3 world) {
+      float height = 1.0;
+
+      vec2 position = world.xz - world.y;
+
+      cv(mat2) rot = rotate2(-0.7);
+
+      position *= rot;
+      position *= 0.0011;
+      position.y *= 0.65;
+
+      float weight = 1.0;
+      float totalWeight = 0.0;
+
+      cv(vec2) wind = 0.01 * swizzle2;
+      vec2 move = wind * globalTime;
+
+      for(int i = 0; i < 6; i++) {
+        totalWeight += weight;
+
+        height -= texnoise2DSmooth(noisetex, position + move) * weight;
+
+        position *= 2.0;
+        //position *= rot;
+        move *= 1.6;
+        weight *= 0.45;
+      }
+
+      return height / totalWeight * 2.0;
     }
 
     // GENERIC HEIGHT
@@ -75,11 +108,12 @@
 
       vec2 delta = vec2(height0 - height1, height0 - height2);
 
-      return normalize(vec3(
-        delta.x,
-        delta.y,
-        1.0 - _sqr(delta.x) - _sqr(delta.y)
-      ));
+      vec3 normal = normalize(vec3(delta.x, delta.y, 1.0 - _sqr(delta.x) - _sqr(delta.y)));
+
+      cv(float) normalAnisotropy = 0.2;
+      normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
+
+      return normal;
     }
   #endif
 

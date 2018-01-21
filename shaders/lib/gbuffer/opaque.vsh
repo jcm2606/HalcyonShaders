@@ -29,8 +29,7 @@ attribute vec4 at_tangent;
 attribute vec4 mc_midTexCoord;
 
 /* UNIFORM */
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
 uniform vec3 cameraPosition;
 
@@ -62,7 +61,7 @@ void main() {
   vec3 normal = _normalize(gl_NormalMatrix * gl_Normal);
 
   ttn    = mat3(0.0);
-  ttn[0] = _normalize(gl_NormalMatrix * at_tangent.xyz * sign(at_tangent.w));
+  ttn[0] = _normalize(gl_NormalMatrix * at_tangent.xyz / at_tangent.w);
   ttn[1] = cross(ttn[0], normal);
   ttn[2] = normal;
 

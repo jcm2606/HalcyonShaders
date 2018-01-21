@@ -7,6 +7,9 @@
 #ifndef INTERNAL_INCLUDED_SETTING_NORMALS
   #define INTERNAL_INCLUDED_SETTING_NORMALS
 
-  #define _waterHeight water0 // [water0]
+  // WATER
+  #define WATER_NORMAL_ANISOTROPY 0.2
+
+  #define _waterHeight water0 // [water0 water1]
 
 #endif /* INTERNAL_INCLUDED_SETTING_NORMALS */

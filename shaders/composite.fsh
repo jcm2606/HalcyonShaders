@@ -107,6 +107,9 @@ void main() {
   // PUSH TRANSPARENT OBJECTS INTO LINEAR SPACE
   bufferList.tex7.rgb = toLinear(bufferList.tex7.rgb);
 
+  // COMPUTE SHADING ON TRANSPARENT OBJECTS
+  bufferList.tex7.rgb = getShadedSurface(shadowData, gbufferData, positionData, maskList, bufferList.tex7.rgb, dither, atmosphereLighting, highlightOcclusion);
+
   // POPULATE OUTGOING BUFFERS
   /* DRAWBUFFERS:4567 */
   gl_FragData[0] = bufferList.tex4;

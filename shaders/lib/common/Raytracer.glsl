@@ -70,25 +70,31 @@
     return vec3(cos(y) * s, sin(y) * s, c);
   }
 
-  vec3 raytraceRough(vec3 screenSpacePosition, vec3 viewSpacePosition, vec3 n, vec3 v, in float roughness, in vec3 f0, in float skyOcclusion, in vec2 dither) {
+  vec3 raytraceRough(vec3 screenSpacePosition, vec3 viewSpacePosition, vec3 N, vec3 V, in float roughness, in vec3 f0, in float skyOcclusion, in vec2 dither) {
     float alpha = roughness * roughness;
     float alpha2 = alpha * alpha;
 
-    float NoV = saturate(dot(n, v));
+    float NoV = saturate(dot(N, V));
 
-    vec3 tangent = _normalize(cross(gbufferModelView[1].xyz, n));
-    mat3 tbn = mat3(tangent, cross(n, tangent), n);
+    vec3 tangent = _normalize(cross(gbufferModelView[1].xyz, N));
+    mat3 tbn = mat3(tangent, cross(N, tangent), N);
 
     vec3 colour = vec3(0.0);
 
-    for(int i = 0; i < reflectionSamples; i++) {
-      vec3 h = tbn * MakeSample((dither.x + float(i)) * reflectionSamplesRCP, alpha2);
-      vec3 l = -reflect(v, h);
-      
-      float NoL = saturate(dot(n, l));
-      float VoH = saturate(dot(v, h));
+    vec3 H, L = vec3(0.0);
+    float VoH = 0.0;
 
-      colour = (raytrace(l, viewSpacePosition, screenSpacePosition, skyOcclusion) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(alpha, NoV, NoL)) * reflectionSamplesRCP + colour;;
+    for(int i = 0; i < reflectionSamples; i++) {
+      H = _normalize(tbn * MakeSample((dither.x + float(i)) * reflectionSamplesRCP, alpha2));
+      L = -reflect(V, H);
+      
+      VoH = saturate(dot(V, H));
+
+      #define NoL saturate(dot(N, L))
+
+      colour = (raytrace(L, viewSpacePosition, screenSpacePosition, skyOcclusion) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(alpha, NoV, NoL)) * reflectionSamplesRCP + colour;;
+
+      #undef NoL
     }
 
     return colour;

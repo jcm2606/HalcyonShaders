@@ -26,10 +26,13 @@
       vec2 scaledCoord = coord * scale;
 
       if(scaledCoord.x > -0.1 && scaledCoord.y > -0.1 && scaledCoord.x < 1.1 && scaledCoord.y < 1.1) {
-        for(int i = 0; i < 49; i++) {
-          vec2 sampleCoord = to2D(i, 7);
+        vec2 sampleCoord = vec2(0.0);
+        float wg = 0.0;
 
-          float wg = _sqr(1.0 - _length(sampleCoord - vec2(3.0)) * 0.25) * a;
+        for(int i = 0; i < 49; i++) {
+          sampleCoord = to2D(i, 7);
+
+          wg = _sqr(1.0 - _length(sampleCoord - vec2(3.0)) * 0.25) * a;
 
           if(wg <= 0.0) continue;
 

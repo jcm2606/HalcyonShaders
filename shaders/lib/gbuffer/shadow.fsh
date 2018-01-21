@@ -40,16 +40,6 @@ void main() {
 
   if(isWater) {
     albedo = vec4(1.0);
-
-    vec3 normal = getNormal(world, objectID);
-
-    cv(float) normalAnisotropy = 0.3;
-    normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
-
-    float caustic = 1.0 - pow(1.0 - normal.z, 1.0 / 24.0);
-          //caustic = ceil(_max0(_pow(caustic, 1.0e4) - 0.1));
-
-    albedo.rgb = vec3(mix(0.2, 1.0, saturate(caustic)));
   }
 
   gl_FragData[0] = toLDR(albedo, dynamicRangeShadow);

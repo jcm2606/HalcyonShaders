@@ -22,7 +22,7 @@
     highlightOcclusion = vec4(mix(vec3(shadowData.occlusionFront), shadowData.colour, shadowData.occlusionDifference), shadowData.occlusionBack);
 
     // COMPUTE WORLD POSITION
-    vec3 world = viewToWorld(positionData.viewBack) + cameraPosition;
+    vec3 world = viewToWorld(positionData.viewBack);
 
     // COMPUTE DIRECT COLOUR
     vec3 directColour = atmosphereLighting[0] * shadowData.occlusionBack * mix(vec3(shadowData.occlusionFront), shadowData.colour, shadowData.occlusionDifference);

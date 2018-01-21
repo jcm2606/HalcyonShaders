@@ -1,0 +1,150 @@
+# ShaderConfig
+screen.ShaderConfig=Shader Configuration
+
+option.GLOBAL_SPEED=Global Speed
+
+option.SPECULAR_FORMAT=Specular Format
+value.SPECULAR_FORMAT.0=Hardcoded
+value.SPECULAR_FORMAT.1=Greyscale
+value.SPECULAR_FORMAT.2=Old PBR, no emission
+value.SPECULAR_FORMAT.3=Old PBR, emission
+value.SPECULAR_FORMAT.4=New PBR
+
+option.SEA_LEVEL=Sea Level
+
+option.wetnessHalflife=Wetness Halflife
+
+option.drynessHalflife=Dryness Halflife
+
+option.sunPathRotation=Sun Rotation
+
+option.ambientOcclusionLevel=MC AO Intensity
+
+option.noiseTextureResolution=Noise Resolution
+
+#   ShaderConfig\Debugging
+screen.Debugging=Debugging
+
+# Shading
+screen.Shading=Shading
+
+#   Shading\Lighting
+screen.Lighting=Lighting
+
+#     Shading\Lighting\BlockLighting
+screen.BlockLighting=Block Lighting
+
+option.BLOCK_LIGHT_ANISOTROPY=Anisotropy
+
+option.BLOCK_LIGHT_INTENSITY=Intensity
+
+option.BLOCK_LIGHT_COLOUR=Colour Preset
+
+option.BLOCK_LIGHT_ATTENUATION=Attenuation
+
+#     Shading\Lighting\SkyLighting
+screen.SkyLighting=Sky Lighting
+
+option.SKY_LIGHT_ANISOTROPY=Anisotropy
+
+option.SKY_LIGHT_INTENSITY=Intensity
+
+option.SKY_LIGHT_ATTENUATION=Attenuation
+
+#   Shading\Shadowing
+screen.Shadowing=Shadowing
+
+option.shadowMapResolution=Resolution
+
+option.SHADOW_QUALITY=Samples
+
+option.SHADOW_DISTORTION_FACTOR=Distortion Factor
+
+#   Shading\Specular
+screen.Specular=Specular
+
+option.SPECULAR_DUAL_LAYER=Dual Layer Mode
+
+option.SPECULAR_SAMPLES=Samples
+
+option.SPECULAR_QUALITY=Accuracy
+
+option.SPECULAR_REFINEMENTS=Refinements
+
+# Atmospherics
+screen.Atmospherics=Atmospherics
+
+#   Atmospherics\Sky
+screen.Sky=Sky
+
+#   Atmospherics\Volumetrics
+screen.Volumetrics=Volumetrics
+
+option.VOLUMETRICS=Volumetrics
+
+#     Atmospherics\Volumetrics\AtmosphericScattering
+screen.AtmosphericScattering=Atmospheric Scattering
+
+option.ATMOSPHERIC_SCATTERING=Atmospheric Scattering
+
+#     Atmospherics\Volumetrics\VolumetricFog
+screen.VolumetricFog=Volumetric Fog
+
+option.VOLUMETRIC_FOG=Volumetric Fog
+
+#     Atmospherics\Volumetrics\VolumetricWater
+screen.VolumetricWater=Volumetric Water
+
+option.VOLUMETRIC_WATER=Volumetric Water
+
+option.VOLUMETRIC_WATER_DENSITY=Density
+
+#   Atmospherics\Clouds
+screen.Clouds=Volumetric Clouds
+
+# Materials
+screen.Materials=Materials
+
+#   Materials\Normals
+screen.Normals=Normal Mapping
+
+#   Materials\Parallax
+screen.Parallax=Parallax
+
+#     Materials\Parallax\ParallaxTerrain
+screen.ParallaxTerrain=Terrain Parallax
+
+option.PARALLAX_TERRAIN=Terrain Parallax
+
+option.PARALLAX_TERRAIN_SAMPLES=Samples
+
+option.PARALLAX_TERRAIN_DEPTH=Depth
+
+#     Materials\Parallax\ParallaxWater
+screen.ParallaxWater=Water Parallax
+
+option.PARALLAX_WATER=Water Parallax
+
+# Post
+screen.Post=Post Processing
+
+#   Post\Tonemapping
+screen.Tonemapping=Tonemapping
+
+option.EXPOSURE=Exposure
+
+option.GAMMA=Gamma
+
+option.SATURATION=Saturation Boost
+
+#   Post\Bloom
+screen.Bloom=Bloom
+
+#   Post\DOF
+screen.DOF=Depth of Field
+
+# Miscellaneous
+screen.Miscellaneous=Miscellaneous
+
+#   Miscellaneous\Uncategorised
+screen.Uncategorised=Uncategorised Options

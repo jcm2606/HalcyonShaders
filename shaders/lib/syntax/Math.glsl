@@ -76,5 +76,6 @@
   vec2 rotate(in vec2 vector, in float rad) {
     return vector * mat2(cos(rad), -sin(rad), sin(rad), cos(rad));
   }
+  #define rotate2(r) mat2(cos(r), -sin(r), sin(r), cos(r))
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_MATH */

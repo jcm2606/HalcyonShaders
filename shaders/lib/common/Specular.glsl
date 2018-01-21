@@ -26,6 +26,8 @@
     return a2 / _sqr((NoH * a2 - NoH) * NoH + 1.0);
   }
 
+  // Cleaned and optimised version of Joey's GGX.
+  // Has issues with going inf.
   vec3 BRDF(vec3 V, vec3 L, vec3 N, float r, vec3 f0) {
     float a  = r * r;
     float a2 = a * a;
@@ -44,7 +46,8 @@
     #undef LoH
   }
 
-  float GGX(vec3 V, vec3 N, vec3 L, float r, float f0) {
+  // Cleaned and optimised version of Jodie's GGX.
+  float GGX(vec3 V, vec3 L, vec3 N, float r, float f0) {
     float a2 = _pow(r, 4.0);
 
     vec3 H = _normalize(L + V);

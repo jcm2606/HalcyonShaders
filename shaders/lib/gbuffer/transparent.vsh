@@ -27,8 +27,7 @@ attribute vec4 at_tangent;
 attribute vec4 mc_midTexCoord;
 
 /* UNIFORM */
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
 uniform vec3 cameraPosition;
 

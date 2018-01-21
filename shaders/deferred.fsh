@@ -21,11 +21,19 @@ varying vec2 screenCoord;
 /* UNIFORM */
 uniform sampler2D colortex0;
 
+uniform sampler2D noisetex;
+
+uniform vec3 cameraPosition;
+
+uniform float frameTimeCounter;
+
 /* GLOBAL */
 /* STRUCT */
 #include "/lib/struct/Buffers.glsl"
 
 /* INCLUDE */
+#include "/lib/common/Caustics.glsl"
+
 /* FUNCTION */
 /* MAIN */
 void main() {
@@ -34,7 +42,7 @@ void main() {
 
   // POPULATE STRUCT INSTANCES
   populateBufferList(bufferList, screenCoord);
-  
+
   // POPULATE OUTGOING BUFFERS
   /* DRAWBUFFERS:0 */
   gl_FragData[0] = bufferList.tex0;

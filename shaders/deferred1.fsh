@@ -29,6 +29,8 @@ flat(vec3) wLightDirection;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
+uniform sampler2D colortex4;
+uniform sampler2D colortex5;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -38,10 +40,10 @@ uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
 uniform sampler2D shadowcolor1;
 
-uniform mat4 gbufferProjection;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
+uniform sampler2D noisetex;
+
+uniform mat4 gbufferProjection, gbufferProjectionInverse;
+uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
 uniform mat4 shadowProjection, shadowProjectionInverse;
 uniform mat4 shadowModelView;
@@ -51,6 +53,7 @@ uniform vec3 cameraPosition;
 uniform float sunAngle;
 uniform float near;
 uniform float far;
+uniform float frameTimeCounter;
 
 uniform int isEyeInWater;
 
@@ -63,6 +66,8 @@ uniform int isEyeInWater;
 
 /* INCLUDE */
 #include "/lib/common/Sky.glsl"
+
+#include "/lib/common/Caustics.glsl"
 
 #include "/lib/forward/Shading.glsl"
 

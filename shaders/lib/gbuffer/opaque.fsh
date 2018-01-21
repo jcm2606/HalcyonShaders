@@ -120,7 +120,7 @@ void main() {
     #elif SPECULAR_FORMAT == 4
       smoothness = specularMap.b;
       f0 = specularMap.r;
-      emission = (1.0 - specularMap.a) * (float(compare(objectID, OBJECT_SUBSURFACE)));
+      emission = (1.0 - specularMap.a) * (float(!compare(objectID, OBJECT_SUBSURFACE)));
       pourosity = specularMap.g;
     #endif
   #elif PROGRAM == GBUFFERS_ENTITIES

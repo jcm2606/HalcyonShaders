@@ -56,7 +56,7 @@ void main() {
   //float wetness = 0.0;
 
   // NORMALS
-  cv(float) normalAnisotropy = 0.3;
+  cv(float) normalAnisotropy = 1.0;
   vec3 normal = vec3(0.5, 0.5, 1.0);
 
   #define NORMAL_MAPPING
@@ -66,11 +66,11 @@ void main() {
 
   normal = normal * 2.0 - 1.0;
 
+  normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
+
   #if PROGRAM == GBUFFERS_WATER
     if(objectID == OBJECT_WATER) normal = getNormal(getParallax(world, view * ttn, objectID), objectID);
   #endif
-
-  normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
 
   normal = _normalize(normal * tbn);
 

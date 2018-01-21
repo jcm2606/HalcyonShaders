@@ -33,6 +33,9 @@
   #define ICE vec2(79, 0)
   #define STAINED_GLASS vec2(95, 160) // x = block, y = pane
 
+  // CUTOUT
+  #define GLASS vec2(20, 102) // x = block, y = pane
+
   // FOLIAGE
   #define SAPLING vec2(6, 0)
   #define LEAVES vec2(18, 161) // x = leaves1, y = leaves2

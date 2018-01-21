@@ -10,6 +10,26 @@
   float texnoise2D(in sampler2D tex, in vec2 pos) {
     return texture2DLod(tex, fract(pos), 0).x;
   }
+ 
+  float texnoise2DSmooth(in sampler2D tex, in vec2 pos) {
+    vec2 res = vec2(noiseTextureResolution);
+
+    pos *= res;
+    pos += 0.5;
+
+    vec2 whole = floor(pos);
+    vec2 part = fract(pos);
+
+    part.x = part.x * part.x * (3.0 - 2.0 * part.x);
+    part.y = part.y * part.y * (3.0 - 2.0 * part.y);
+
+    pos = whole + part;
+
+    pos -= 0.5;
+    pos /= res;
+
+    return texture2D(tex, fract(pos)).x;
+  }
 
   float texnoise3D(in sampler2D tex, in vec3 pos) {
     float p = floor(pos.z);

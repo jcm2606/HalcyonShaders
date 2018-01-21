@@ -28,7 +28,7 @@
 
     // COMPUTE SPECULAR HIGHLIGHT
     // TODO: Cloud shadow.
-    specular += atmosphereLighting[0] * highlightTint.rgb * highlightTint.a * clamp(GGX(viewDirection, normal, lightDirection, gbufferData.roughness, gbufferData.f0), 0.0, SUN_LIGHT_INTENSITY);
+    specular += atmosphereLighting[0] * highlightTint.rgb * highlightTint.a * clamp(GGX(viewDirection, lightDirection, normal, gbufferData.roughness, gbufferData.f0), 0.0, SUN_LIGHT_INTENSITY);
 
     // APPLY METALLIC TINT
     if(metalness > 0.5) specular *= gbufferData.albedo;

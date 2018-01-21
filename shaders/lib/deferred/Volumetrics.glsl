@@ -109,7 +109,7 @@
     );
 
     // FOG
-    cv(vec3) scatterCoeff = vec3(0.002) / log(2.0);
+    cv(vec3) scatterCoeff = vec3(0.01) / log(2.0);
     cv(vec3) absorbCoeff = vec3(0.05) / log(2.0);
     cv(AtmosphereLayerSimple) layerFog = AtmosphereLayerSimple(
       scatterCoeff,
@@ -123,8 +123,9 @@
     );
 
     #define _waterPartialAbsorption() ( (underWater && !isWater) ? exp(-layerWater.transmittanceCoeff * distanceToFront * VOLUMETRIC_WATER_DENSITY) : vec3(1.0) )
+    #define _waterFrontAbsorption() ( (isWater) ? frontTransmittance : vec3(1.0) )
 
-    void computeAtmosphereContribution(io vec3 scattering, io vec3 transmittance, cin(AtmosphereLayerComplex) atmosphereLayer, in bool isWater, in float distanceToFront, in vec3 directLight, in vec3 skyLight, in vec3 phase, in float opticalDepth) {
+    void computeAtmosphereContribution(io vec3 scattering, io vec3 transmittance, cin(AtmosphereLayerComplex) atmosphereLayer, in bool isWater, in float distanceToFront, in vec3 directLight, in vec3 skyLight, in vec3 phase, in float opticalDepth, in vec3 frontTransmittance) {
       mat2x3 scatterCoeff = mat2x3(
         atmosphereLayer.scatterCoeff[0] * transmittedScatteringIntegral(opticalDepth, atmosphereLayer.transmittanceCoeff[0]),
         atmosphereLayer.scatterCoeff[1] * transmittedScatteringIntegral(opticalDepth, atmosphereLayer.transmittanceCoeff[1])
@@ -133,21 +134,22 @@
       directLight = directLight * (scatterCoeff * phase.xy);
       skyLight = skyLight * (scatterCoeff * phase.zz);
 
-      scattering += (directLight + skyLight) * transmittance * _waterPartialAbsorption();
+      scattering += (directLight + skyLight) * transmittance * _waterPartialAbsorption() * _waterFrontAbsorption();
       transmittance *= exp(-atmosphereLayer.transmittanceCoeff * vec2(opticalDepth));
     }
 
-    void computeAtmosphereContribution(io vec3 scattering, io vec3 transmittance, cin(AtmosphereLayerSimple) atmosphereLayer, in bool isWater, in float distanceToFront, in vec3 directLight, in vec3 skyLight, in float phase, in float opticalDepth) {
+    void computeAtmosphereContribution(io vec3 scattering, io vec3 transmittance, cin(AtmosphereLayerSimple) atmosphereLayer, in bool isWater, in float distanceToFront, in vec3 directLight, in vec3 skyLight, in float phase, in float opticalDepth, in vec3 frontTransmittance) {
       vec3 scatterCoeff = atmosphereLayer.scatterCoeff * transmittedScatteringIntegral(opticalDepth, atmosphereLayer.transmittanceCoeff);
 
       directLight = directLight * scatterCoeff * phase;
       skyLight = skyLight * scatterCoeff;
 
-      scattering += (directLight + skyLight) * transmittance * _waterPartialAbsorption();
+      scattering += (directLight + skyLight) * transmittance * _waterPartialAbsorption() * _waterFrontAbsorption();
       transmittance *= exp(-atmosphereLayer.transmittanceCoeff * opticalDepth);
     }
 
     #undef _waterPartialAbsorption
+    #undef _waterFrontAbsorption
 
     // RAYS
     struct RayVolumetric {
@@ -255,11 +257,11 @@
 
     // OPTICAL DEPTH FUNCTIONS
     float opticalDepthAir(in vec3 world) {
-      return exp2(-world.y * 0.001) * 4.0;
+      return exp2(-world.y * atmosphericScatteringHeight) * ATMOSPHERIC_SCATTERING_DENSITY;
     }
 
     float opticalDepthFog(in vec3 world) {
-      return exp2(-_max0(world.y - SEA_LEVEL) * 0.25) * 0.025;
+      return saturate(exp2(-_max0(world.y - SEA_LEVEL) * volumetricFogHeight)) * volumetricFogDensity;
     }
 
     // VOLUMETRICS FUNCTION
@@ -291,7 +293,8 @@
 
       // CREATE EYE RAY
       _newRay(eyeRay);
-      createRay(eyeRay, (underWater) ? worldFront : gbufferModelViewInverse[3].xyz, (underWater) ? worldBack : worldFront, dither);
+      //createRay(eyeRay, (underWater) ? worldFront : gbufferModelViewInverse[3].xyz, (underWater) ? worldBack : worldFront, dither);
+      createRay(eyeRay, (underWater) ? worldBack : worldFront, (underWater) ? worldFront : gbufferModelViewInverse[3].xyz, dither); // March back to front to correctly absorb over water.
 
       // CREATE WATER RAY
       _newRay(waterRay);
@@ -344,31 +347,43 @@
         computeShadowing(visibilityEye, visibilityWater, shadowColourEye, shadowColourWater, depthFront, objectID, isTransparentShadow, eyeRay, waterRay, isTransparentPixel, isWaterPixel, isSkyPixel);
         
         // COMPUTE ATMOSPHERE CONTRIBUTION
-        // WATER
-        if(isTransparentPixel) {
-          if(isWaterPixel) {
-            computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * shadowColourWater * visibilityWater, skyLight * shadowColourWater * visibilityWater, 1.0, VOLUMETRIC_WATER_DENSITY * waterRay.worldStepSize);
-          } else {
-            // AIR
-            {
-              computeAtmosphereContribution(scattering, backTransmittance, layerAir, false, distanceToFront, directLight * visibilityWater, skyLight * visibilityWater, phaseAir, opticalDepthAir(waterWorld) * waterRay.worldStepSize);
-            }
-
-            // FOG
-            {
-              computeAtmosphereContribution(scattering, backTransmittance, layerFog, false, distanceToFront, directLight * visibilityWater * 6.0, skyLight * visibilityWater, phaseFog, opticalDepthFog(waterWorld) * waterRay.worldStepSize);
-            } 
-          }
-        }
+        cv(float) fogDirectMultiplier = 64.0;
 
         // AIR
         {
-          computeAtmosphereContribution(scattering, frontTransmittance, layerAir, false, distanceToFront, directLight * shadowColourEye * visibilityBack, skyLight * shadowColourEye * visibilityBack, phaseAir, opticalDepthAir(eyeWorld) * eyeRay.worldStepSize);
+          #ifdef ATMOSPHERIC_SCATTERING
+            computeAtmosphereContribution(scattering, frontTransmittance, layerAir, false, distanceToFront, directLight * shadowColourEye * visibilityBack, skyLight * shadowColourEye * visibilityBack, phaseAir, opticalDepthAir(eyeWorld) * eyeRay.worldStepSize, frontTransmittance);
+          #endif
         }
 
         // FOG
         {
-          computeAtmosphereContribution(scattering, frontTransmittance, layerFog, false, distanceToFront, directLight * shadowColourEye * visibilityBack * 6.0, skyLight * shadowColourEye * visibilityBack, phaseFog, opticalDepthFog(eyeWorld) * eyeRay.worldStepSize);
+          #ifdef VOLUMETRIC_FOG
+            computeAtmosphereContribution(scattering, frontTransmittance, layerFog, false, distanceToFront, directLight * shadowColourEye * visibilityBack * fogDirectMultiplier, skyLight * shadowColourEye * visibilityBack, phaseFog, opticalDepthFog(eyeWorld) * eyeRay.worldStepSize, frontTransmittance);
+          #endif
+        }
+
+        // WATER
+        if(isTransparentPixel) {
+          if(isWaterPixel) {
+            #ifdef VOLUMETRIC_WATER
+              computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * shadowColourWater * visibilityWater, skyLight * shadowColourWater * visibilityWater, 1.0, VOLUMETRIC_WATER_DENSITY * waterRay.worldStepSize, frontTransmittance);
+            #endif
+          } else {
+            // AIR
+            {
+              #ifdef ATMOSPHERIC_SCATTERING
+                computeAtmosphereContribution(scattering, backTransmittance, layerAir, false, distanceToFront, directLight * visibilityWater, skyLight * visibilityWater, phaseAir, opticalDepthAir(waterWorld) * waterRay.worldStepSize, frontTransmittance);
+              #endif
+            }
+
+            // FOG
+            {
+              #ifdef VOLUMETRIC_FOG
+                computeAtmosphereContribution(scattering, backTransmittance, layerFog, false, distanceToFront, directLight * visibilityWater * fogDirectMultiplier, skyLight * visibilityWater, phaseFog, opticalDepthFog(waterWorld) * waterRay.worldStepSize, frontTransmittance);
+              #endif
+            }
+          }
         }
 
         #undef visibilityBack

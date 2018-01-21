@@ -71,4 +71,10 @@
 
   float avg3(in vec3 v) { return (v.x + v.y + v.z) * 0.333333333; }
 
+  float almostIdentity(float x, float m, float n) {
+	if (x > m) return x;
+	float t = x / m;
+	return (((2.0 * n - m) * t + (2.0 * m - 3.0 * n)) * t * t) + n;
+}
+
 #endif /* INTERNAL_INCLUDED_SYNTAX_FUNCTIONS */

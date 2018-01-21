@@ -14,14 +14,14 @@
       cv(int) steps = 6;
       cRCP(float, steps);
 
-      cv(float) height = 1.2;
+      cv(float) height = 0.6;
 
-      view = normalize(view);
+      view.xy = view.xy * stepsRCP / _length(view) * 4.0;
 
       float waveHeight = getHeight(world, objectID) * height;
 
       for(int i = 0; i < steps; i++) {
-        world.xz = waveHeight * view.xy + world.xz;
+        world.xz = waveHeight * view.xy - world.xz;
 
         waveHeight = getHeight(world, objectID) * height;
       }

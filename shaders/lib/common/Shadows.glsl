@@ -18,13 +18,16 @@
     float depthFront;
     float depthBack;
     float depthDifference;
+    float depthWater;
 
     float bouncedWeight;
 
     vec3 colour;
+
+    float isWater;
   };
 
-  #define _newShadowData(name) ShadowData name = ShadowData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vec3(0.0) )
+  #define _newShadowData(name) ShadowData name = ShadowData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vec3(0.0), 0.0 )
 
   void computeShadowing(io ShadowData shadowData, in vec3 view, in vec2 dither, in float cloudShadow, in bool forward) {
     // OPTIONS
@@ -53,11 +56,14 @@
     cv(float) shadowBias = 0.75 * shadowMapResolutionRCP;
     shadowPosition.z += shadowBias;
 
+    // PREALLOCATE VARIABLES
+    vec2 shadow = vec2(0.0);
+
     // BLOCKER SEARCH
     vec2 blockers = vec2(0.0);
 
     for(int i = 0; i < blockerSamples; i++) {
-      vec2 shadow = distortShadowPosition(spiralMap(i * dither.y + dither.x, blockerSamples * dither.y) * blockerRadius + shadowPosition.xy, true);
+      shadow = distortShadowPosition(spiralMap(i * dither.y + dither.x, blockerSamples * dither.y) * blockerRadius + shadowPosition.xy, true);
 
       blockers = vec2(
         texture2DLod(shadowtex1, shadow.xy, blockerLOD).x,
@@ -76,14 +82,20 @@
     #define radiusBack radii.x
     #define radiusFront radii.y
 
+    // PREALLOCATE VARIABLES
+    vec3 shadowBack, shadowFront, shadowColour = vec3(0.0);
+    vec2 offset, depths = vec2(0.0);
+    float waterDepth = 0.0;
+    bool isWater = false;
+
     // FILTER
     for(int i = 0; i < filterSamples; i++) {
-      vec2 offset = spiralMap(i * dither.y + dither.x, filterSamples * dither.y);
+      offset = spiralMap(i * dither.y + dither.x, filterSamples * dither.y);
 
-      vec3 shadowBack = vec3(distortShadowPosition(offset * radiusBack + shadowPosition.xy, true), shadowPosition.z);
-      vec3 shadowFront = vec3(distortShadowPosition(offset * radiusFront + shadowPosition.xy, true), shadowPosition.z);
+      shadowBack = vec3(distortShadowPosition(offset * radiusBack + shadowPosition.xy, true), shadowPosition.z);
+      shadowFront = vec3(distortShadowPosition(offset * radiusFront + shadowPosition.xy, true), shadowPosition.z);
 
-      vec2 depths = vec2(
+      depths = vec2(
         texture2DLod(shadowtex1, shadowBack.xy, 0).x,
         texture2DLod(shadowtex0, shadowFront.xy, 0).x
       );
@@ -100,14 +112,17 @@
 
       if(depths.x - depths.y <= 0.0) continue;
 
-      bool isWater = texture2D(shadowcolor1, shadowFront.xy).a > 0.5;
+      isWater = texture2D(shadowcolor1, shadowFront.xy).a > 0.5;
+      shadowData.isWater += float(isWater) * filterSamplesRCP + shadowData.isWater;
 
-      vec3 shadowColour = toHDR(texture2DLod(shadowcolor0, shadowFront.xy, 0).rgb, dynamicRangeShadow);
+      shadowColour = toHDR(texture2DLod(shadowcolor0, shadowFront.xy, 0).rgb, dynamicRangeShadow);
 
       if(isWater) {
-        float waterDepth = depths.y * 8.0 - 4.0;
-              waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
-              waterDepth = (_transMAD(shadowModelView, world)).z - waterDepth;
+        waterDepth = depths.y * 8.0 - 4.0;
+        waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
+        waterDepth = (_transMAD(shadowModelView, world)).z - waterDepth;
+
+        shadowData.depthWater = waterDepth * filterSamplesRCP + shadowData.depthWater;
 
         if(waterDepth < 0.0) shadowColour *= exp(waterTransmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
       }
