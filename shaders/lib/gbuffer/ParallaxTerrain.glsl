@@ -32,6 +32,10 @@
     }
 
     vec2 getParallaxCoord(in vec2 coord, in vec3 view, in mat2 texD) {
+      #ifndef PARALLAX_TERRAIN
+        return coord;
+      #endif
+
       if(_isGroundFoliage(entity.x) || entity.x == GLASS.x || entity.x == GLASS.y) return coord;
 
       float stepLength = tileSize.x * parallaxSamplesRCP;
