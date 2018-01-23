@@ -87,6 +87,8 @@
 
     #include "/lib/common/Atmosphere.glsl"
 
+    #include "/lib/common/Clouds.glsl"
+
     // OPTIONS
     cv(float) volSteps = 6;
     cRCP(float, volSteps);
@@ -222,14 +224,7 @@
       // COMPUTE TRANSPARENT SHADOW MASK
       isTransparentShadow = visibilityBack - visibilityFront > 0.0;
 
-      // SAMPLE SHADOW COLOUR
-      if(isTransparentShadow) {
-        shadowColourEye = texture2DLod(shadowcolor0, eyeRay.shadowPos.xy, 0).rgb;
-      } else {
-        shadowColourEye = vec3(1.0);
-      }
-
-      if(!isTransparentPixel) return;
+      //if(!isTransparentPixel) return;
 
       // COMPUTE WATER SHADOW
       // DISTORT SHADOW POSITION
@@ -241,15 +236,13 @@
       // SAMPLE SHADOW COLOUR
       shadowColourWater = texture2DLod(shadowcolor0, waterRay.shadowPos.xy, 0).rgb;
 
-      if(!isWaterPixel) return;
-
       // COMPUTE WATER DEPTH
       float waterDepth = texture2DLod(shadowtex0, waterRay.shadowPos.xy, 0).x * 8.0 - 4.0;
             waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
             waterDepth = (_transMAD(shadowModelView, waterRay.worldPos)).z - waterDepth;
     
       // ABSORB SHADOW COLOUR
-      if(waterDepth < 0.0) shadowColourWater *= exp(layerWater.transmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
+      if(isWaterPixel && waterDepth < 0.0) shadowColourWater *= exp(layerWater.transmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
 
       #undef visibilityBack
       #undef visibilityFront
@@ -307,7 +300,7 @@
       // Doing this improves FPS slightly, still, it's an improvement.
       vec3 eyeWorld, waterWorld, directLight, skyLight, shadowColourEye, shadowColourWater = vec3(0.0);
 
-      vec2 visibilityEye = vec2(0.0);
+      vec2 visibilityEye, cloudShadowFront, cloudShadowBack = vec2(0.0);
 
       bool eye_isTransparentStep, eye_isWaterStep, isTransparentShadow = false;
 
@@ -345,42 +338,60 @@
         depthFront = 0.0;
         
         computeShadowing(visibilityEye, visibilityWater, shadowColourEye, shadowColourWater, depthFront, objectID, isTransparentShadow, eyeRay, waterRay, isTransparentPixel, isWaterPixel, isSkyPixel);
+
+        // COMPUTE FRONT CLOUD SHADOW
+        cloudShadowFront.x = getCloudShadow(eyeWorld, wLightDirection);
+        
+        #ifdef CLOUD_SHADOW_SKY
+          cloudShadowFront.y = getCloudShadow(eyeWorld, vec3(0.0, 1.0, 0.0)) * CLOUD_SHADOW_SKY_INTENSITY + cloudShadowSkyIntensityInverse;
+        #else
+          cloudShadowFront.y = 1.0;
+        #endif
         
         // COMPUTE ATMOSPHERE CONTRIBUTION
-        cv(float) fogDirectMultiplier = 64.0;
+        cv(float) fogDirectMultiplier = 16.0;
 
         // AIR
         {
           #ifdef ATMOSPHERIC_SCATTERING
-            computeAtmosphereContribution(scattering, frontTransmittance, layerAir, false, distanceToFront, directLight * shadowColourEye * visibilityBack, skyLight * shadowColourEye * visibilityBack, phaseAir, opticalDepthAir(eyeWorld) * eyeRay.worldStepSize, frontTransmittance);
+            computeAtmosphereContribution(scattering, frontTransmittance, layerAir, false, distanceToFront, directLight * visibilityBack * cloudShadowFront.x, skyLight * visibilityBack * cloudShadowFront.y, phaseAir, opticalDepthAir(eyeWorld) * eyeRay.worldStepSize, frontTransmittance);
           #endif
         }
 
         // FOG
         {
           #ifdef VOLUMETRIC_FOG
-            computeAtmosphereContribution(scattering, frontTransmittance, layerFog, false, distanceToFront, directLight * shadowColourEye * visibilityBack * fogDirectMultiplier, skyLight * shadowColourEye * visibilityBack, phaseFog, opticalDepthFog(eyeWorld) * eyeRay.worldStepSize, frontTransmittance);
+            computeAtmosphereContribution(scattering, frontTransmittance, layerFog, false, distanceToFront, directLight * visibilityBack * fogDirectMultiplier * cloudShadowFront.x, skyLight * visibilityBack * cloudShadowFront.y, phaseFog, opticalDepthFog(eyeWorld) * eyeRay.worldStepSize, frontTransmittance);
           #endif
         }
 
         // WATER
         if(isTransparentPixel) {
+          // COMPUTE FRONT CLOUD SHADOW
+          cloudShadowBack.x = getCloudShadow(waterWorld, wLightDirection);
+          
+          #ifdef CLOUD_SHADOW_SKY
+            cloudShadowBack.y = getCloudShadow(waterWorld, vec3(0.0, 1.0, 0.0)) * CLOUD_SHADOW_SKY_INTENSITY + cloudShadowSkyIntensityInverse;
+          #else
+            cloudShadowBack.y = 1.0;
+          #endif
+
           if(isWaterPixel) {
             #ifdef VOLUMETRIC_WATER
-              computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * shadowColourWater * visibilityWater, skyLight * shadowColourWater * visibilityWater, 1.0, VOLUMETRIC_WATER_DENSITY * waterRay.worldStepSize, frontTransmittance);
+              computeAtmosphereContribution(scattering, backTransmittance, layerWater, true, distanceToFront, directLight * shadowColourWater * visibilityWater * cloudShadowBack.x, skyLight * shadowColourWater * visibilityWater * cloudShadowBack.y, 1.0, VOLUMETRIC_WATER_DENSITY * waterRay.worldStepSize, frontTransmittance);
             #endif
           } else {
             // AIR
             {
               #ifdef ATMOSPHERIC_SCATTERING
-                computeAtmosphereContribution(scattering, backTransmittance, layerAir, false, distanceToFront, directLight * visibilityWater, skyLight * visibilityWater, phaseAir, opticalDepthAir(waterWorld) * waterRay.worldStepSize, frontTransmittance);
+                computeAtmosphereContribution(scattering, backTransmittance, layerAir, false, distanceToFront, directLight * visibilityWater * cloudShadowBack.x, skyLight * visibilityWater * cloudShadowBack.y, phaseAir, opticalDepthAir(waterWorld) * waterRay.worldStepSize, frontTransmittance);
               #endif
             }
 
             // FOG
             {
               #ifdef VOLUMETRIC_FOG
-                computeAtmosphereContribution(scattering, backTransmittance, layerFog, false, distanceToFront, directLight * visibilityWater * fogDirectMultiplier, skyLight * visibilityWater, phaseFog, opticalDepthFog(waterWorld) * waterRay.worldStepSize, frontTransmittance);
+                computeAtmosphereContribution(scattering, backTransmittance, layerFog, false, distanceToFront, directLight * visibilityWater * fogDirectMultiplier * cloudShadowBack.x, skyLight * visibilityWater * cloudShadowBack.y, phaseFog, opticalDepthFog(waterWorld) * waterRay.worldStepSize, frontTransmittance);
               #endif
             }
           }

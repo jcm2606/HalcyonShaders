@@ -12,6 +12,17 @@ value.SPECULAR_FORMAT.4=New PBR
 
 option.SEA_LEVEL=Sea Level
 
+option.shadowDistance=Shadow Render Distance
+value.shadowDistance.160.0=8
+value.shadowDistance.288.0=16
+value.shadowDistance.416.0=24
+value.shadowDistance.544.0=32
+value.shadowDistance.672.0=40
+value.shadowDistance.800.0=48
+value.shadowDistance.928.0=56
+value.shadowDistance.1056.0=64
+suffix.shadowDistance= Chunks
+
 option.wetnessHalflife=Wetness Halflife
 
 option.drynessHalflife=Dryness Halflife
@@ -101,6 +112,21 @@ option.VOLUMETRIC_WATER_DENSITY=Density
 
 #   Atmospherics\Clouds
 screen.Clouds=Volumetric Clouds
+
+option.CLOUDS=Volumetric Clouds
+
+option.CLOUDS_STEPS=Steps
+
+option.CLOUDS_OCTAVES=Noise Octaves
+
+option.CLOUDS_LIGHTING_DIRECT_STEPS=Direct Light Steps
+value.CLOUDS_LIGHTING_DIRECT_STEPS.0=None
+
+option.CLOUDS_LIGHTING_SKY_STEPS=Sky Light Steps
+value.CLOUDS_LIGHTING_SKY_STEPS.0=None
+
+option.CLOUDS_LIGHTING_BOUNCED_STEPS=Bounced Light Steps
+value.CLOUDS_LIGHTING_BOUNCED_STEPS.0=None
 
 # Materials
 screen.Materials=Materials

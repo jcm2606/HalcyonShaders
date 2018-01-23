@@ -13,19 +13,33 @@
 
   #include "/lib/common/Lightmaps.glsl"
 
+  #include "/lib/common/Clouds.glsl"
+
   float getDiffuseShading(in vec3 view, in vec3 normal, in vec3 light, in float roughness, in float f0) {
     return _max0(dot(normal, light));
   }
 
   vec3 getShadedSurface(in ShadowData shadowData, in GbufferData gbufferData, in PositionData positionData, in MaskList maskList, in vec3 albedo, in vec2 dither, in mat2x3 atmosphereLighting, out vec4 highlightOcclusion) {
-    // OUTPUT HIGHLIGHT OCCLUSION
-    highlightOcclusion = vec4(mix(vec3(shadowData.occlusionFront), shadowData.colour, shadowData.occlusionDifference), shadowData.occlusionBack);
-
     // COMPUTE WORLD POSITION
     vec3 world = viewToWorld(positionData.viewBack);
 
+    // COMPUTE CLOUD SHADOW
+    float cloudShadowDirect = getCloudShadow(world + cameraPosition, wLightDirection);
+
+    #ifdef CLOUD_SHADOW_SKY
+      float cloudShadowSky = getCloudShadow(world + cameraPosition, vec3(0.0, 1.0, 0.0)) * CLOUD_SHADOW_SKY_INTENSITY + cloudShadowSkyIntensityInverse;
+    #else
+      cv(float) cloudShadowSky = 1.0;
+    #endif
+
+    // COMPUTE DIRECT TINT
+    vec3 directTint = mix(vec3(shadowData.occlusionFront), shadowData.colour, shadowData.occlusionDifference);
+
+    // OUTPUT HIGHLIGHT OCCLUSION
+    highlightOcclusion = vec4(directTint, shadowData.occlusionBack * cloudShadowDirect);
+
     // COMPUTE DIRECT COLOUR
-    vec3 directColour = atmosphereLighting[0] * shadowData.occlusionBack * mix(vec3(shadowData.occlusionFront), shadowData.colour, shadowData.occlusionDifference);
+    vec3 directColour = atmosphereLighting[0] * cloudShadowDirect * shadowData.occlusionBack * directTint;
 
     // COMPUTE LAYERS OF LIGHTING
     // DIRECT
@@ -42,6 +56,7 @@
     // SKY
     vec3 sky  = atmosphereLighting[1];
          sky *= getSkyLightmap(gbufferData.skyLight);
+         sky *= cloudShadowSky;
 
     // BLOCK
     vec3 block  = blockLightColour;

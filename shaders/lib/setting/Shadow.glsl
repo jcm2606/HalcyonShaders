@@ -10,9 +10,9 @@
   cv(float) shadowDepthBlocks = 1024.0;
   cv(float) shadowDepthMult = 256.0 / shadowDepthBlocks;
 
-  const float shadowDistance = 128.0; // What render distance should the shadow map use?. Set this to whatever render distance is above or equal to the game's render distance. [128.0 256.0 384.0 512.0 768 1024.0]
+  const float shadowDistance = 160.0; // What render distance should the shadow map use?. Set this to whatever render distance is above or equal to the game's render distance. [160.0 288.0 416.0 544.0 672.0 800.0 928.0 1056.0]
   cRCP(float, shadowDistance);
-  cv(float) shadowDistanceScale = 128.0 / shadowDistance;
+  cv(float) shadowDistanceScale = 160.0 / shadowDistance;
 
   const float shadowRenderDistanceMult = 1.0;
 

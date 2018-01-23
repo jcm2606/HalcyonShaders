@@ -29,7 +29,7 @@
       vec2 position = world.xz - world.y;
       vec2 noisePosition = position * 0.005;
 
-      cv(int) octaves = 14;
+      cv(int) octaves = 9;
 
       float move = 0.3 * globalTime;
 
@@ -39,19 +39,19 @@
       float waveLength = 8.0;
       float rotation = 0.0;
 
-      float noise = 0.0;
+      vec2 noise = vec2(0.0);
 
       for(int i = 0; i < octaves; i++) {
         noise = texnoise2DSmooth(noisetex, noisePosition / sqrt(waveLength));
 
-        height += -gerstner(position + (noise * 2.0 - 1.0) * sqrt(waveLength), move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise * waveAmplitude;
+        height += -gerstner(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 4.0, move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise.x * waveAmplitude;
 
         waveSteepness *= 1.025;
         waveAmplitude *= 0.685;
         waveLength *= 0.725;
-        //waveDirection = rotate(waveDirection, rotation);
+        waveDirection = rotate(waveDirection, rotation);
         move *= 1.05;
-        //rotation += tau + 0.33333;
+        rotation += pi + 0.33333;
       }
 
       return height;

@@ -12,7 +12,10 @@
 #include "/lib/Syntax.glsl"
 
 /* CONST */
+const bool colortex4MipmapEnabled = true;
+
 /* USED BUFFER */
+#define IN_TEX0
 #define IN_TEX1
 #define IN_TEX2
 #define IN_TEX7
@@ -23,6 +26,7 @@ varying vec2 screenCoord;
 flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
+flat(vec3) wLightDirection;
 
 /* UNIFORM */
 uniform sampler2D colortex0;
@@ -39,6 +43,8 @@ uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
 uniform sampler2D shadowcolor1;
 
+uniform sampler2D noisetex;
+
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
@@ -52,6 +58,7 @@ uniform int isEyeInWater;
 uniform float sunAngle;
 uniform float near;
 uniform float far;
+uniform float frameTimeCounter;
 
 /* GLOBAL */
 /* STRUCT */
@@ -66,6 +73,8 @@ uniform float far;
 #include "/lib/common/AtmosphereLighting.glsl"
 
 #include "/lib/forward/Shading.glsl"
+
+#include "/lib/common/Clouds.glsl"
 
 /* FUNCTION */
 /* MAIN */
@@ -87,6 +96,9 @@ void main() {
   cv(float) ditherScale = pow(128.0, 2.0);
   vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
 
+  // DRAW CLOUDS
+  bufferList.tex0.rgb = drawClouds(bufferList, bufferList.tex0.rgb, screenCoord);
+
   // COMPUTE ATMOSPHERE LIGHTING
   mat2x3 atmosphereLighting = getAtmosphereLighting();
 
@@ -94,12 +106,7 @@ void main() {
   _newShadowData(shadowData);
 
   // COMPUTE SHADOWS
-  if(_getLandMask(positionData.depthFront)) computeShadowing(shadowData, positionData.viewFront, dither, 0.0, true);
-
-  // COMPUTE HIGHLIGHT OCCLUSION
-  vec4 highlightOcclusion = vec4(shadowData.colour, shadowData.occlusionBack);
-
-  bufferList.tex4.a = highlightOcclusion.a;
+  if(_getLandMask(positionData.depthFront)) computeShadowing(shadowData, positionData.viewFront, dither, 0.0, false);
 
   // COMPUTE VOLUMETRICS
   computeVolumetrics(positionData, gbufferData, maskList, bufferList.tex6.rgb, bufferList.tex5.rgb, bufferList.tex4.rgb, dither, atmosphereLighting);
@@ -108,12 +115,17 @@ void main() {
   bufferList.tex7.rgb = toLinear(bufferList.tex7.rgb);
 
   // COMPUTE SHADING ON TRANSPARENT OBJECTS
+  vec4 highlightOcclusion = vec4(0.0);
   bufferList.tex7.rgb = getShadedSurface(shadowData, gbufferData, positionData, maskList, bufferList.tex7.rgb, dither, atmosphereLighting, highlightOcclusion);
 
+  // WRITE HIGHLIGHT OCCLUSION TO TEX4 ALPHA
+  bufferList.tex4.a = highlightOcclusion.a;
+
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:4567 */
-  gl_FragData[0] = bufferList.tex4;
-  gl_FragData[1] = bufferList.tex5;
-  gl_FragData[2] = bufferList.tex6;
-  gl_FragData[3] = bufferList.tex7;
+  /* DRAWBUFFERS:04567 */
+  gl_FragData[0] = bufferList.tex0;
+  gl_FragData[1] = bufferList.tex4;
+  gl_FragData[2] = bufferList.tex5;
+  gl_FragData[3] = bufferList.tex6;
+  gl_FragData[4] = bufferList.tex7;
 }

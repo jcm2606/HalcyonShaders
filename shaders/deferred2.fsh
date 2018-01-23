@@ -24,6 +24,7 @@ varying vec2 screenCoord;
 flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
+flat(vec3) wLightDirection;
 
 /* UNIFORM */
 uniform sampler2D colortex0;
@@ -35,14 +36,19 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
+uniform sampler2D noisetex;
+
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
+
+uniform vec3 cameraPosition;
 
 uniform int isEyeInWater;
 
 uniform float sunAngle;
 uniform float near;
 uniform float far;
+uniform float frameTimeCounter;
 
 /* GLOBAL */
 /* STRUCT */
@@ -53,6 +59,8 @@ uniform float far;
 
 /* INCLUDE */
 #include "/lib/common/Reflections.glsl"
+
+#include "/lib/common/Clouds.glsl"
 
 /* FUNCTION */
 /* MAIN */
@@ -65,23 +73,28 @@ void main() {
 
   // POPULATE STRUCT INSTANCES
   populateBufferList(bufferList, screenCoord);
+  populateGbufferData(gbufferData, bufferList);
+  populateMaskList(maskList, gbufferData);
+  populateDepths(positionData, screenCoord);
+  populateViewPositions(positionData, screenCoord);
+
+  // COMPUTE DITHER
+  cv(float) ditherScale = pow(128.0, 2.0);
+  vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
+
+  // COMPUTE ATMOSPHERE LIGHTING
+  mat2x3 atmosphereLighting = getAtmosphereLighting();
+
   #ifdef SPECULAR_DUAL_LAYER
-    populateGbufferData(gbufferData, bufferList);
-    populateMaskList(maskList, gbufferData);
-    populateDepths(positionData, screenCoord);
-    populateViewPositions(positionData, screenCoord);
-
-    // COMPUTE DITHER
-    cv(float) ditherScale = pow(128.0, 2.0);
-    vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
-
     // DRAW REFLECTIONS
-    if(_getLandMask(positionData.depthBack)) bufferList.tex0.rgb = drawReflections(gbufferData, positionData, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4, dither);
+    if(_getLandMask(positionData.depthBack)) bufferList.tex0.rgb = drawReflections(gbufferData, positionData, bufferList.tex0.rgb, screenCoord, atmosphereLighting, bufferList.tex4, dither);
   #endif
 
-  //bufferList.tex0.rgb = vec3(gbufferData.f0);
+  // COMPUTE CLOUDS
+  bufferList.tex4 = computeClouds(positionData, atmosphereLighting, dither);
 
   // POPULATE OUTGOING BUFFERS
-  /* DRAWBUFFERS:0 */
+  /* DRAWBUFFERS:04 */
   gl_FragData[0] = bufferList.tex0;
+  gl_FragData[1] = bufferList.tex4;
 }

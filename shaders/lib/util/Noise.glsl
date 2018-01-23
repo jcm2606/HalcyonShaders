@@ -7,11 +7,11 @@
 #ifndef INTERNAL_INCLUDED_UTIL_NOISE
   #define INTERNAL_INCLUDED_UTIL_NOISE
 
-  float texnoise2D(in sampler2D tex, in vec2 pos) {
-    return texture2DLod(tex, fract(pos), 0).x;
+  vec2 texnoise2D(in sampler2D tex, in vec2 pos) {
+    return texture2DLod(tex, fract(pos), 0).xy;
   }
  
-  float texnoise2DSmooth(in sampler2D tex, in vec2 pos) {
+  vec2 texnoise2DSmooth(in sampler2D tex, in vec2 pos) {
     vec2 res = vec2(noiseTextureResolution);
 
     pos *= res;
@@ -28,21 +28,25 @@
     pos -= 0.5;
     pos /= res;
 
-    return texture2D(tex, fract(pos)).x;
+    return texture2D(tex, fract(pos)).xy;
   }
 
   float texnoise3D(in sampler2D tex, in vec3 pos) {
     float p = floor(pos.z);
     float f = pos.z - p;
 
-    float zStretch = 17.0 * noiseTextureResolutionRCP;
+    vec2 noise = texture2DLod(tex, fract(pos.xy * noiseTextureResolutionRCP + (p * 17.0 * noiseTextureResolutionRCP)), 0).xy;
 
-    vec2 coord = pos.xy * noiseTextureResolutionRCP + (p * zStretch);
+    return mix(noise.x, noise.y, f);
+  }
 
-    float xy1 = texture2DLod(tex, fract(coord), 0).x;
-    float xy2 = texture2DLod(tex, fract(coord) + zStretch, 0).x;
+  float texnoise3DSmooth(in sampler2D tex, in vec3 pos) {
+    float p = floor(pos.z);
+    float f = pos.z - p;
 
-    return mix(xy1, xy2, f);
+    vec2 noise = texnoise2DSmooth(tex, fract(pos.xy * noiseTextureResolutionRCP + (p * 17.0 * noiseTextureResolutionRCP))).xy;
+
+    return mix(noise.x, noise.y, f);
   }
 
 #endif /* INTERNAL_INCLUDED_UTIL_NOISE */

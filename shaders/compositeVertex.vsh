@@ -11,10 +11,13 @@ varying vec2 screenCoord;
 flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
+flat(vec3) wLightDirection;
 
 flat(vec4) timeVector;
 
 /* UNIFORM */
+uniform mat4 gbufferModelViewInverse;
+
 uniform vec3 sunPosition;
 uniform vec3 shadowLightPosition;
 
@@ -35,6 +38,7 @@ void main() {
   _getSunDirection();
   _getMoonDirection();
   _getLightDirection();
+  _getWorldLightDirection();
 
   getTimeVector(timeVector);
 }

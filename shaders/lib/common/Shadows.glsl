@@ -83,7 +83,8 @@
     #define radiusFront radii.y
 
     // PREALLOCATE VARIABLES
-    vec3 shadowBack, shadowFront, shadowColour = vec3(0.0);
+    vec4 shadowColour = vec4(0.0);
+    vec3 shadowBack, shadowFront = vec3(0.0);
     vec2 offset, depths = vec2(0.0);
     float waterDepth = 0.0;
     bool isWater = false;
@@ -106,28 +107,25 @@
       shadowData.occlusionBack = _cutShadow(compareShadowDepth(depths.x, shadowBack.z)) * filterSamplesRCP + shadowData.occlusionBack;
       shadowData.occlusionFront = _cutShadow(compareShadowDepth(depths.y, shadowFront.z)) * filterSamplesRCP + shadowData.occlusionFront;
       
-      if(forward) continue;
-
-      shadowData.occlusionDifference = float(depths.x - depths.y > 0.0);
-
-      if(depths.x - depths.y <= 0.0) continue;
+      //if(forward || depths.x - depths.y <= 0.0) continue;
 
       isWater = texture2D(shadowcolor1, shadowFront.xy).a > 0.5;
       shadowData.isWater += float(isWater) * filterSamplesRCP + shadowData.isWater;
 
-      shadowColour = toHDR(texture2DLod(shadowcolor0, shadowFront.xy, 0).rgb, dynamicRangeShadow);
+      shadowColour = texture2DLod(shadowcolor0, shadowFront.xy, 0);
+      shadowColour.rgb = toHDR(shadowColour.rgb, dynamicRangeShadow);
 
-      if(isWater) {
-        waterDepth = depths.y * 8.0 - 4.0;
-        waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
-        waterDepth = (_transMAD(shadowModelView, world)).z - waterDepth;
+      shadowData.occlusionDifference = (float(depths.x - depths.y > 0.0) * ((!isWater) ? 1.0 - shadowColour.a : 1.0)) * filterSamplesRCP + shadowData.occlusionDifference;
 
-        shadowData.depthWater = waterDepth * filterSamplesRCP + shadowData.depthWater;
+      waterDepth = depths.y * 8.0 - 4.0;
+      waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
+      waterDepth = (_transMAD(shadowModelView, world)).z - waterDepth;
 
-        if(waterDepth < 0.0) shadowColour *= exp(waterTransmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
-      }
+      shadowData.depthWater = waterDepth * filterSamplesRCP + shadowData.depthWater;
 
-      shadowData.colour = shadowColour * filterSamplesRCP + shadowData.colour;
+      if(isWater && waterDepth < 0.0) shadowColour.rgb *= exp(waterTransmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
+
+      shadowData.colour = shadowColour.rgb * filterSamplesRCP + shadowData.colour;
     }
 
     #undef radiusBack
