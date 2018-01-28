@@ -18,6 +18,8 @@
   cv(int) cloudOctaves = CLOUDS_OCTAVES;
   cRCP(float, cloudOctaves);
 
+  cv(float) cloudHorizonFade = 0.1;
+
   // LIGHTING
   #define CLOUDS_LIGHTING_DIRECT_INTENSITY 5.0
   #define CLOUDS_LIGHTING_SKY_INTENSITY 4.0

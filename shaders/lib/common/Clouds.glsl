@@ -81,7 +81,9 @@
 
       #undef sampleDirection
 
-      return exp(-cloudScatterAbsorbCoeff.z * cloudStepSize * opticalDepth);
+      float horizon = smoothstep(0.0, cloudHorizonFade, dot(direction, vec3(0.0, 1.0, 0.0)));
+
+      return mix(1.0, exp(-cloudScatterAbsorbCoeff.z * cloudStepSize * opticalDepth), horizon);
     }
   #endif
 
@@ -121,14 +123,14 @@
 
       vec3 start = world * (cloudStartAltitude - cameraPosition.y) / world.y;
 
-      float horizon = smoothstep(0.0, 0.02, dot(nView, upDirection));
+      float horizon = smoothstep(0.0, cloudHorizonFade, dot(nWorld, vec3(0.0, 1.0, 0.0)));
 
       if(cameraPosition.y >= cloudStartAltitude && cameraPosition.y <= cloudEndAltitude) {
         start = vec3(0.0);
         horizon = 1.0;
       } else if(cameraPosition.y >= cloudEndAltitude) {
         start = world * (cloudEndAltitude - cameraPosition.y) / world.y;
-        horizon = smoothstep(0.0, 0.02, dot(nView, -upDirection));
+        horizon = smoothstep(0.0, cloudHorizonFade, dot(nWorld, -vec3(0.0, 1.0, 0.0)));
       }
 
       vec3 incr = (nWorld / nWorld.y) * cloudStepSize;
