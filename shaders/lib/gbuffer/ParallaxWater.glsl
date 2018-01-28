@@ -14,7 +14,7 @@
       cv(int) steps = 6;
       cRCP(float, steps);
 
-      cv(float) height = 0.6;
+      cv(float) height = 1.0;
 
       view.xy = view.xy * stepsRCP / _length(view) * 4.0;
 

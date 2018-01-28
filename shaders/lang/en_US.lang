@@ -103,12 +103,30 @@ screen.VolumetricFog=Volumetric Fog
 
 option.VOLUMETRIC_FOG=Volumetric Fog
 
+#       Atmospherics\Volumetrics\VolumetricFog\HeightFog
+screen.HeightFog=Height Fog
+
+option.HEIGHT_FOG=Height Fog
+
+#       Atmospherics\Volumetrics\VolumetricFog\SheetFog
+screen.SheetFog=Sheet Fog
+
+option.SHEET_FOG=Sheet Fog
+
 #     Atmospherics\Volumetrics\VolumetricWater
 screen.VolumetricWater=Volumetric Water
 
 option.VOLUMETRIC_WATER=Volumetric Water
 
 option.VOLUMETRIC_WATER_DENSITY=Density
+
+option.VOLUMETRIC_WATER_ABSORPTION_STRENGTH=Absorption Strength
+
+option.VOLUMETRIC_WATER_TURBIDITY=Turbidity
+
+option.VOLUMETRIC_WATER_SCATTER_COLOUR=Scatter Colour
+value.VOLUMETRIC_WATER_SCATTER_COLOUR.0=Clear
+value.VOLUMETRIC_WATER_SCATTER_COLOUR.1=Ocean
 
 #   Atmospherics\Clouds
 screen.Clouds=Volumetric Clouds

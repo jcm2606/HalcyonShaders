@@ -45,8 +45,8 @@
   }
   DEFINE_genFType(length8_)
 
-  #define _distance(x, y) _length(x - y)
-  #define _distanceRCP(x, y) _inverseLength(x - y)
+  #define _distance(x, y) _length(y - x)
+  #define _distanceRCP(x, y) _inverseLength(y - x)
 
   #define _transMAD(mat, v) (mat3(mat) * (v) + (mat)[3].xyz)
 

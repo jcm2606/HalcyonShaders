@@ -42,7 +42,7 @@ uniform vec3 cameraPosition;
 /* MAIN */
 void main() {
   uvCoord = gl_MultiTexCoord0.xy;
-  lightmap = _sqr((gl_TextureMatrix[1] * gl_MultiTexCoord1).xy);
+  lightmap = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 
   #if PROGRAM == GBUFFERS_EYES || PROGRAM == GBUFFERS_BEAM
     lightmap = vec2(1.0);

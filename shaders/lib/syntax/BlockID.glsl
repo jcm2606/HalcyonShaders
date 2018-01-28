@@ -59,7 +59,7 @@
   #define GLOWSTONE vec2(89, 0)
   #define REDSTONE_LAMP vec2(124, 123) // x = lit, y = unlit
   #define BEACON vec2(138, 0)
-  #define SEA_LANTERN vec2(159, 0)
+  #define SEA_LANTERN vec2(169, 0)
   #define END_ROD vec2(198, 0)
 
   // FLUIDS

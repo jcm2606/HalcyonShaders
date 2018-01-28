@@ -9,6 +9,7 @@
 
   // WATER
   #define WATER_NORMAL_ANISOTROPY 0.2
+  #define WATER_WAVE_0_OCTAVES 10 // [8 10 12 14 16 18 20 22 24]
 
   #define _waterHeight water0 // [water0 water1]
 

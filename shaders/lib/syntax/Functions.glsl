@@ -18,7 +18,7 @@
   #define toLinear_(type) type toLinear(type x) { return _pow(x, type(gammaCurveScreen)); }
   DEFINE_genFType(toLinear_)
 
-  #define toLDR_(type) type toLDR(type x, const in float range) { return toLinear(x) * range; }
+  #define toLDR_(type) type toLDR(type x, const in float range) { return toGamma(x * range); }
   DEFINE_genFType(toLDR_)
 
   #define toHDR_(type) type toHDR(type x, const in float range) { return toLinear(x) * range; }
@@ -72,9 +72,29 @@
   float avg3(in vec3 v) { return (v.x + v.y + v.z) * 0.333333333; }
 
   float almostIdentity(float x, float m, float n) {
-	if (x > m) return x;
-	float t = x / m;
-	return (((2.0 * n - m) * t + (2.0 * m - 3.0 * n)) * t * t) + n;
-}
+    if (x > m) return x;
+    float t = x / m;
+    return (((2.0 * n - m) * t + (2.0 * m - 3.0 * n)) * t * t) + n;
+  }
+
+  bool intersectSphere(in vec3 rayOrigin, in vec3 rayDirection, in vec3 sphereOrigin, in float sphereRadius, inout vec3 intersection0, inout vec3 intersection1) {
+    vec3 L = sphereOrigin - rayOrigin;
+
+    float tca = dot(L, rayDirection);
+
+    if(tca < 0.0) return false;
+
+    float d2 = dot(L, L) - tca * tca;
+    float r2 = sphereRadius * sphereRadius;
+
+    if(d2 > r2) return false;
+
+    float tch = sqrt(r2 - d2);
+
+    intersection0 = rayDirection * (tca - tch) + rayOrigin;
+    intersection1 = rayDirection * (tca + tch) + rayOrigin;
+
+    return true;
+  }
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_FUNCTIONS */

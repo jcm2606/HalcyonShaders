@@ -32,6 +32,7 @@ varying vec2 screenCoord;
 flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
+flat(vec3) wLightDirection;
 
 /* UNIFORM */
 uniform sampler2D colortex0;
@@ -48,6 +49,9 @@ uniform sampler2D depthtex2;
 
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
+
+uniform vec3 cameraPosition;
+uniform vec3 sunPosition;
 
 uniform int isEyeInWater;
 
@@ -91,7 +95,7 @@ void main() {
 
   // DRAW VOLUMETRIC EFFECTS & TRANSPARENT REFLECTIONS
   bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
-
+  
   // POPULATE OUTGOING BUFFERS
   /* DRAWBUFFERS:0 */
   gl_FragData[0] = bufferList.tex0;

@@ -46,6 +46,10 @@
       if(
         entity.x == WATER.x || entity.x == WATER.y
       ) objectID = OBJECT_WATER;
+
+      if(
+        entity.x == STAINED_GLASS.x || entity.x == STAINED_GLASS.y
+      ) objectID = OBJECT_STAINED_GLASS;
     #endif
     #if PROGRAM == GBUFFERS_HAND
       objectID = OBJECT_HAND;

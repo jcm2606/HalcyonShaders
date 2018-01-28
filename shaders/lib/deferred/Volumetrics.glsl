@@ -52,7 +52,7 @@
         cv(float) threshold = 0.1;
         float weight  = float( abs(centerDepth - _linearDepth(sampleDepthIn)) > threshold || abs(centerDepth - _linearDepth(sampleDepthOut)) > threshold );
         
-        volumetrics[0] = texture2DLod(colortex4, offset * scale + screenCoord, volumetricsLOD).rgb * samplesRCP + volumetrics[0];
+        volumetrics[0] = texture2DLod(colortex4, offset * scale + screenCoord, 1).rgb * samplesRCP + volumetrics[0];
         volumetrics[1] = mix(texture2DLod(colortex5, offset * scale + screenCoord, volumetricsLOD).rgb, bufferList.tex5.rgb, weight) * samplesRCP + volumetrics[1];
         volumetrics[2] = mix(texture2DLod(colortex6, offset * scale + screenCoord, volumetricsLOD).rgb, bufferList.tex6.rgb, weight) * samplesRCP + volumetrics[2];
         
@@ -112,7 +112,7 @@
 
     // FOG
     cv(vec3) scatterCoeff = vec3(0.01) / log(2.0);
-    cv(vec3) absorbCoeff = vec3(0.05) / log(2.0);
+    cv(vec3) absorbCoeff = vec3(0.1) / log(2.0);
     cv(AtmosphereLayerSimple) layerFog = AtmosphereLayerSimple(
       scatterCoeff,
       scatterCoeff + absorbCoeff
@@ -249,16 +249,34 @@
     }
 
     // OPTICAL DEPTH FUNCTIONS
+    // AIR
     float opticalDepthAir(in vec3 world) {
       return exp2(-world.y * atmosphericScatteringHeight) * ATMOSPHERIC_SCATTERING_DENSITY;
     }
 
+    // FOG
+    float heightFog(in vec3 world) {
+      #ifndef HEIGHT_FOG
+        return 0.0;
+      #endif
+
+      return saturate(exp2(-_max0(world.y - SEA_LEVEL) * heightFogParameters.x)) * heightFogParameters.y;
+    }
+
+    float sheetFog(in vec3 world) {
+      #ifndef SHEET_FOG
+        return 0.0;
+      #endif
+
+      return saturate(exp2(-_max0(world.y - SEA_LEVEL) * sheetFogParameters.x)) * sheetFogParameters.y;
+    }
+
     float opticalDepthFog(in vec3 world) {
-      return saturate(exp2(-_max0(world.y - SEA_LEVEL) * volumetricFogHeight)) * volumetricFogDensity;
+      return heightFog(world) + sheetFog(world);
     }
 
     // VOLUMETRICS FUNCTION
-    void computeVolumetrics(in PositionData positionData, in GbufferData gbufferData, in MaskList maskList, out vec3 backTransmittance, out vec3 frontTransmittance, out vec3 scattering, in vec2 dither, in mat2x3 atmosphereLighting) {
+    void computeVolumetrics(in PositionData positionData, in GbufferData gbufferData, in MaskList maskList, out vec3 backTransmittance, out vec3 frontTransmittance, out vec3 scattering, in vec2 screenCoord, in vec4 hitCoord, in vec2 dither, in mat2x3 atmosphereLighting) {
       backTransmittance = vec3(1.0);
       frontTransmittance = vec3(1.0);
       scattering = vec3(0.0);
@@ -280,18 +298,22 @@
 
       float phaseFog = volumetrics_miePhase(_max0(VoL), 0.2);
 
+      // COMPUTE BACK CLIP POSITION
+      vec3 clipBack = (hitCoord.z == hitCoord.w) ? vec3(screenCoord, positionData.depthBack) : hitCoord.xyz;
+
       // COMPUTE WORLD POSITIONS
       vec3 worldFront = viewToWorld(positionData.viewFront);
       vec3 worldBack  = viewToWorld(positionData.viewBack);
+      vec3 refractedWorldBack = viewToWorld(clipToView(clipBack.xy, clipBack.z));
 
       // CREATE EYE RAY
       _newRay(eyeRay);
       //createRay(eyeRay, (underWater) ? worldFront : gbufferModelViewInverse[3].xyz, (underWater) ? worldBack : worldFront, dither);
-      createRay(eyeRay, (underWater) ? worldBack : worldFront, (underWater) ? worldFront : gbufferModelViewInverse[3].xyz, dither); // March back to front to correctly absorb over water.
+      createRay(eyeRay, (underWater) ? refractedWorldBack : worldFront, (underWater) ? worldFront : gbufferModelViewInverse[3].xyz, dither); // March back to front to correctly absorb over water.
 
       // CREATE WATER RAY
       _newRay(waterRay);
-      createRay(waterRay, (underWater) ? gbufferModelViewInverse[3].xyz : worldFront, (underWater) ? worldFront : worldBack, dither);
+      createRay(waterRay, (underWater) ? gbufferModelViewInverse[3].xyz : worldFront, (underWater) ? worldFront : refractedWorldBack, dither);
 
       // COMPUTE DISTANCE TO FRONT
       float distanceToFront = _length(worldFront);

@@ -7,7 +7,7 @@
 #ifndef INTERNAL_INCLUDED_COMMON_NORMALS
   #define INTERNAL_INCLUDED_COMMON_NORMALS
 
-  #if PROGRAM == GBUFFERS_WATER || PROGRAM == SHADOW || PROGRAM == DEFERRED0
+  #if PROGRAM == GBUFFERS_WATER || PROGRAM == SHADOW || PROGRAM == DEFERRED0 || PROGRAM == COMPOSITE0
     #include "/lib/util/Noise.glsl"
 
     // WATER HEIGHT
@@ -29,12 +29,12 @@
       vec2 position = world.xz - world.y;
       vec2 noisePosition = position * 0.005;
 
-      cv(int) octaves = 9;
+      cv(int) octaves = WATER_WAVE_0_OCTAVES;
 
       float move = 0.3 * globalTime;
 
-      float waveSteepness = 0.85;
-      float waveAmplitude = 0.5;
+      float waveSteepness = 0.55;
+      float waveAmplitude = 0.6;
       vec2 waveDirection = vec2(0.5, 0.2);
       float waveLength = 8.0;
       float rotation = 0.0;
@@ -42,16 +42,16 @@
       vec2 noise = vec2(0.0);
 
       for(int i = 0; i < octaves; i++) {
-        noise = texnoise2DSmooth(noisetex, noisePosition / sqrt(waveLength));
+        noise = texnoise2D(noisetex, noisePosition / sqrt(waveLength));
 
-        height += -gerstner(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 4.0, move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise.x * waveAmplitude;
+        height += -gerstner(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 2.0, move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise.x * waveAmplitude;
 
         waveSteepness *= 1.025;
         waveAmplitude *= 0.685;
         waveLength *= 0.725;
         waveDirection = rotate(waveDirection, rotation);
         move *= 1.05;
-        rotation += pi + 0.33333;
+        rotation += tau + 0.33333;
       }
 
       return height;
@@ -108,9 +108,9 @@
 
       vec2 delta = vec2(height0 - height1, height0 - height2);
 
-      vec3 normal = normalize(vec3(delta.x, delta.y, 1.0 - _sqr(delta.x) - _sqr(delta.y)));
+      vec3 normal = _normalize(vec3(delta.x, delta.y, 1.0 - _sqr(delta.x) - _sqr(delta.y)));
 
-      cv(float) normalAnisotropy = 0.2;
+      cv(float) normalAnisotropy = 0.3;
       normal = normal * vec3(normalAnisotropy) + vec3(0.0, 0.0, 1.0 - normalAnisotropy);
 
       return normal;

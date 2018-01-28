@@ -47,7 +47,7 @@
     #undef blockShading
     #undef skyShading
 
-    lightmap = saturate(_min(vec2(0.85), saturate(lightmap * 1.5)));
+    lightmap = saturate(_min(vec2(0.85), saturate(lightmap * 1.5)) * 1.15);
 
     return lightmap;
   }

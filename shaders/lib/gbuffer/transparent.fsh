@@ -52,6 +52,9 @@ void main() {
 
   if(compare(objectID, OBJECT_WATER)) albedo = vec4(0.0);
 
+  // SAMPLE NORMAL MAP
+  vec4 normalMap = texture2D(normals, uvCoord);
+
   // PUDDLE GENERATION
   //float wetness = 0.0;
 
@@ -63,6 +66,8 @@ void main() {
   #ifdef NORMAL_MAPPING
     normal = texture2D(normals, uvCoord).xyz;
   #endif
+
+  if(normalMap.a == 0.0) normal = vec3(0.5, 0.5, 1.0);
 
   normal = normal * 2.0 - 1.0;
 
@@ -107,6 +112,8 @@ void main() {
   #endif
 
   if(objectID == OBJECT_WATER) material = MATERIAL_WATER;
+
+  if(objectID == OBJECT_STAINED_GLASS) material = MATERIAL_STAINED_GLASS;
 
   smoothness = _max(0.0001, smoothness);
   smoothness = 1.0 - smoothness;

@@ -76,6 +76,8 @@ uniform float frameTimeCounter;
 
 #include "/lib/common/Clouds.glsl"
 
+#include "/lib/deferred/Refraction.glsl"
+
 /* FUNCTION */
 /* MAIN */
 void main() {
@@ -96,8 +98,18 @@ void main() {
   cv(float) ditherScale = pow(128.0, 2.0);
   vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
 
+  // COMPUTE REFRACTION
+  float refract_dist = 0.0;
+  vec3 refract_hitPosition = vec3(0.0);
+  bool refract_isTransparent = false;
+
+  vec4 refract_hitCoord = getRefractedCoord(positionData, screenCoord, gbufferData.normal, 1.0 / 1.333, maskList.water, refract_dist, refract_hitPosition, refract_isTransparent);
+
+  // DRAW REFRACTED BACKGROUND
+  bufferList.tex0.rgb = getRefractedBackground(bufferList.tex0.rgb, refract_hitCoord.xy, refract_isTransparent);
+
   // DRAW CLOUDS
-  bufferList.tex0.rgb = drawClouds(bufferList, bufferList.tex0.rgb, screenCoord);
+  bufferList.tex0.rgb = drawClouds(bufferList, bufferList.tex0.rgb, screenCoord, refract_hitCoord.xy, refract_isTransparent);
 
   // COMPUTE ATMOSPHERE LIGHTING
   mat2x3 atmosphereLighting = getAtmosphereLighting();
@@ -109,7 +121,7 @@ void main() {
   if(_getLandMask(positionData.depthFront)) computeShadowing(shadowData, positionData.viewFront, dither, 0.0, false);
 
   // COMPUTE VOLUMETRICS
-  computeVolumetrics(positionData, gbufferData, maskList, bufferList.tex6.rgb, bufferList.tex5.rgb, bufferList.tex4.rgb, dither, atmosphereLighting);
+  computeVolumetrics(positionData, gbufferData, maskList, bufferList.tex6.rgb, bufferList.tex5.rgb, bufferList.tex4.rgb, screenCoord, refract_hitCoord, dither, atmosphereLighting);
 
   // PUSH TRANSPARENT OBJECTS INTO LINEAR SPACE
   bufferList.tex7.rgb = toLinear(bufferList.tex7.rgb);

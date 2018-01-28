@@ -20,7 +20,7 @@
 
   // LIGHTING
   #define CLOUDS_LIGHTING_DIRECT_INTENSITY 5.0
-  #define CLOUDS_LIGHTING_SKY_INTENSITY 2.0
+  #define CLOUDS_LIGHTING_SKY_INTENSITY 4.0
   #define CLOUDS_LIGHTING_BOUNCED_INTENSITY 0.125
 
   #define CLOUDS_LIGHTING_DIRECT_STEPS 2 // [0 1 2 3 4 5 6 7 8]
@@ -38,7 +38,7 @@
   // CLOUD SHADOWING
   #define CLOUD_SHADOW
 
-  //#define CLOUD_SHADOW_SKY // When enabled, sky light is shadowed by cloud directly overhead.
+  #define CLOUD_SHADOW_SKY // When enabled, sky light is shadowed by cloud directly overhead.
   #define CLOUD_SHADOW_SKY_INTENSITY 0.75
  
   cv(float) cloudShadowSkyIntensityInverse = 1.0 - CLOUD_SHADOW_SKY_INTENSITY;

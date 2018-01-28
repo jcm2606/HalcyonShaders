@@ -33,7 +33,7 @@
     #endif
 
     // COMPUTE DIRECT TINT
-    vec3 directTint = mix(vec3(shadowData.occlusionFront), shadowData.colour, shadowData.occlusionDifference);
+    vec3 directTint = mix(vec3(shadowData.occlusionFront), shadowData.colour, saturate(shadowData.occlusionDifference));
 
     // OUTPUT HIGHLIGHT OCCLUSION
     highlightOcclusion = vec4(directTint, shadowData.occlusionBack * cloudShadowDirect);

@@ -8,8 +8,8 @@
   #define INTERNAL_INCLUDED_COMMON_CLOUDS
 
   #if PROGRAM == COMPOSITE0
-    vec3 drawClouds(in BufferList bufferList, in vec3 background, in vec2 screenCoord) {
-      vec4 clouds = texture2DLod(colortex4, screenCoord, 1);
+    vec3 drawClouds(in BufferList bufferList, in vec3 background, in vec2 screenCoord, in vec2 hitCoord, in bool isTransparent) {
+      vec4 clouds = texture2DLod(colortex4, (isTransparent) ? hitCoord : screenCoord, 1);
       
       #define scattering clouds.rgb
       #define transmittance clouds.a
@@ -30,7 +30,7 @@
     cv(float) cloudStepSize = cloudHeight * cloudStepsRCP;
 
     cv(float) cloudDensityScale = cloudOctavesRCP * cloudHeightRCP;
-    cv(float) cloudDensity = 2200.0 * cloudDensityScale;
+    cv(float) cloudDensity = 1600.0 * cloudDensityScale;
     cv(vec3) cloudScatterAbsorbCoeff = vec3(0.02, 0.05 * cloudDensity, 0.02 * cloudDensity); // x = scatter, y = view absorb, z = light absorb
 
     #include "/lib/util/Noise.glsl"
@@ -57,7 +57,7 @@
         weight *= 0.5;
       }
 
-      float coverage = 1.1;
+      float coverage = 0.9;
 
       cloud -= coverage;
       cloud  = _max0(cloud);
@@ -160,9 +160,6 @@
         #else
           float visibilityBounced = 1.0;
         #endif
-
-        // SCALE OPTICAL DEPTH BY STEP SIZE
-        //opticalDepth *= ;
 
         // COMPUTE LIGHTING
         vec3 lightingDirect  = atmosphereLighting[0] * cloudLightDirectIntensity * visibilityDirect;

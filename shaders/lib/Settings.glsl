@@ -48,6 +48,7 @@
   #include "/lib/setting/Materials.glsl"
   #include "/lib/setting/Normals.glsl"
   #include "/lib/setting/Clouds.glsl"
+  #include "/lib/setting/Refraction.glsl"
 
   /* SETTINGS */
   #define TEXTURE_RESOLUTION 128 // [16 32 64 128 256 512 1024 2048 4096]

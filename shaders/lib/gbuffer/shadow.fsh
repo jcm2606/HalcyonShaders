@@ -39,9 +39,17 @@ void main() {
   bool isWater = compare(objectID, OBJECT_WATER);
 
   if(isWater) {
-    albedo = vec4(1.0);
+    vec3 normal = getNormal(world, OBJECT_WATER);
+
+    float caustic = 0.0;
+
+    caustic = 1.0 - pow(1.0 - normal.z, 1.0 / 3.0);
+    caustic = pow(caustic, 8.0) * 2.0;
+
+    albedo = vec4(vec3(caustic), 1.0);
+    //albedo = vec4(1.0);
   }
 
-  gl_FragData[0] = toLDR(albedo, dynamicRangeShadow);
+  gl_FragData[0] = vec4(toLDR(albedo.rgb, dynamicRangeShadowRCP), albedo.a);
   gl_FragData[1] = vec4(vec3(0.0), float(isWater));
 }
