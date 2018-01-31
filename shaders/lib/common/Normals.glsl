@@ -46,8 +46,8 @@
 
         height += -gerstner(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 2.0, move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise.x * waveAmplitude;
 
-        waveSteepness *= 1.025;
-        waveAmplitude *= 0.685;
+        waveSteepness *= 1.125;
+        waveAmplitude *= 0.635;
         waveLength *= 0.725;
         waveDirection = rotate(waveDirection, rotation);
         move *= 1.05;

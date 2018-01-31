@@ -94,7 +94,7 @@ void main() {
   vec2 dither = vec2(bayer16(gl_FragCoord.xy * 4.0), ditherScale);
 
   // DRAW VOLUMETRIC EFFECTS & TRANSPARENT REFLECTIONS
-  bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
+  bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList, maskList, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
   
   // POPULATE OUTGOING BUFFERS
   /* DRAWBUFFERS:0 */

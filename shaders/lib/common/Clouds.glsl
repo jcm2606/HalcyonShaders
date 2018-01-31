@@ -24,7 +24,7 @@
   #if PROGRAM == DEFERRED1 || PROGRAM == DEFERRED2 || PROGRAM == COMPOSITE0
     cv(float) cloudHeight = 128.0;
     cRCP(float, cloudHeight);
-    cv(float) cloudStartAltitude = 512.0;
+    cv(float) cloudStartAltitude = CLOUD_ALTITUDE;
     cv(float) cloudEndAltitude = cloudStartAltitude + cloudHeight;
 
     cv(float) cloudStepSize = cloudHeight * cloudStepsRCP;
@@ -38,7 +38,7 @@
     float cloudFBM(in vec3 world) {
       float cloud = 0.0;
 
-      world *= 0.002;
+      world *= cloudScaleMultiplier;
 
       cv(mat2) rot = rotate2(-0.7);
 
@@ -168,14 +168,14 @@
         vec3 lightingSky     = atmosphereLighting[1] * cloudLightSkyIntensity * visibilitySky;
         vec3 lightingBounced = atmosphereLighting[0] * cloudLightBouncedIntensity * visibilityBounced;
 
-        vec3 lighting = (lightingDirect + lightingSky + lightingBounced) * 2.0;
+        vec3 lighting = (lightingDirect + lightingSky + lightingBounced) * 0.02;
 
         // COMPUTE SCATTERING/ABSORPTION
-        scattering = (lighting * transmittedScatteringIntegral(opticalDepth, cloudScatterAbsorbCoeff.x)) * transmittance + scattering;
+        scattering = (lighting * transmittedScatteringIntegral(opticalDepth * cloudStepSize, cloudScatterAbsorbCoeff.x)) * transmittance + scattering;
         transmittance *= exp(-cloudScatterAbsorbCoeff.y * opticalDepth * cloudStepSize);
       }
 
-      scattering *= cloudStepsRCP;
+      //scattering *= cloudStepsRCP;
 
       #undef scattering
       #undef transmittance

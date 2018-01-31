@@ -21,7 +21,7 @@
 
   #define _cutShadow ceil // What function should be used for the shadow cut?. Don't touch unless you know what you're doing! [floor ceil sign nullop]
 
-  #define SHADOW_QUALITY 6 // How many samples should be used for shadows?. Higher samples reduces the grain in shadows, at the expense of performance. [6 8 10 12 14 16 18 20 22 24 26 28 30 32]
+  #define SHADOW_QUALITY 8 // How many samples should be used for shadows?. Higher samples reduces the grain in shadows, at the expense of performance. [6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 
   #define SHADOW_DISTORTION_FACTOR 0.9 // How detailed should shadows be near the player?. Higher values increases detail near the player, at the expense of detail away from the player. This does not impact performance. [0.8 0.85 0.9 0.95]
 

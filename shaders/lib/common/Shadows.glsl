@@ -123,7 +123,7 @@
 
       shadowData.depthWater = waterDepth * filterSamplesRCP + shadowData.depthWater;
 
-      if(isWater && waterDepth < 0.0) shadowColour.rgb *= exp(waterTransmittanceCoeff * waterDepth * VOLUMETRIC_WATER_DENSITY);
+      if(isWater && waterDepth < 0.0) shadowColour.rgb *= exp(waterTransmittanceCoeff * waterDepth);
 
       shadowData.colour = shadowColour.rgb * filterSamplesRCP + shadowData.colour;
     }

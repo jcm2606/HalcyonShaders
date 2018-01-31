@@ -121,7 +121,7 @@ void main() {
   if(_getLandMask(positionData.depthFront)) computeShadowing(shadowData, positionData.viewFront, dither, 0.0, false);
 
   // COMPUTE VOLUMETRICS
-  computeVolumetrics(positionData, gbufferData, maskList, bufferList.tex6.rgb, bufferList.tex5.rgb, bufferList.tex4.rgb, screenCoord, refract_hitCoord, dither, atmosphereLighting);
+  computeVolumetrics(bufferList, positionData, gbufferData, maskList, bufferList.tex4.rgb, bufferList.tex5.rgb, bufferList.tex6.rgb, screenCoord, refract_hitCoord, dither, atmosphereLighting);
 
   // PUSH TRANSPARENT OBJECTS INTO LINEAR SPACE
   bufferList.tex7.rgb = toLinear(bufferList.tex7.rgb);
