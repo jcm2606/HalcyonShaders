@@ -1,22 +1,18 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #ifndef INTERNAL_INCLUDED_COMMON_LIGHTMAPS
   #define INTERNAL_INCLUDED_COMMON_LIGHTMAPS
 
   float getBlockLightmap(in float blockLight) {
-    return pow(blockLight, BLOCK_LIGHT_ATTENUATION) * BLOCK_LIGHT_STRENGTH;
+    return _pow(blockLight, BLOCK_LIGHT_ATTENUATION) * BLOCK_LIGHT_INTENSITY;
   }
 
-  float getRawSkyLightmap(in float skyLight) {
-    return pow(skyLight, 8.0);
-  }
-
-  float getSkyLightmap(in float skyLight, in vec3 normal) {
-    return getRawSkyLightmap(skyLight) * max0(dot(normal, upVector) * 0.45 + 0.65);
+  float getSkyLightmap(in float skyLight) {
+    return _pow(skyLight, SKY_LIGHT_ATTENUATION) * SKY_LIGHT_INTENSITY;
   }
 
 #endif /* INTERNAL_INCLUDED_COMMON_LIGHTMAPS */

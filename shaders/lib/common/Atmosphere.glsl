@@ -1,7 +1,7 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #ifndef INTERNAL_INCLUDED_COMMON_ATMOSPHERE
@@ -21,55 +21,64 @@
   vec2 getThickness(in vec3 dir) {
     vec2 sr = earthRadius + vec2(atmosphereHeight, atmosphereHeight * mieDistribution * rayleighDistributionRCP);
 
-    vec3 ro = -upVector * earthRadius;
+    vec3 ro = -upDirection * earthRadius;
 
     float b = dot(dir, ro);
 
-    return b + sqrt(sr * sr + (b * b - flengthsqr(ro)));
+    return b + sqrt(sr * sr + (b * b - _lengthsqr(ro)));
   }
 
-  #define getEarth(a) smoothstep(-0.1, 0.1, dot(upVector, a))
-  #define phaseRayleigh(a) (0.4 * a + 1.14)
+  #define _getEarth(x) ( smoothstep(-0.1, 0.1, dot(upDirection, x)) )
+  #define phaseRayleigh(x) ( 0.4 * x + 1.14 )
 
   float phaseMie(in float x) {
     cv(vec3) c = vec3(0.25609, 0.132268, 0.010016);
     cv(vec3) d = vec3(-1.5, -1.74, -1.98);
     cv(vec3) e = vec3(1.5625, 1.7569, 1.9801);
 
-    return dot((x * x + 1.0) * c / pow(d * x + e, vec3(1.5)), vec3(0.333333));
+    return dot((x * x + 1.0) * c / _pow(d * x + e, vec3(1.5)), vec3(0.333333));
   }
 
   vec3 absorb(in vec2 a) {
     return exp(-a.x * (ozoneCoeff * ozoneMultiplier + rayleighCoeff) - 1.11 * a.y * mieCoeff);
   }
 
-  cv(int) atmosphereSteps = 8;
-  cRCP(float, atmosphereSteps);
+  vec3 getLightColour(in vec3 direction) {
+    return absorb(getThickness(direction)) * _getEarth(direction) * ((sunAngle <= 0.5) ? SUN_LIGHT_INTENSITY : MOON_LIGHT_INTENSITY);
+  }
+
+  float getBodyMask(in float VoL, cin(float) sizeDegrees) {
+    return step(pi - radians(sizeDegrees), acos(-VoL));
+  }
 
   vec3 getAtmosphere(in vec3 background, in vec3 view, in int mode) {
-    vec2 thickness = getThickness(view) * atmosphereStepsRCP;
+    cv(int) steps = 8;
+    cRCP(float, steps);
 
-    float VdotS = dot(view, sunVector);
-    float VdotM = dot(view, moonVector);
+    vec2 thickness = getThickness(view) * stepsRCP;
+
+    float VoS = dot(view, sunDirection);
+    float VoM = dot(view, moonDirection);
 
     vec3 viewAbsorb = absorb(thickness);
     vec4 scatterCoeff = 1.0 - exp(-thickness.xxxy * vec4(rayleighCoeff, mieCoeff));
 
-    vec3 scatterS = scatterCoeff.xyz * phaseRayleigh(VdotS) + (scatterCoeff.w * phaseMie((mode == 2) ? 0.0 : VdotS));
-    vec3 scatterM = scatterCoeff.xyz * phaseRayleigh(VdotM) + (scatterCoeff.w * phaseMie((mode == 2) ? 0.0 : VdotM));
+    vec3 scatterS = scatterCoeff.xyz * phaseRayleigh(VoS) + (scatterCoeff.w * phaseMie((mode > 0) ? 0.0 : VoS));
+    vec3 scatterM = scatterCoeff.xyz * phaseRayleigh(VoM) + (scatterCoeff.w * phaseMie((mode > 0) ? 0.0 : VoM));
 
-    cv(float) sunBrightness = 1.5;
-    cv(float) moonBrightness = 0.002;
-    cv(float) moonLightBrightness = pow(16.0, 6.3);
-    cv(vec3) moonColour = _saturation(vec3(0.0, 0.0, 1.0), 0.85);
+    cv(float) sunScatterIntensity = 1.5;
+    cv(float) moonScatterIntensity = 0.002;
 
-    vec3 absorbS = absorb(getThickness(sunVector) * atmosphereStepsRCP) * getEarth(sunVector) * sunBrightness;
-    vec3 absorbM = absorb(getThickness(moonVector) * atmosphereStepsRCP) * getEarth(moonVector) * moonBrightness;
+    vec3 absorbS = absorb(getThickness(sunDirection) * stepsRCP) * _getEarth(sunDirection) * sunScatterIntensity;
+    vec3 absorbM = absorb(getThickness(moonDirection) * stepsRCP) * _getEarth(moonDirection) * moonScatterIntensity;
 
-    vec3 skyS = mode != 0 ? vec3(0.0) : (sin(max0(pow(VdotS, 24.0 * sunSpotSizeRCP) - 0.9935) / 0.015 * pi) * absorbS * sunBrightness) * (SUN_BRIGHTNESS * 2.0) + background;
-    vec3 skyM = mode != 0 ? vec3(0.0) : (sin(max0(pow16(VdotM) - 0.9935) / 0.015 * pi) * absorbM * moonBrightness * moonColour) * moonLightBrightness + background;
+    cv(float) sunSpotIntensity = SUN_LIGHT_INTENSITY * SUN_SPOT_MULTIPLIER;
+    cv(float) moonSpotIntensity = MOON_LIGHT_INTENSITY * MOON_SPOT_MULTIPLIER;
 
-    for(int i = 0; i < atmosphereSteps; i++) {
+    vec3 skyS = (vec3(float(mode == 0)) * getBodyMask(VoS, SUN_SIZE)) * sunSpotIntensity + background;
+    vec3 skyM = (vec3(float(mode == 0)) * getBodyMask(VoM, MOON_SIZE)) * moonSpotIntensity + background;
+
+    for(int i = 0; i < steps; i++) {
       scatterS *= absorbS;
       scatterM *= absorbM;
 

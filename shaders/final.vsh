@@ -1,29 +1,28 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #version 120
 
-#include "/lib/common/syntax/Shaders.glsl"
-#define SHADER VSH
-#define PROGRAM FINAL
 #include "/lib/Header.glsl"
+#define PROGRAM FINAL
+#define SHADER VSH
+#include "/lib/Syntax.glsl"
 
-// CONST
-// USED BUFFERS
-// VARYING
+/* CONST */
+/* VARYING */
 varying vec2 screenCoord;
 
-// UNIFORM
-// STRUCT
-// ARBITRARY
-// INCLUDED FILES
-// FUNCTIONS
-// MAIN
+/* UNIFORM */
+/* GLOBAL */
+/* STRUCT */
+/* INCLUDE */
+/* FUNCTION */
+/* MAIN */
 void main() {
-  gl_Position = reprojectVertex(gl_ModelViewMatrix, gl_Vertex.xyz);
+  gl_Position = ftransform();
 
   screenCoord = gl_MultiTexCoord0.xy;
 }

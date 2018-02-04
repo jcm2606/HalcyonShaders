@@ -1,16 +1,13 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #ifndef INTERNAL_INCLUDED_HEADER
   #define INTERNAL_INCLUDED_HEADER
 
-  #extension GL_EXT_gpu_shader4 : require
-
-  #include "/lib/common/syntax/Macro.glsl"
-  #include "/lib/Settings.glsl"
-  #include "/lib/Syntax.glsl"
+  #include "/lib/syntax/Extensions.glsl"
+  #include "/lib/syntax/Shaders.glsl"
 
 #endif /* INTERNAL_INCLUDED_HEADER */

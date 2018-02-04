@@ -1,66 +1,58 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #version 120
 
-#include "/lib/common/syntax/Shaders.glsl"
-#define SHADER FSH
-#define PROGRAM FINAL
 #include "/lib/Header.glsl"
+#define PROGRAM FINAL
+#define SHADER FSH
+#include "/lib/Syntax.glsl"
 
-// CONST
-// USED BUFFERS
+/* CONST */
+/* USED BUFFER */
 #define IN_TEX0
 #define IN_TEX4
 
-// VARYING
+/* VARYING */
 varying vec2 screenCoord;
 
-// UNIFORM
+/* UNIFORM */
 uniform sampler2D colortex0;
 uniform sampler2D colortex4;
 
 uniform float viewWidth;
 uniform float viewHeight;
-uniform float rainStrength;
 
-uniform int isEyeInWater;
+/* GLOBAL */
+/* STRUCT */
+#include "/lib/struct/Buffers.glsl"
 
-// STRUCT
-#include "/lib/common/struct/StructBuffer.glsl"
-
-// ARBITRARY
-// INCLUDED FILES
-#include "/lib/common/Debugging.glsl"
-
-#include "/lib/final/Tonemapping.glsl"
+/* INCLUDE */
+#include "/lib/final/Tonemap.glsl"
 
 #include "/lib/common/Bloom.glsl"
 
-// FUNCTIONS
-// MAIN
+/* FUNCTION */
+/* MAIN */
 void main() {
-  // CREATE STRUCTS
-  NewBufferObject(buffers);
+  // CREATE STRUCT INSTANCES
+  _newBufferList(bufferList);
 
-  // POPULATE STRUCTS
-  populateBufferObject(buffers, screenCoord);
+  // POPULATE STRUCT INSTANCES
+  populateBufferList(bufferList, screenCoord);
 
   // DRAW BLOOM
-  buffers.tex0.rgb = drawBloom(buffers.tex0.rgb, screenCoord);
-
-  // (DEBUGGING) VISUALISE HDR SLICES
-  buffers.tex0.rgb = getHDRSlices(buffers.tex0.rgb, screenCoord);
-
+  bufferList.tex0.rgb = drawBloom(bufferList.tex0.rgb, screenCoord);
+  
   // PERFORM TONEMAPPING
-  buffers.tex0.rgb = tonemap(buffers.tex0.rgb);
+  bufferList.tex0.rgb = tonemap(bufferList.tex0.rgb);
 
-  // CONVERT FRAME TO GAMMA SPACE
-  buffers.tex0.rgb = toGamma(buffers.tex0.rgb);
+  // CONVERT TO GAMMA SPACE
+  bufferList.tex0.rgb = toGamma(bufferList.tex0.rgb);
 
   // POPULATE OUTGOING BUFFERS
-  gl_FragColor = buffers.tex0;
+  gl_FragColor = bufferList.tex0;
 }

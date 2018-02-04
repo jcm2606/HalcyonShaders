@@ -1,109 +1,102 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #version 120
 
-#include "/lib/common/syntax/Shaders.glsl"
-#define SHADER FSH
-#define PROGRAM COMPOSITE1
 #include "/lib/Header.glsl"
+#define PROGRAM COMPOSITE1
+#define SHADER FSH
+#include "/lib/Syntax.glsl"
 
-// CONST
-const bool colortex0MipmapEnabled = true;
+/* CONST */
 const bool colortex4MipmapEnabled = true;
 const bool colortex5MipmapEnabled = true;
+const bool colortex6MipmapEnabled = true;
+const bool colortex7MipmapEnabled = true;
 
-// USED BUFFERS
+/* USED BUFFER */
 #define IN_TEX0
 #define IN_TEX1
 #define IN_TEX2
-#define IN_TEX3
+#define IN_TEX4
+#define IN_TEX5
 #define IN_TEX6
+#define IN_TEX7
 
-// VARYING
+/* VARYING */
 varying vec2 screenCoord;
 
-flat(vec3) sunVector;
-flat(vec3) moonVector;
-flat(vec3) lightVector;
-flat(vec3) wLightVector;
+flat(vec3) sunDirection;
+flat(vec3) moonDirection;
+flat(vec3) lightDirection;
+flat(vec3) wLightDirection;
 
-// UNIFORM
+/* UNIFORM */
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
-uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
+uniform sampler2D colortex7;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
-uniform mat4 gbufferProjection;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferProjection, gbufferProjectionInverse;
+uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
-uniform float frameTime;
-uniform float frameTimeCounter;
+uniform vec3 cameraPosition;
+uniform vec3 sunPosition;
 
 uniform int isEyeInWater;
 
-// STRUCT
-#include "/lib/common/struct/StructBuffer.glsl"
-#include "/lib/common/struct/StructGbuffer.glsl"
-#include "/lib/common/struct/StructPosition.glsl"
+uniform float sunAngle;
+uniform float near;
+uniform float far;
+uniform float frameTime;
+uniform float viewWidth;
+uniform float viewHeight;
+uniform float aspectRatio;
 
-// ARBITRARY
-// INCLUDED FILES
-#include "/lib/deferred/TemporalBlending.glsl"
+/* GLOBAL */
+/* STRUCT */
+#include "/lib/struct/Buffers.glsl"
+#include "/lib/struct/Gbuffer.glsl"
+#include "/lib/struct/Mask.glsl"
+#include "/lib/struct/Position.glsl"
 
-#include "/lib/common/util/SpaceTransform.glsl"
-
-#include "/lib/deferred/Refraction.glsl"
-
-#include "/lib/common/Reflections.glsl"
-
+/* INCLUDE */
 #include "/lib/deferred/Volumetrics.glsl"
 
-// FUNCTIONS
-// MAIN
+/* FUNCTION */
+/* MAIN */
 void main() {
-  // CREATE STRUCTS
-  NewBufferObject(buffers);
-  NewGbufferObject(gbuffer);
-  NewPositionObject(position);
+  // CREATE STRUCT INSTANCES
+  _newBufferList(bufferList);
+  _newGbufferObject(gbufferData);
+  _newMaskList(maskList);
+  _newPositionObject(positionData);
 
-  // POPULATE STRUCTS
-  populateBufferObject(buffers, screenCoord);
-  populateGbufferObject(gbuffer, buffers);
-  populateDepths(position, screenCoord);
-  populateViewPositions(position, screenCoord);
+  // POPULATE STRUCT INSTANCES
+  populateBufferList(bufferList, screenCoord);
+  populateGbufferData(gbufferData, bufferList);
+  populateMaskList(maskList, gbufferData);
+  populateDepths(positionData, screenCoord);
+  populateViewPositions(positionData, screenCoord);
 
-  // DRAW REFRACTION
-  buffers.tex0.rgb = drawRefraction(gbuffer, position, buffers.tex0.rgb, screenCoord);
+  // COMPUTE DITHER
+  cv(float) ditherScale = pow(16.0, 2.0);
+  vec2 dither = vec2(bayer16(gl_FragCoord.xy * 4.0), ditherScale);
 
-  if(position.depthBack > position.depthFront) {
-    buffers.tex0.rgb *= gbuffer.albedo;
-    buffers.tex0.rgb  = mix(buffers.tex0.rgb, buffers.tex6.rgb, buffers.tex6.a);
-  }
-
-  // DRAW VOLUMETRICS
-  buffers.tex0.rgb = drawCombinedVolumetrics(gbuffer, position, buffers.tex0.rgb, screenCoord);
-
-  // DRAW TRANSPARENT REFLECTIONS
-  if(position.depthBack > position.depthFront && isEyeInWater == 0) buffers.tex0.rgb = getReflections(screenCoord, position.depthFront, position.viewFront, gbuffer.albedo, gbuffer.normal, gbuffer.roughness, gbuffer.f0, gbuffer.skyLight, getAtmosphereLighting(), vec4(1.0)).rgb * buffers.tex0.a + buffers.tex0.rgb;
-
-  // PERFORM TEMPORAL BLENDING
-  getTemporalBlending(buffers.tex3.a, screenCoord);
-
+  // DRAW VOLUMETRIC EFFECTS & TRANSPARENT REFLECTIONS
+  bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList, maskList, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);
+  
   // POPULATE OUTGOING BUFFERS
-/* DRAWBUFFERS:03 */
-  gl_FragData[0] = buffers.tex0;
-  gl_FragData[1] = buffers.tex3;
+  /* DRAWBUFFERS:0 */
+  gl_FragData[0] = bufferList.tex0;
 }

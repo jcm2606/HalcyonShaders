@@ -1,14 +1,14 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #version 120
 
-#include "/lib/common/syntax/Shaders.glsl"
-#define SHADER VSH
-#define PROGRAM GBUFFERS_HAND_WATER
 #include "/lib/Header.glsl"
+#define PROGRAM GBUFFERS_HANDWATER
+#define SHADER VSH
+#include "/lib/Syntax.glsl"
 
-#include "/transparent.vsh"
+#include "/lib/gbuffer/transparent.vsh"

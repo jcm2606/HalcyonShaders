@@ -1,98 +1,80 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
-#ifndef INTERNAL_INCLUDED_FORWARD_SHADING
-  #define INTERNAL_INCLUDED_FORWARD_SHADING
+#ifndef INTERNAL_INCLUDED_COMMON_SHADING
+  #define INTERNAL_INCLUDED_COMMON_SHADING
 
   #include "/lib/common/Shadows.glsl"
 
-  #include "/lib/common/DiffuseModel.glsl"
+  #include "/lib/common/AtmosphereLighting.glsl"
 
   #include "/lib/common/Lightmaps.glsl"
 
-  float getDirectShading(io GbufferObject gbuffer, io MaskObject mask, io PositionObject position) {
-    return (mask.foliage) ? 1.0 : lambert(normalize(position.viewBack), lightVector, normalize(gbuffer.normal), gbuffer.roughness);
+  #include "/lib/common/Clouds.glsl"
+
+  float getDiffuseShading(in vec3 view, in vec3 normal, in vec3 light, in float roughness, in float f0) {
+    return _max0(dot(normal, light));
   }
 
-  vec3 getAmbientLighting(io PositionObject position, in vec2 screenCoord) {
-    vec3 ambientLighting = vec3(0.0);
+  vec3 getShadedSurface(in ShadowData shadowData, in GbufferData gbufferData, in PositionData positionData, in MaskList maskList, in vec3 albedo, in vec2 dither, in mat2x3 atmosphereLighting, out vec4 highlightOcclusion) {
+    // COMPUTE WORLD POSITION
+    vec3 world = viewToWorld(positionData.viewBack);
 
-    cv(int) width = 3;
-    cRCP(float, width);
-    cv(float) filterRadius = 0.001;
-    cv(vec2) filterOffset = vec2(filterRadius) * widthRCP;
-    cv(vec2) radius = filterOffset;
+    // COMPUTE CLOUD SHADOW
+    float cloudShadowDirect = getCloudShadow(world + cameraPosition, wLightDirection);
 
-    cv(float) weight = 1.0 / pow(float(width) * 2.0 + 1.0, 2.0);
-
-    for(int i = -width; i <= width; i++) {
-      for(int j = -width; j <= width; j++) {
-        vec2 offset = vec2(i, j) * radius + screenCoord;
-
-        if(texture2D(depthtex1, offset).x - position.depthBack > 0.001) continue;
-
-        ambientLighting += texture2DLod(colortex4, offset, 0).rgb;
-      }
-    }
-
-    return ambientLighting * weight;
-  }
-
-  vec3 getFinalShading(out vec4 highlightTint, io GbufferObject gbuffer, io MaskObject mask, io PositionObject position, in vec2 screenCoord, in vec3 albedo, in mat2x3 atmosphereLighting) {
-    //return getAmbientLighting(position, screenCoord);
-
-    NewShadowObject(shadowObject);
-
-    vec3 world = viewToWorld(position.viewBack) + cameraPosition;
-    vec3 wNormal = mat3(gbufferModelViewInverse) * gbuffer.normal;
-
-    float directCloudShadow = getCloudShadow(world, wLightVector);
-    float skyCloudShadow = getCloudShadow(world, vec3(0.0, 1.0, 0.0)) * 0.25 + 0.75;
-
-    vec3 ambient = getAmbientLighting(position, screenCoord);
-
-    getShadows(shadowObject, position.viewBack, directCloudShadow, false);
-
-    highlightTint = vec4(mix(vec3(1.0), shadowObject.colour, shadowObject.difference), shadowObject.occlusionBack);
-
-    #ifdef VISUALISE_PCSS_EDGE_PREDICTION
-      if(screenCoord.x > 0.5) return vec3(shadowObject.edgePrediction);
+    #ifdef CLOUD_SHADOW_SKY
+      float cloudShadowSky = getCloudShadow(world + cameraPosition, vec3(0.0, 1.0, 0.0)) * CLOUD_SHADOW_SKY_INTENSITY + cloudShadowSkyIntensityInverse;
+    #else
+      cv(float) cloudShadowSky = 1.0;
     #endif
 
-    //vec3 direct = atmosphereLighting[0] * shadowObject.occlusionBack * mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference) * getDirectShading(gbuffer, mask, position);
-    vec3 direct  = atmosphereLighting[0];
-         direct *= mix(vec3(shadowObject.occlusionFront), shadowObject.colour, shadowObject.difference);
-         direct *= getDirectShading(gbuffer, mask, position);
-         direct *= directCloudShadow;
-         direct *= shadowObject.occlusionBack;
+    // COMPUTE DIRECT TINT
+    vec3 directTint = mix(vec3(shadowData.occlusionFront), shadowData.colour, saturate(shadowData.occlusionDifference));
 
-    cv(float) bounceLightMaxDistanceScale = 1.0 / 1024.0;
-    vec3 bounce  = atmosphereLighting[0];
-         bounce *= 3.0;
-         bounce *= mix(
-           max0(dot(wNormal, -reflect(wLightVector, vec3(0.0, 0.0, 1.0)))),
-           max0(dot(wNormal,  reflect(wLightVector, vec3(0.0, 0.0, 1.0)))),
-           pow(abs((sunAngle * 2.0) * 2.0 - 1.0), 0.5)
-         ) * 0.75 + 0.25;
-         bounce *= pow(gbuffer.skyLight, 8.0);
-         bounce *= directCloudShadow;
-         bounce *= ambient;
-         bounce *= shadowObject.bounceWeight;
-         //if(screenCoord.x > 0.5) bounce *= 0.0;
+    // OUTPUT HIGHLIGHT OCCLUSION
+    highlightOcclusion = vec4(directTint, shadowData.occlusionBack * cloudShadowDirect);
 
+    // COMPUTE DIRECT COLOUR
+    vec3 directColour = atmosphereLighting[0] * cloudShadowDirect * shadowData.occlusionBack * directTint;
+
+    // COMPUTE LAYERS OF LIGHTING
+    // DIRECT
+    vec3 direct  = directColour;
+         direct *= getDiffuseShading(positionData.viewBack, _normalize(gbufferData.normal), lightDirection, gbufferData.roughness, gbufferData.f0);
+         direct *= (maskList.subsurface) ? 0.5 : 1.0;
+
+    // SUBSURFACE
+    vec3 subsurface  = directColour;
+         subsurface *= sqrt(gbufferData.albedo);
+         subsurface *= float(maskList.subsurface) * 0.5;
+         subsurface *= _pow(_max0(dot(_normalize(positionData.viewBack), lightDirection)), 6.0) * 4.0 + 1.0;
+
+    // SKY
     vec3 sky  = atmosphereLighting[1];
-         sky *= ambient;
-         sky *= getRawSkyLightmap(gbuffer.skyLight);
-         sky *= skyCloudShadow;
-         sky *= SKY_LIGHT_STRENGTH;
+         sky *= getSkyLightmap(gbufferData.skyLight);
+         sky *= cloudShadowSky;
 
+    // BLOCK
     vec3 block  = blockLightColour;
-         block *= max(((mask.emissive) ? 32.0 : 1.0) * gbuffer.emission, getBlockLightmap(gbuffer.blockLight));
+         block *= mix(getBlockLightmap(gbufferData.blockLight), 2.0, _min1(float(maskList.emissive) + gbufferData.emission));
 
-    return albedo * (direct + bounce + sky + block);
+    // COMPUTE SUM OF ALL LIGHTING AND APPLY TO ALBEDO TO GET FINAL SHADED SURFACE
+    return albedo * (direct + subsurface + sky + block);
   }
 
-#endif /* INTERNAL_INCLUDED_FORWARD_SHADING */
+  vec3 getShadedSurface(in GbufferData gbufferData, in PositionData positionData, in MaskList maskList, in vec3 albedo, in vec2 dither, in mat2x3 atmosphereLighting, out vec4 highlightOcclusion) {
+    // CREATE SHADOW DATA INSTANCE
+    _newShadowData(shadowData);
+
+    // COMPUTE SHADOWS
+    computeShadowing(shadowData, positionData.viewBack, dither, 0.0, false);
+
+    // DEFER TO FUNCTION THAT TAKES SHADOW DATA INSTANCE
+    return getShadedSurface(shadowData, gbufferData, positionData, maskList, albedo, dither, atmosphereLighting, highlightOcclusion);
+  }
+
+#endif /* INTERNAL_INCLUDED_COMMON_SHADING */

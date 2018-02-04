@@ -1,25 +1,20 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #ifndef INTERNAL_INCLUDED_COMMON_ATMOSPHERELIGHTING
   #define INTERNAL_INCLUDED_COMMON_ATMOSPHERELIGHTING
 
-  #ifndef INTERNAL_INCLUDED_COMMON_SKY
-    #include "/lib/common/Sky.glsl"
-  #endif
+  #include "/lib/common/Atmosphere.glsl"
 
   mat2x3 getAtmosphereLighting() {
     mat2x3 atmosphereLighting = mat2x3(0.0);
 
-    // DIRECT
-    atmosphereLighting[0]  = drawSky(lightVector, 0) * 0.0003;
-    //atmosphereLighting[0] *= mix(1.0, 0.3, rainStrength);
+    atmosphereLighting[0] = getLightColour(lightDirection) * ATMOS_LIGHTING_DIRECT_INTENSITY;
 
-    // AMBIENT
-    atmosphereLighting[1] = drawSky(upVector, 1) * SKY_LIGHT_STRENGTH;
+    atmosphereLighting[1] = getAtmosphere(vec3(0.0), upDirection, SKY_MODE_LIGHTING) * ATMOS_LIGHTING_SKY_INTENSITY;
 
     return atmosphereLighting;
   }

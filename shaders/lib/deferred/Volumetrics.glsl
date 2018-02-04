@@ -1,511 +1,374 @@
 /*
   JCM2606.
-  HALCYON.
-  PLEASE READ "LICENSE.MD" BEFORE EDITING.
+  HALCYON 2.
+  PLEASE READ "LICENSE.MD" BEFORE EDITING THIS FILE.
 */
 
 #ifndef INTERNAL_INCLUDED_DEFERRED_VOLUMETRICS
   #define INTERNAL_INCLUDED_DEFERRED_VOLUMETRICS
 
-  #if   PROGRAM == COMPOSITE0
-    #include "/lib/common/util/ShadowTransform.glsl"
+  // FILTER
+  #if PROGRAM == COMPOSITE1
+    #include "/lib/common/Reflections.glsl"
 
-    #include "/lib/common/Lightmaps.glsl"
+    #include "/lib/sampler/Bicubic.glsl"
 
-    // OPTICAL DEPTH
-    float getHeightFog(in vec3 world) {
-      #ifndef FOG_LAYER_HEIGHT
-        return 0.0;
-      #endif
+    vec3 drawVolumetricEffects(in GbufferData gbufferData, in PositionData positionData, in BufferList bufferList, in MaskList maskList, in vec3 background, in vec2 screenCoord, in mat2x3 atmosphereLighting, in float highlightOcclusion, in vec2 dither) {
+      cv(int) samples = 9; // 4, 9, 16, 25
+      cRCP(float, samples);
 
-      cv(float) worldHeight = SEA_LEVEL + FOG_LAYER_HEIGHT_OFFSET;
+      cv(float) radius = 4.5 / samples;
 
-      float density = FOG_LAYER_NIGHT_DENSITY * timeNight + FOG_LAYER_HEIGHT_DENSITY;
+      cv(float) volumetricsLOD = 0;
+      cv(float) depthLookupScale = volumetricsLOD * 0.0;
+      cv(int) cloudLOD = 0;
 
-      float height = world.y - worldHeight;
+      vec2 scale = radius * (1.0 / viewWidth) * vec2(1.0, aspectRatio);
 
-      #ifndef FOG_LAYER_HEIGHT_EXPONENTIAL
-        height = max0(height);
-      #endif
+      /*
+        Buffer key:
+          colortex4.rgb = volumetrics scattering
+          colortex5.rgb = volumetrics front absorption (air + fog + other layers)
+          colortex6.rgb = volumetrics back absorption (water)
 
-      height = -height;
+        Order:
+          volumetrics back absorption
+          transparent reflections
+          volumetrics front absorption
+          volumetrics scattering
+      */
 
-      return exp2(height * FOG_LAYER_HEIGHT_FALLOFF) * density;
-    }
+      mat3 volumetrics = mat3(0.0);
 
-    float getSheetFog(in vec3 world) {
-      #ifndef FOG_LAYER_SHEET
-        return 0.0;
-      #endif
+      float centerDepth = _linearDepth(positionData.depthFront);
+      bool centerSkyMask = !_getLandMask(positionData.depthFront);
 
-      #ifdef FOG_LAYER_SHEET_HQ
-        cv(int) octaves = FOG_LAYER_SHEET_OCTAVES;
-        cRCP(float, octaves);
+      for(int i = 0; i < samples; i++) {
+        vec2 offset = to2D(i, samples);
 
-        float opticalDepth = 1.0;
+        float sampleDepthIn = texture2D(depthtex0, offset * -3.0 * scale + screenCoord).x;
+        float sampleDepthOut = texture2D(depthtex0, offset * 3.0 * scale + screenCoord).x;
 
-        cv(mat2) rot = rot2(-0.7);
-
-        vec3 position = world * 0.3 * vec3(1.0, 1.0, 1.0);
-
-        float weight = 1.0;
-
-        cv(vec2) windDir = vec2(0.0, 1.0);
-        vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
-        float windSpeed = 0.4;
-
-        for(int i = 0; i < octaves; i++) {
-          opticalDepth -= texnoise3D(noisetex, position + wind * windSpeed) * weight;
-          
-          position *= 2.1;
-          position.xz *= rot;
-          position.xy *= rot;
-          windSpeed *= 1.1;
-          weight *= 0.5;
-        }
-
-        //opticalDepth -= 0.9;
-        opticalDepth  = clamp01(opticalDepth);
-        opticalDepth  = sqrt(opticalDepth);
+        cv(float) threshold = 0.1;
+        float weight  = float( abs(centerDepth - _linearDepth(sampleDepthIn)) > threshold || abs(centerDepth - _linearDepth(sampleDepthOut)) > threshold );
         
-        opticalDepth = opticalDepth * 0.7 + 0.3;
-      #else
-        float opticalDepth = 1.0;
-      #endif
-
-      opticalDepth *= FOG_LAYER_SHEET_DENSITY;
-
-      return exp2(-abs(world.y - SEA_LEVEL) * FOG_LAYER_SHEET_FALLOFF) * opticalDepth;
-    }
-
-    float getRollingFog(in vec3 world) {
-      #ifndef FOG_LAYER_ROLLING
-        return 0.0;
-      #endif
-
-      float opticalDepth = 1.0;
-
-      cv(mat2) rot = rot2(-0.7);
-
-      vec3 position = world * 0.004;
-
-      float weight = 1.0;
-
-      cv(vec2) windDir = vec2(0.0, 1.0);
-      vec3 wind = vec3(windDir.x, 0.0, windDir.y) * frametime;
-      float windSpeed = 0.07;
-
-      // PRIMARY VOLUME
-      cv(int) primaryOctaves = FOG_LAYER_ROLLING_PRIMARY_OCTAVES;
-      cRCP(float, primaryOctaves);
-
-      for(int i = 0; i < primaryOctaves; i++) {
-        opticalDepth -= texnoise3D(noisetex, position + wind * windSpeed) * weight;
-
-        position *= 2.4;
-        position.xz *= rot;
-        position.yz *= rot;
-        windSpeed *= 1.1;
-        weight *= 0.6;
+        volumetrics[0] = texture2DLod(colortex4, offset * scale + screenCoord, 1).rgb * samplesRCP + volumetrics[0];
+        volumetrics[1] = mix(texture2DLod(colortex5, offset * scale + screenCoord, volumetricsLOD).rgb, bufferList.tex5.rgb, weight) * samplesRCP + volumetrics[1];
+        volumetrics[2] = mix(texture2DLod(colortex6, offset * scale + screenCoord, volumetricsLOD).rgb, bufferList.tex6.rgb, weight) * samplesRCP + volumetrics[2];
       }
 
-      // ROLLING MIST
-      cv(int) rollingOctaves = FOG_LAYER_ROLLING_MIST_OCTAVES;
-      cRCP(float, rollingOctaves);
+      // DRAW TRANSPARENT ABSORPTION
+      if(positionData.depthBack > positionData.depthFront && !maskList.water) background *= gbufferData.albedo * (1.0 - bufferList.tex7.a);
 
-      position *= 4.0;
+      // PERFORM BACK ABSORPTION
+      if((underWater) || (positionData.depthBack > positionData.depthFront)) background *= volumetrics[2];
 
-      for(int i = 0; i < rollingOctaves; i++) {
-        opticalDepth += texnoise3D(noisetex, position + wind * windSpeed) * weight;
+      // DRAW TRANSPARENT OBJECTS
+      background = mix(background, bufferList.tex7.rgb, bufferList.tex7.a);
 
-        position *= 2.4;
-        position.xz *= rot;
-        position.yz *= rot;
-        windSpeed *= 1.1;
-        weight *= 0.6;
-      }
+      // DRAW TRANSPARENT REFLECTIONS
+      if(!underWater &&
+        #ifdef SPECULAR_DUAL_LAYER
+          positionData.depthBack > positionData.depthFront
+        #else
+          _getLandMask(positionData.depthFront)
+        #endif
+      ) background = drawReflections(gbufferData, positionData, background, screenCoord, atmosphereLighting, vec4(highlightOcclusion), dither);
 
-      opticalDepth -= FOG_LAYER_ROLLING_COVERAGE;
-      opticalDepth = clamp01(opticalDepth);
-      //opticalDepth = ceil(opticalDepth);
-      //opticalDepth = sqrt(opticalDepth);
+      // PERFORM FRONT ABSORPTION & DRAW VOLUMETRICS SCATTERING
+      background  = background * volumetrics[1] + volumetrics[0];
 
-      opticalDepth *= FOG_LAYER_ROLLING_DENSITY;
-
-      return exp2(-abs(world.y - SEA_LEVEL) * FOG_LAYER_ROLLING_FALLOFF) * opticalDepth;
-
-      return opticalDepth;
+      return background;
     }
+  #endif
 
-    float getRainFog(in vec3 world) {
-      #ifndef FOG_LAYER_RAIN
-        return 0.0;
-      #endif
+  // MARCHER
+  #if PROGRAM == COMPOSITE0
+    #include "/lib/util/SpaceConversion.glsl"
+    #include "/lib/util/ShadowConversion.glsl"
 
-      return exp2(-max0(world.y - SEA_LEVEL) * 0.1) * rainStrength * FOG_LAYER_RAIN_DENSITY;
-    }
+    #include "/lib/common/Atmosphere.glsl"
 
-    float getWaterFog(in float opticalDepth, in bool differenceMask, in bool isWaterShadow, in bool isWaterPixel) {
-      #ifndef FOG_LAYER_WATER
-        return 0.0;
-      #endif
+    #include "/lib/common/Clouds.glsl"
+  
+    /*
+      CONSTANTS
+    */
+    cv(int) volSteps = 6;
+    cRCP(float, volSteps);
 
-      return ((isEyeInWater == 1 && differenceMask && isWaterShadow) || (isEyeInWater == 0 && differenceMask && isWaterShadow && isWaterPixel)) ? FOG_LAYER_WATER_DENSITY : opticalDepth;
-    }
-
-    float getOpticalDepth(in vec3 world, in float eBS, in float objectID, in bool differenceMask, in bool isWaterShadow, in bool isWaterPixel) {
-      float opticalDepth = 0.0;
-
-      opticalDepth += getHeightFog(world);
-      opticalDepth += getSheetFog(world);
-      opticalDepth += getRollingFog(world);
-      opticalDepth += getRainFog(world);
-
-      opticalDepth  = getWaterFog(opticalDepth, differenceMask, isWaterShadow, isWaterPixel);
-
-      return opticalDepth * 0.01;
-    }
-
-    // MARCHER
-    struct Ray {
-      vec3 start;
-      vec3 end;
-      vec3 pos;
-      vec3 incr;
-      float dist;
+    /*
+      RAY
+    */
+    struct RayVolumetric {
+      vec3 increment;
+      vec3 position;
+      
+      float incrementLength;
     };
 
-    struct RayVol {
-      vec3 origin;
-      vec3 target;
-      vec3 dir;
-      vec3 pos;
-      vec3 incr;
+    #define _newRay(name) RayVolumetric name = RayVolumetric(vec3(0.0), vec3(0.0), 0.0)
 
-      float dist;
-    };
+    void computeRay(io RayVolumetric ray, in vec3 start, in vec3 end, in vec2 dither) {
+      ray.increment = (end - start) * volStepsRCP;
+      ray.position  = ray.increment * dither.x + start;
 
-    #define getRayDirection(ray) ( normalize(ray.target - ray.origin) )
-    #define getRayDistance(ray) ( distance(ray.target, ray.origin) )
-    #define getRayIncrement(ray) ( ray.dir * ray.dist * vfStepsRCP )
-
-    float volVisibilityCheck(in vec3 ray, in vec3 dir, in float odAtStart, in float visDensity, in float dither, in float stepSize, in float absorptionCoeff, in float eBS, const int samples) {
-      const float visStepSizeScale = 1.0 / (float(samples) + 0.5);
-      float visStepSize = stepSize * visStepSizeScale;
-
-      dir *= visStepSize;
-      ray += dither * dir;
-
-      float opticalDepth = 0.5 * odAtStart;
-
-      for(int i = 0; i < samples; i++, ray += dir) {
-        opticalDepth -= getOpticalDepth(ray, eBS, 0.0, false, false, false);
-      }
-
-      return clamp01(exp((absorptionCoeff * visDensity) * visStepSize * (opticalDepth)));
+      ray.incrementLength = _length(ray.increment);
     }
 
-    float volumetrics_miePhase(in float theta, cin(float) G) {
-      cv(float) gg = G * G;
-      cv(float) p1 = (0.75 * (1.0 - gg)) / (tau * (2.0 + gg));
-      float p2 = (theta * theta + 1.0) * pow(1.0 + gg - 2.0 * G * theta, -1.5);
+    /*
+      ATMOSPHERE LAYER
+    */
+    const struct AtmosphereLayerComplex {
+      mat2x3 scatterCoeff;
+      mat2x3 transmittanceCoeff;
+    };
+
+    const struct AtmosphereLayerSimple {
+      vec3 scatterCoeff;
+      vec3 transmittanceCoeff;
+    };
+
+    cv(AtmosphereLayerComplex) layerAir = AtmosphereLayerComplex(
+      mat2x3(rayleighCoeff, vec3(mieCoeff)),
+      mat2x3(rayleighCoeff + ozoneCoeff, vec3(mieCoeff) * 1.11)
+    );
+
+    cv(AtmosphereLayerSimple) layerFog = AtmosphereLayerSimple(
+      fogScatterCoeff,
+      fogTransmittanceCoeff
+    );
+
+    cv(AtmosphereLayerSimple) layerWater = AtmosphereLayerSimple(
+      waterScatterCoeff,
+      waterTransmittanceCoeff
+    );
     
+    #define _waterPartialAbsorb() ( (underWater && !isWaterPixel) ? exp(-layerWater.transmittanceCoeff * distanceToFront) : vec3(1.0) )
+
+    void computeAtmosphereContribution(cin(AtmosphereLayerComplex) atmosphereLayer, io vec3 scatter, io vec3 absorb, in vec3 scatterAbsorb, in float opticalDepth, in vec3 directLight, in vec3 skyLight, in vec3 phase, in float distanceToFront, in bool isWaterPixel) {
+      mat2x3 scatterCoeff = mat2x3(
+        atmosphereLayer.scatterCoeff[0] * transmittedScatteringIntegral(opticalDepth, atmosphereLayer.transmittanceCoeff[0]),
+        atmosphereLayer.scatterCoeff[1] * transmittedScatteringIntegral(opticalDepth, atmosphereLayer.transmittanceCoeff[1])
+      );
+
+      directLight = directLight * (scatterCoeff * phase.xy);
+      skyLight    = skyLight * (scatterCoeff * phase.zz);
+
+      scatter += (directLight + skyLight) * absorb * scatterAbsorb * _waterPartialAbsorb(); // TODO: Partial water absorption.
+      absorb  *= exp(-atmosphereLayer.transmittanceCoeff * vec2(opticalDepth));
+    }
+
+    void computeAtmosphereContribution(cin(AtmosphereLayerSimple) atmosphereLayer, io vec3 scatter, io vec3 absorb, in vec3 scatterAbsorb, in float opticalDepth, in vec3 directLight, in vec3 skyLight, in float phase, in float distanceToFront, in bool isWaterPixel) {
+      vec3 scatterCoeff = atmosphereLayer.scatterCoeff * transmittedScatteringIntegral(opticalDepth, atmosphereLayer.transmittanceCoeff);
+
+      directLight = directLight * scatterCoeff * phase;
+      skyLight    = skyLight * scatterCoeff;
+
+      scatter += (directLight + skyLight) * absorb * scatterAbsorb * _waterPartialAbsorb(); // TODO: Partial water absorption.
+      absorb  *= exp(-atmosphereLayer.transmittanceCoeff * opticalDepth);
+    }
+
+    #undef _waterPartialAbsorb
+
+    /*
+      LIGHTING
+    */
+    float volumetrics_miePhase(in float theta, cin(float) G) {
+      cv(float) g2 = G * G;
+      cv(float) p1 = (0.75 * (1.0 - g2)) / (tau * (2.0 + g2));
+
+      cv(float) g2_p2 = 1.0 + g2;
+      cv(float) G_p2 = 2.0 * G;
+
+      float p2 = (theta * theta + 1.0) * _pow(g2_p2 - G_p2 * theta, -1.5);
+
       return p1 * p2;
     }
 
-    vec4 getVolumetrics(io GbufferObject gbuffer, io PositionObject position, io MaskObject mask, out float frontTransmittance, in vec2 screenCoord, in mat2x3 atmosphereLighting) {
-      frontTransmittance = 1.0;
+    void computeShadows(io vec2 visibility, io vec3 shadowColour, io float objectID, io bool isTransparentShadow, in vec3 world, in vec3 shadow, in bool isSkyPixel, in bool isWaterPixel) {
+      #define visibilityFront visibility.x
+      #define visibilityBack  visibility.y
 
-      #ifndef VOLUMETRICS
-        return vec4(0.0, 0.0, 0.0, 1.0);
-      #endif
+      // DISTORT SHADOW POSITION
+      shadow.xy = distortShadowPosition(shadow.xy, true);
 
-      atmosphereLighting[0] *= 4.0;
+      // SAMPLE FRONT DEPTH
+      float depthFront = texture2D(shadowtex0, shadow.xy).x;
 
-      vec4 volumetrics = vec4(0.0, 0.0, 0.0, 1.0);
+      // COMPUTE SHADOW VISIBILITY
+      visibilityFront = _cutShadow(compareShadowDepth(depthFront, shadow.z));
+      visibilityBack  = _cutShadow(compareShadowDepth(texture2D(shadowtex1, shadow.xy).x, shadow.z));
 
-      #define scattering volumetrics.rgb
-      #define transmittance volumetrics.a
+      // OVERWRITE SHADOW VISIBILITY ON INVALID SKY STEP
+      if(isSkyPixel && (any(greaterThan(shadow.xy, vec2(1.0))) || any(lessThan(shadow.xy, vec2(0.0)))))
+        visibility = vec2(1.0);
 
-      // DEFINE SMOOTHED EYE BRIGHTNESS
-      float eBS = getRawSkyLightmap(getEBS().y);
+      // SET SHADOW COLOUR TO WHITE
+      shadowColour = vec3(1.0);
 
-      // DEFINE SKY MASK
-      bool isSky = !getLandMask(position.depthBack);
+      // COMPUTE TRANSPARENT SHADOW MASK
+      isTransparentShadow = visibilityBack - visibilityFront > 0.0;
+      
+      if(!isTransparentShadow)
+        return;
 
-      // DEFINE WORLD TO SHADOW MATRIX
-      mat4 matrixWorldToShadow = shadowProjection * shadowModelView;
+      // SAMPLE SHADOW COLOUR
+      vec4 shadowSample = texture2D(shadowcolor0, shadow.xy);
+      shadowColour = shadowSample.rgb;
 
-      // DEFINE DITHER
-      float dither = bayer128(gl_FragCoord.xy);
+      // EARLY EXIT IF NOT WATER PIXEL
+      if(!isWaterPixel)
+        return;
 
-      // DEFINE RAY OBJECTS
-      RayVol viewRay, worldRay, shadowRay;
+      // ABSORB SHADOW COLOUR
+      float waterDepth = depthFront * 8.0 - 4.0;
+            waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
+            waterDepth = (_transMAD(shadowModelView, world)).z - waterDepth;
 
-      // POPULATE RAY OBJECTS
-      // VIEW
-      cv(float) skyDistance = 64.0;
-      viewRay.origin = vec3(0.0);
-      viewRay.target = position.viewBack;
-      viewRay.dir = getRayDirection(viewRay);
-      viewRay.dist = getRayDistance(viewRay);
-      viewRay.incr = getRayIncrement(viewRay);
-      viewRay.pos = viewRay.incr * dither + viewRay.origin;
+      if(isWaterPixel && waterDepth < 0.0) shadowColour *= exp(layerWater.transmittanceCoeff * waterDepth);
 
-      // WORLD
-      worldRay.origin = viewToWorld(viewRay.origin);
-      worldRay.target = viewToWorld(viewRay.target);
-      worldRay.dir = getRayDirection(worldRay);
-      worldRay.dist = getRayDistance(worldRay);
-      worldRay.incr = getRayIncrement(worldRay);
-      worldRay.pos = worldRay.incr * dither + worldRay.origin;
-
-      // SHADOW
-      cv(vec3) shadowRayScale = vec3(1.0, 1.0, shadowDepthMult);
-      shadowRay.origin = transMAD(matrixWorldToShadow, worldRay.origin) * shadowRayScale;
-      shadowRay.target = transMAD(matrixWorldToShadow, worldRay.target) * shadowRayScale;
-      shadowRay.dir = getRayDirection(shadowRay);
-      shadowRay.dist = getRayDistance(shadowRay);
-      shadowRay.incr = getRayIncrement(shadowRay);
-      shadowRay.pos = shadowRay.incr * dither + shadowRay.origin;
-
-      // DEFINE MIE TAIL
-      float miePhase = volumetrics_miePhase((dot(worldRay.dir, wLightVector)), 0.2) * 2.0;
-
-      // DEFINE FRONT VIEW DISTANCE
-      float distanceToViewFront = distance(viewRay.origin, position.viewFront);
-
-      // DEFINE STEP SIZE
-      float stepSize = flength(worldRay.incr);
-
-      // MARCH
-      for(int i = 0; i < vfSteps; i++, viewRay.pos += viewRay.incr, worldRay.pos += worldRay.incr, shadowRay.pos += shadowRay.incr) {
-        // DEFINE POSITIONS
-        vec3 shadow = vec3(distortShadowPosition(shadowRay.pos.xy, 0), shadowRay.pos.z) * 0.5 + 0.5;
-        vec3 world = worldRay.pos + cameraPosition;
-
-        // GET RAW FRONT SHADOW DEPTH
-        float depthFront = texture2DLod(shadowtex0, shadow.xy, 0).x;
-
-        // GET SHADOW VISIBILITY VALUES
-        float visibilityBack = CutShadow(compareShadow(texture2DLod(shadowtex1, shadow.xy, 0).x, shadow.z));
-        float visibilityFront = CutShadow(compareShadow(depthFront, shadow.z));
-
-        // SKY VISIBILITY OVERRIDE
-        if(isSky && (any(greaterThan(shadow.xy, vec2(1.0))) || any(lessThan(shadow.xy, vec2(0.0))))) {
-          visibilityBack = 1.0;
-          visibilityFront = 1.0;
-        }
-
-        // CLAMP SHADOW VISIBILITY VALUES
-        visibilityBack = min1(visibilityBack);
-        visibilityFront = min1(visibilityFront);
-
-        // DEFINE DIFFERENCE MASK
-        bool differenceMask = visibilityBack - visibilityFront > 0.0;
-
-        // DEFINE DISTANCES
-        float distanceToSurface = max0(shadow.z - depthFront) * shadowDepthBlocks;
-        float distanceToViewRay = distance(viewRay.origin, viewRay.pos);
-
-        // GET SHADOW OBJECT ID
-        float objectID = texture2DLod(shadowcolor1, shadow.xy, 0).a * objectIDRange;
-
-        // DEFINE OBJECT ID MASKS
-        bool isWater = comparef(objectID, OBJECT_WATER, ubyteMaxRCP);
-
-        // DEFINE ABSORPTION COEFFICIENT
-        float absorptionCoeff = (differenceMask && isWater) ? vfAbsorptionCoeffWater : vfAbsorptionCoeffAir;
-
-        // GET OPTICAL DEPTH
-        float opticalDepth = getOpticalDepth(world, eBS, objectID, differenceMask, isWater, mask.water);
-
-        // GET VOLUME VISIBILITY
-        #ifdef FOG_LIGHTING_DIRECT
-          float visibilityDirect = volVisibilityCheck(world, wLightVector, opticalDepth, 0.9, dither, stepSize, absorptionCoeff, eBS, FOG_LIGHTING_DIRECT_STEPS);
-        #else
-          float visibilityDirect = 1.0;
-        #endif
-
-        #ifdef FOG_LIGHTING_SKY
-          float visibilitySky = volVisibilityCheck(world, vec3(0.0, 1.0, 0.0), opticalDepth, 0.9, dither, stepSize, absorptionCoeff, eBS, FOG_LIGHTING_SKY_STEPS);
-        #else
-          float visibilitySky = 1.0;
-        #endif
-
-        // GET CLOUD SHADOWS
-        visibilityDirect *= getCloudShadow(world, wLightVector);
-
-        #ifdef FOG_OCCLUSION_SKY_CLOUD
-          visibilitySky *= getCloudShadow(world, vec3(0.0, 1.0, 0.0)) * 0.25 + 0.75;
-        #endif
-
-        // OCCLUDE RAY
-        vec2 rayVisibility = vec2(1.0);
-
-        #define directVisibility rayVisibility.x
-        #define skyVisibility rayVisibility.y
-
-        directVisibility *= visibilityDirect * visibilityBack * miePhase;
-        skyVisibility *= visibilitySky;
-
-        #if   FOG_OCCLUSION_SKY == 1
-          skyVisibility *= visibilityBack;
-        #elif FOG_OCCLUSION_SKY == 2
-          // TODO: Sky light occlusion approximation.
-        #endif
-
-        if((differenceMask && isWater) || (isEyeInWater == 0 && mask.water && distanceToViewRay > distanceToViewFront) || (isEyeInWater == 1 && (!mask.water || distanceToViewRay < distanceToViewFront))) skyVisibility *= visibilityBack;
-
-        // ILLUMINATE RAY
-        vec3 lightColour = atmosphereLighting[0] * directVisibility + (atmosphereLighting[1] * skyVisibility);
-        vec3 rayColour = lightColour;
-
-        #undef directVisibility
-        #undef skyVisibility
-
-        // GET INTERACTION WITH FRONT SHADOWS
-        if(differenceMask) rayColour *= toShadowHDR(texture2DLod(shadowcolor0, shadow.xy, 0).rgb);
-
-        // GET INTERACTION WITH WATER VOLUME
-        // WATER SURFACE -> RAY
-        if(differenceMask && isWater) rayColour *= absorbWater(distanceToSurface);
-
-        // RAY -> EYE
-        if((differenceMask && isWater) || (isEyeInWater == 1 && mask.water)) {
-          vec3 waterAbsorptionOrigin = (isEyeInWater == 0) ? position.viewFront : viewRay.origin;
-          vec3 waterAbsorptionTarget = (!differenceMask && mask.water && isEyeInWater == 1) ? position.viewFront : viewRay.pos;
-
-          rayColour *= absorbWater(distance(waterAbsorptionOrigin, waterAbsorptionTarget));
-        }
-
-        // GET INTERACTION WITH TRANSPARENCY
-        if(distanceToViewRay > distanceToViewFront) rayColour *= gbuffer.albedo;
-
-        // ACCUMULATE RAY
-        scattering += rayColour * transmittedScatteringIntegral(opticalDepth * stepSize, absorptionCoeff) * transmittance;
-        float absorption = exp(-absorptionCoeff * opticalDepth * stepSize);
-        transmittance *= absorption;
-        frontTransmittance *= (distanceToViewRay < distanceToViewFront) ? absorption : 1.0;
-      }
-
-      #undef scattering
-      #undef transmittance
-
-      return volumetrics;
+      #undef visibilityFront
+      #undef visibilityBack
     }
-  #elif PROGRAM == COMPOSITE1
-    #include "/lib/deferred/Refraction.glsl"
 
-    #include "/lib/common/WaterAbsorption.glsl"
+    /*
+      OPTICAL DEPTH
+    */
+    float opticalDepthAir(in vec3 world) {
+      return 20.0;
+    }
 
-    #define hammersley(i, N) vec2( float(i) / float(N), float( bitfieldReverse(i) ) * 2.3283064365386963e-10 )
-    #define circlemap(p) (vec2(cos((p).y*tau), sin((p).y*tau)) * p.x)
+    float opticalDepthFog(in vec3 world) {
+      return 0.02;
+    }
 
-    vec3 drawCombinedVolumetrics(io GbufferObject gbuffer, io PositionObject position, in vec3 frame, in vec2 screenCoord) {
-      #if !defined VOLUMETRICS && !defined VOLUMETRIC_CLOUDS
-        return frame;
-      #endif
+    float opticalDepthWater(in vec3 world) {
+      return 1.0;
+    }
 
-      // OPTIONS
-      cv(float) samples = 24;
-      cRCP(float, samples);
+    /*
+      PASS FUNCTION
+    */
+    void computeVolumetricPass(io vec3 scatter, io vec3 absorb, in vec3 scatterAbsorb, in vec3 start, in vec3 end, in vec4 albedo, in vec2 screenCoord, in vec4 hitCoord, in vec2 dither, in mat2x3 atmosphereLighting, in float VoL, in float distanceToFront, in bool isBackPass, in bool isSkyPixel, in bool isWaterPixel) {
+      // COMPUTE PHASES
+      vec3 phaseAir = vec3(phaseRayleigh(VoL), volumetrics_miePhase(VoL, 0.8), 0.5);
 
-      cv(float) radius = 0.003;
+      float phaseFog = volumetrics_miePhase(VoL, 0.6) * 2.0 + 0.5;
+      
+      // CREATE RAYS
+      _newRay(worldRay);
+      computeRay(worldRay, start, end, dither);
 
-      cv(int) fogLOD = 2;
-      cv(int) cloudLOD = 0;
+      _newRay(shadowRay);
+      computeRay(shadowRay, worldToShadow(start), worldToShadow(end), dither);
 
-      // GET REFRACTED SCREEN COORDINATE
-      vec2 originalCoord = screenCoord;
-      float refractDist = 0.0;
-      screenCoord = refractClip(refractDist, position.viewBack, position.viewFront, screenCoord, gbuffer.normal, refractInterfaceAirWater).xy;
+      // APPLY SHADOW BIAS TO SHADOW RAY
+      shadowRay.position.z = 0.75 * shadowMapResolutionRCP + shadowRay.position.z;
 
-      if(refractDist == 0.0 || texture2D(depthtex1, screenCoord.xy).x < position.depthFront) screenCoord = originalCoord;
+      // ADD CAMERA POSITION TO WORLD
+      worldRay.position += cameraPosition;
 
-      // GENERATE DITHER PATTERN
-      cv(float) ditherScale = pow(32, 2.0);
-      float dither = bayer32(gl_FragCoord.xy) * ditherScale;
+      // COMPUTE PIXEL MASKS
+      isWaterPixel = isBackPass && (isWaterPixel || underWater);
 
-      // DEFINE FOG AND CLOUD VARIABLES
-      #ifdef VOLUMETRICS
-        vec4 fog = vec4(0.0);
+      for(int i = 0; i < volSteps; i++, worldRay.position += worldRay.increment, shadowRay.position += shadowRay.increment) {
+        // COMPUTE LIGHTING
+        vec3 directLight = atmosphereLighting[0];
+        vec3 skyLight    = atmosphereLighting[1];
 
-        #define fogScattering fog.rgb
-        #define fogTransmittance fog.a
-      #endif
+        vec3 shadowColour = vec3(0.0);
 
-      #ifdef VOLUMETRIC_CLOUDS
-        vec4 cloud = vec4(0.0);
+        vec2 visibility = vec2(0.0);
 
-        #define cloudScattering cloud.rgb
-        #define cloudTransmittance cloud.a
-      #endif
+        #define visibilityFront visibility.x
+        #define visibilityBack  visibility.y
 
-      // SAMPLE CURRENT PIXEL'S FOG TRANSMITTANCE
-      float currentFogTransmittance = texture2D(colortex4, screenCoord).a;
+        float objectID = 0.0;
 
-      // FILTER
-      for(int i = 0; i < samples; i++) {
-        vec2 offset = (circlemap(
-          lattice(i * ditherScale + dither, samples * ditherScale)
-        )) * radius + screenCoord;
-        
-        // ACCUMULATE FOG
-        #ifdef VOLUMETRICS
-          vec4 fogSample = texture2DLod(colortex4, offset, fogLOD);
-          
-          fogScattering += fogSample.rgb;
-          fogTransmittance += mix(fogSample.a, currentFogTransmittance, clamp01((fogSample.a - currentFogTransmittance) * 16.0));
+        bool isTransparentShadow = false;
+
+        computeShadows(visibility, shadowColour, objectID, isTransparentShadow, worldRay.position - cameraPosition, shadowRay.position, isSkyPixel, isWaterPixel);
+
+        directLight *= shadowColour * visibilityBack;
+        skyLight    *= shadowColour * visibilityBack;
+
+        #undef visibilityFront
+        #undef visibilityBack
+
+        // COMPUTE CLOUD SHADOWS
+        float cloudShadowDirect = getCloudShadow(worldRay.position, wLightDirection);
+        float cloudShadowSky = 
+        #ifdef CLOUD_SHADOW_SKY
+          getCloudShadow(worldRay.position, vec3(0.0, 1.0, 0.0)) * CLOUD_SHADOW_SKY_INTENSITY + cloudShadowSkyIntensityInverse;
+        #else
+          1.0
+        #endif
+        ;
+
+        directLight *= cloudShadowDirect;
+        skyLight    *= cloudShadowSky;
+
+        // COMPUTE ATMOSPHERE CONTRIBUTION
+        // WATER
+        if(isWaterPixel) {
+          #ifdef VOLUMETRIC_WATER
+            computeAtmosphereContribution(layerWater, scatter, absorb, scatterAbsorb, opticalDepthWater(worldRay.position) * worldRay.incrementLength, directLight, skyLight, 1.0, distanceToFront, isWaterPixel);
+          #endif
+
+          continue;
+        }
+
+        // AIR
+        #ifdef ATMOSPHERIC_SCATTERING
+          computeAtmosphereContribution(layerAir, scatter, absorb, scatterAbsorb, opticalDepthAir(worldRay.position) * worldRay.incrementLength, directLight, skyLight, phaseAir, distanceToFront, isWaterPixel);
         #endif
 
-        // ACCUMULATE CLOUDS
-        #ifdef VOLUMETRIC_CLOUDS
-          cloud += texture2DLod(colortex5, offset, cloudLOD);
+        // FOG
+        #ifdef VOLUMETRIC_FOG
+          computeAtmosphereContribution(layerFog, scatter, absorb, scatterAbsorb, opticalDepthFog(worldRay.position) * worldRay.incrementLength, directLight, skyLight, phaseFog, distanceToFront, isWaterPixel);
         #endif
       }
 
-      // NORMALIZE DATA
-      #ifdef VOLUMETRICS
-        fog *= samplesRCP;
-      #endif
-
-      #ifdef VOLUMETRIC_CLOUDS
-        cloud *= samplesRCP;
-      #endif
-
-      // PERFORM WATER ABSORPTION ON CLOUDS
-      #ifdef VOLUMETRIC_CLOUDS
-        if(isEyeInWater == 1) {
-          cloudScattering *= absorbWater(distance(vec3(0.0), position.viewFront));
-        }
-      #endif
-
-      // DRAW CLOUDS
-      #ifdef VOLUMETRIC_CLOUDS
-        frame = frame * cloudTransmittance + cloudScattering;
-      #endif
-
-      // DRAW FOG
-      #ifdef VOLUMETRICS
-        frame = frame * fogTransmittance + fogScattering;
-      #endif
-
-      #ifdef VOLUMETRICS
-        #undef fogScattering
-        #undef fogTransmittance
-      #endif
-
-      #ifdef VOLUMETRIC_CLOUDS
-        #undef cloudScattering
-        #undef cloudTransmittance
-      #endif
-
-      return frame;
+      if(isBackPass && !isWaterPixel) scatter *= albedo.rgb * (1.0 - albedo.a);
     }
 
-    #undef hammersley
-    #undef circlemap
+    /*
+      MAIN FUNCTION
+    */
+    void computeVolumetrics(in BufferList bufferList, in PositionData positionData, in GbufferData gbufferData, in MaskList maskList, io vec3 scatter, io vec3 frontAbsorption, io vec3 backAbsorption, in vec2 screenCoord, in vec4 hitCoord, in vec2 dither, in mat2x3 atmosphereLighting) {
+      scatter         = vec3(0.0);
+      frontAbsorption = vec3(1.0);
+      backAbsorption  = vec3(1.0);
+
+      #if !defined(VOLUMETRICS) || ( !defined(ATMOSPHERIC_SCATTERING) && !defined(VOLUMETRIC_FOG) && !defined(VOLUMETRIC_WATER) )
+        return;
+      #endif
+
+      // COMPUTE BACK CLIP POSITION
+      vec3 clipBack   = (hitCoord.z == hitCoord.w) ? vec3(screenCoord, positionData.depthBack) : hitCoord.xyz;
+
+      // COMPUTE WORLD POSITIONS
+      vec3 worldEye   = gbufferModelViewInverse[3].xyz;
+      vec3 worldFront = viewToWorld(positionData.viewFront);
+      vec3 worldBack  = viewToWorld(clipToView(clipBack.xy, clipBack.z));
+
+      // COMPUTE DISTANCE TO FRONT
+      float distanceToFront = _length(worldFront);
+
+      // COMPUTE PIXEL MASKS
+      bool isSkyPixel = !_getLandMask(positionData.depthBack);
+
+      // COMPUTE VoL
+      float VoL = dot(normalize(worldBack), wLightDirection);
+
+      // COMPUTE FRONT VOLUMETRICS PASS
+      computeVolumetricPass(scatter, frontAbsorption, vec3(1.0), (underWater) ? worldFront : worldEye, (underWater) ? worldBack : worldFront, vec4(gbufferData.albedo, bufferList.tex7.a), screenCoord, hitCoord, dither, atmosphereLighting, VoL, distanceToFront, false, isSkyPixel, maskList.water);
+
+      // COMPUTE BACK VOLUMETRICS PASS
+      if((!underWater && positionData.depthBack > positionData.depthFront) || (underWater))
+        computeVolumetricPass(scatter, backAbsorption, frontAbsorption, (underWater) ? worldEye : worldFront, (underWater) ? worldFront : worldBack, vec4(gbufferData.albedo, bufferList.tex7.a), screenCoord, hitCoord, dither, atmosphereLighting, VoL, distanceToFront, true, isSkyPixel, maskList.water);
+    }
   #endif
 
 #endif /* INTERNAL_INCLUDED_DEFERRED_VOLUMETRICS */

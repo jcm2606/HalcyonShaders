@@ -1,380 +1,194 @@
-# Miscellaneous
-screen.Miscellaneous=Miscellaneous
-screen.Miscellaneous.comment=PLACEHOLDER
-
-#   Miscellaneous\Debugging
-screen.Debugging=Debugging
-screen.Debugging.comment=PLACEHOLDER
-
-#   Miscellaneous\Internal
-screen.Internal=Internal
-screen.Internal.comment=PLACEHOLDER
-
-#   Miscellaneous\Uncategorised
-screen.Uncategorised=Uncategorised
-screen.Uncategorised.comment=PLACEHOLDER
-
-#   ShaderConfig
+# ShaderConfig
 screen.ShaderConfig=Shader Configuration
-screen.ShaderConfig.comment=PLACEHOLDER
 
-#   ShaderConfig\Options
 option.GLOBAL_SPEED=Global Speed
-value.GLOBAL_SPEED.0.0=Frozen
-value.GLOBAL_SPEED.0.08333=12x Slower
-value.GLOBAL_SPEED.0.09090909=11x Slower
-value.GLOBAL_SPEED.0.1=10x Slower
-value.GLOBAL_SPEED.0.111=9x Slower
-value.GLOBAL_SPEED.0.125=8x Slower
-value.GLOBAL_SPEED.0.142857=7x Slower
-value.GLOBAL_SPEED.0.1666=6x Slower
-value.GLOBAL_SPEED.0.2=5x Slower
-value.GLOBAL_SPEED.0.25=4x Slower
-value.GLOBAL_SPEED.0.333=3x Slower
-value.GLOBAL_SPEED.0.5=2x Slower
-value.GLOBAL_SPEED.1.0=Normal Speed
-value.GLOBAL_SPEED.2.0=2x Faster
-value.GLOBAL_SPEED.3.0=3x Faster
-value.GLOBAL_SPEED.4.0=4x Faster
-value.GLOBAL_SPEED.5.0=5x Faster
-value.GLOBAL_SPEED.6.0=6x Faster
-value.GLOBAL_SPEED.7.0=7x Faster
-value.GLOBAL_SPEED.8.0=8x Faster
-value.GLOBAL_SPEED.9.0=9x Faster
-value.GLOBAL_SPEED.10.0=10x Faster
-value.GLOBAL_SPEED.11.0=11x Faster
-value.GLOBAL_SPEED.12.0=12x Faster
 
-option.TEXTURE_RESOLUTION=Texture Resolution
-value.TEXTURE_RESOLUTION.16.0=16x16
-value.TEXTURE_RESOLUTION.32.0=32x32
-value.TEXTURE_RESOLUTION.64.0=64x64
-value.TEXTURE_RESOLUTION.128.0=128x128
-value.TEXTURE_RESOLUTION.256.0=256x256
-value.TEXTURE_RESOLUTION.512.0=512x512
-value.TEXTURE_RESOLUTION.1024.0=1024x1024
-value.TEXTURE_RESOLUTION.2048.0=2048x2048
-value.TEXTURE_RESOLUTION.4096.0=4096x4096
-value.TEXTURE_RESOLUTION.8192.0=8192x8192
+option.SPECULAR_FORMAT=Specular Format
+value.SPECULAR_FORMAT.0=Hardcoded
+value.SPECULAR_FORMAT.1=Greyscale
+value.SPECULAR_FORMAT.2=Old PBR, no emission
+value.SPECULAR_FORMAT.3=Old PBR, emission
+value.SPECULAR_FORMAT.4=New PBR
 
 option.SEA_LEVEL=Sea Level
 
-option.RESOURCE_FORMAT=Specular Format
-value.RESOURCE_FORMAT.0=Hardcoded
-value.RESOURCE_FORMAT.1=Specular
-value.RESOURCE_FORMAT.2=Old PBR, No Emission
-value.RESOURCE_FORMAT.3=Old PBR, Emission
-value.RESOURCE_FORMAT.4=New PBR
-
-option.wetnessHalflife=Wetness Halflife
-suffix.wetnessHalflife= Seconds
-value.wetnessHalflife.200.0=10
-value.wetnessHalflife.240.0=12
-value.wetnessHalflife.280.0=14
-value.wetnessHalflife.320.0=16
-value.wetnessHalflife.360.0=18
-value.wetnessHalflife.400.0=20
-value.wetnessHalflife.440.0=22
-value.wetnessHalflife.480.0=24
-value.wetnessHalflife.520.0=26
-value.wetnessHalflife.560.0=28
-value.wetnessHalflife.600.0=30
-value.wetnessHalflife.640.0=32
-value.wetnessHalflife.680.0=34
-value.wetnessHalflife.720.0=36
-value.wetnessHalflife.760.0=38
-value.wetnessHalflife.800.0=40
-value.wetnessHalflife.840.0=42
-value.wetnessHalflife.880.0=44
-value.wetnessHalflife.920.0=46
-value.wetnessHalflife.960.0=48
-value.wetnessHalflife.1000.0=50
-value.wetnessHalflife.1040.0=52
-value.wetnessHalflife.1080.0=54
-value.wetnessHalflife.1120.0=56
-value.wetnessHalflife.1160.0=58
-value.wetnessHalflife.1200.0=60
-
-option.drynessHalflife=Dryness Halflife
-suffix.drynessHalflife= Seconds
-value.drynessHalflife.20.0=1
-value.drynessHalflife.40.0=2
-value.drynessHalflife.60.0=3
-value.drynessHalflife.80.0=4
-value.drynessHalflife.100.0=5
-value.drynessHalflife.120.0=6
-value.drynessHalflife.140.0=7
-value.drynessHalflife.160.0=8
-value.drynessHalflife.180.0=9
-value.drynessHalflife.200.0=10
-
-option.sunPathRotation=Sun Rotation
-
-option.eyeBrightnessHalflife=Eye Brightness Halflife
-
-option.noiseTextureResolution=Noise Resolution
-value.noiseTextureResolution.128=128x128
-value.noiseTextureResolution.256=256x256
-value.noiseTextureResolution.512=512x512
-value.noiseTextureResolution.1024=1024x1024
-value.noiseTextureResolution.2048=2048x2048
-value.noiseTextureResolution.4096=4096x4096
-
-option.ambientOcclusionLevel=Minecraft AO Intensity
-suffix.ambientOcclusionLevel=x
-
 option.shadowDistance=Shadow Render Distance
-value.shadowDistance.96.0=4
 value.shadowDistance.160.0=8
-value.shadowDistance.224.0=12
 value.shadowDistance.288.0=16
-value.shadowDistance.352.0=20
 value.shadowDistance.416.0=24
-value.shadowDistance.480.0=28
 value.shadowDistance.544.0=32
-value.shadowDistance.608.0=36
 value.shadowDistance.672.0=40
-value.shadowDistance.736.0=44
 value.shadowDistance.800.0=48
-value.shadowDistance.862.0=52
 value.shadowDistance.928.0=56
-value.shadowDistance.992.0=60
 value.shadowDistance.1056.0=64
 suffix.shadowDistance= Chunks
 
-# Atmospherics
-screen.Atmospherics=Atmospherics
-screen.Atmospherics.comment=PLACEHOLDER
+option.wetnessHalflife=Wetness Halflife
 
-#   Atmospherics\Fog
-screen.Fog=Volumetric Fog
-screen.Fog.comment=PLACEHOLDER
+option.drynessHalflife=Dryness Halflife
 
-#     Atmospherics\Fog\Options
-option.VOLUMETRICS=Volumetric Fog
+option.sunPathRotation=Sun Rotation
 
-#     Atmospherics\Fog\FogLayers
-screen.FogLayers=Layers
-screen.FogLayers.comment=PLACEHOLDER
+option.ambientOcclusionLevel=MC AO Intensity
 
-#       Atmospherics\Fog\FogLayers\Options
-option.FOG_LAYER_HEIGHT=Height Fog
-screen.FogLayerHeight=Height Fog Options
-screen.FogLayerHeight.comment=PLACEHOLDER
-option.FOG_LAYER_HEIGHT_DENSITY=Density
-option.FOG_LAYER_HEIGHT_FALLOFF=Height
-option.FOG_LAYER_HEIGHT_EXPONENTIAL=Exponential Height Mode
+option.noiseTextureResolution=Noise Resolution
 
-option.FOG_LAYER_SHEET=Sheet Fog
-screen.FogLayerSheet=Sheet Fog Options
-screen.FogLayerSheet.comment=PLACEHOLDER
-option.FOG_LAYER_SHEET_DENSITY=Density
-option.FOG_LAYER_SHEET_FALLOFF=Height
-option.FOG_LAYER_SHEET_HQ=Noise Variation
-option.FOG_LAYER_SHEET_OCTAVES=Noise Octaves
-
-option.FOG_LAYER_ROLLING=Rolling Fog
-screen.FogLayerRolling=Rolling Fog Options
-screen.FogLayerRolling.comment=PLACEHOLDER
-option.FOG_LAYER_ROLLING_DENSITY=Density
-option.FOG_LAYER_ROLLING_FALLOFF=Height
-option.FOG_LAYER_ROLLING_PRIMARY_OCTAVES=Volume Octaves
-option.FOG_LAYER_ROLLING_MIST_OCTAVES=Mist Octaves
-option.FOG_LAYER_ROLLING_COVERAGE=Coverage
-
-option.FOG_LAYER_CYCLE=Weather Cycle Fog
-screen.FogLayerCycle=Weather Cycle Fog Options
-screen.FogLayerCycle.comment=PLACEHOLDER
-
-option.FOG_LAYER_MORNING=Morning Fog
-screen.FogLayerMorning=Morning Fog Options
-screen.FogLayerMorning.comment=PLACEHOLDER
-
-option.FOG_LAYER_RAIN=Rain Fog
-screen.FogLayerRain=Rain Fog Options
-screen.FogLayerRain.comment=PLACEHOLDER
-option.FOG_LAYER_RAIN_DENSITY=Density
-
-option.FOG_LAYER_WATER=Water Fog
-screen.FogLayerWater=Water Fog Options
-screen.FogLayerWater.comment=PLACEHOLDER
-option.FOG_LAYER_WATER_DENSITY=Density
-
-#     Atmospherics\Fog\FogLighting
-screen.FogLighting=Lighting
-screen.FogLighting.comment=PLACEHOLDER
-
-#       Atmospherics\Fog\FogLighting\Options
-option.FOG_LIGHTING_DIRECT=Direct Lighting
-
-option.FOG_LIGHTING_DIRECT_STEPS=Direct Lighting Quality
-suffix.FOG_LIGHTING_DIRECT_STEPS= Step(s)
-
-option.FOG_LIGHTING_SKY=Sky Lighting
-
-option.FOG_LIGHTING_SKY_STEPS=Sky Lighting Quality
-suffix.FOG_LIGHTING_SKY_STEPS= Step(s)
-
-option.FOG_LIGHTING_BOUNCED=Bounced Lighting
-
-option.FOG_LIGHTING_BOUNCED_STEPS=Bounced Lighting Quality
-suffix.FOG_LIGHTING_BOUNCED_STEPS= Step(s)
-
-option.FOG_OCCLUSION_SKY=Sky Occlusion
-value.FOG_OCCLUSION_SKY.0=No Occlusion
-value.FOG_OCCLUSION_SKY.1=Direct Shadow
-value.FOG_OCCLUSION_SKY.2=Approximation
-
-option.FOG_OCCLUSION_SKY_CLOUD=Sky Cloud Shadowing
-
-#   Atmospherics\Clouds
-screen.Clouds=Volumetric Clouds
-screen.Clouds.comment=PLACEHOLDER
-
-#     Atmosphereics\Clouds\Options
-option.VOLUMETRIC_CLOUDS=Volumetric Clouds
-
-option.VC_QUALITY=Quality
-
-option.VC_OCTAVES=FBM Octaves
-
-option.VC_LIGHTING_QUALITY_DIRECT=Direct Lighting Quality
-suffix.VC_LIGHTING_QUALITY_DIRECT= Steps
-
-option.VC_LIGHTING_QUALITY_SKY=Sky Lighting Quality
-suffix.VC_LIGHTING_QUALITY_SKY= Steps
-value.VC_LIGHTING_QUALITY_SKY.0=No
-
-option.VC_LIGHTING_QUALITY_BOUNCED=Bounced Lighting Quality
-suffix.VC_LIGHTING_QUALITY_BOUNCED= Steps
-value.VC_LIGHTING_QUALITY_BOUNCED.0=No
-
-option.VC_ALTITUDE=Altitude
-prefix.VC_ALTITUDE=Y 
-
-option.VC_HEIGHT=Height
-suffix.VC_HEIGHT= Blocks
-
-option.VC_DENSITY_CLEAR=Clear Density
-
-option.VC_DENSITY_OVERCAST=Overcast Density
-
-option.VC_DENSITY_RAIN=Rain Density
-
-option.VC_COVERAGE_CLEAR=Clear Coverage
-
-option.VC_COVERAGE_OVERCAST=Overcast Coverage
-
-option.VC_COVERAGE_RAIN=Rain Coverage
-
-option.VC_SHADOW_SOFTENING=Shadow Softening
-
-option.VC_SHADOW_SOFTENING_STRENGTH=Shadow Softening Strength
-
-#   Atmospherics\Sky
-screen.Sky=Sky
-screen.Sky.comment=PLACEHOLDER
-
-# Geometry
-screen.Geometry=Geometry
-screen.Geometry.comment=PLACEHOLDER
-
-#   Geometry\Parallax
-screen.Parallax=Parallax
-screen.Parallax.comment=PLACEHOLDER
-
-#   Geometry\Parallax\Options
-option.PARALLAX_OPAQUE=Terrain Parallax
-
-option.PARALLAX_OPAQUE_DEPTH=Terrain Parallax Depth
-
-option.PARALLAX_OPAQUE_QUALITY_SCALING=Quality Scaling
-
-option.PARALLAX_OPAQUE_QUALITY_FIXED=Fixed Quality
-
-option.PARALLAX_TRANSPARENT=Transparent Parallax
-
-option.PARALLAX_TRANSPARENT_DEPTH_WATER=Water Depth
-
-option.PARALLAX_TRANSPARENT_STEPS=Transparent Parallax Quality
-suffix.PARALLAX_TRANSPARENT_STEPS= Steps
-
-option.PARALLAX_TRANSPARENT_DEPTH_ICE=Ice Depth
-
-option.PARALLAX_TRANSPARENT_DEPTH_STAINED_GLASS=Stained Glass Depth
-
-#   Geometry\VertexDisplacement
-screen.VertexDisplacement=Vertex Displacement
-screen.VertexDisplacement.comment=PLACEHOLDER
-
-# Post
-screen.Post=Post Processing
-screen.Post.comment=PLACEHOLDER
-
-#   Post\Tonemapping
-screen.Tonemapping=Tonemapping
-screen.Tonemapping.comment=PLACEHOLDER
-
-#   Post\Bloom
-screen.Bloom=Bloom
-screen.Bloom.comment=PLACEHOLDER
-
-#   Post\DOF
-screen.DOF=Depth of Field
-screen.DOF.comment=PLACEHOLDER
-
-#   Post\DOF\Options
-option.DOF=Depth of Field
-
-option.DOF_INTENSITY=Strength
-
-option.DOF_FOCAL_POINT_AUTO=Automatic Focus Adjustment
-
-option.DOF_FOCAL_POINT_AUTO_SPEED=Automatic Focus Speed
-
-option.DOF_FOCAL_POINT=Manual Focus Adjustment
-suffix.DOF_FOCAL_POINT=m
-
-option.DOF_DISPERSION=Dispersion
-
-option.DOF_DISPERSION_INTENSITY=Dispersion Strength
-
-# Surface
-screen.Surface=Surface
-screen.Surface.comment=PLACEHOLDER
-
-#   Surface\Normals
-screen.Normals=Normals
-screen.Normals.comment=PLACEHOLDER
+#   ShaderConfig\Debugging
+screen.Debugging=Debugging
 
 # Shading
 screen.Shading=Shading
-screen.Shading.comment=PLACEHOLDER
-
-#   Shading\Shadowing
-screen.Shadowing=Shadowing
-screen.Shadowing.comment=PLACEHOLDER
-
-#   Shading\Shadowing\Options
-option.shadowMapResolution=Resolution
-value.shadowMapResolution.512=512x512
-value.shadowMapResolution.1024=1024x1024
-value.shadowMapResolution.2048=2048x2048
-value.shadowMapResolution.3072=3072x3072
-value.shadowMapResolution.4096=4096x4096
-value.shadowMapResolution.8192=8192x8192
-
-option.SHADOW_DISTORTION_FACTOR=Distortion Factor
-
-option.SHADOW_FILTER_QUALITY=Samples
-suffix.SHADOW_FILTER_QUALITY= Samples
-
-option.LIGHT_SOURCE_DISTANCE=Light Distance
-
-option.SHADOW_FILTER_MIN_WIDTH=Min Penumbra Width
-
-option.SHADOW_FILTER_MAX_WIDTH=Max Penumbra Width
 
 #   Shading\Lighting
 screen.Lighting=Lighting
-screen.Lighting.comment=PLACEHOLDER
+
+#     Shading\Lighting\BlockLighting
+screen.BlockLighting=Block Lighting
+
+option.BLOCK_LIGHT_ANISOTROPY=Anisotropy
+
+option.BLOCK_LIGHT_INTENSITY=Intensity
+
+option.BLOCK_LIGHT_COLOUR=Colour Preset
+
+option.BLOCK_LIGHT_ATTENUATION=Attenuation
+
+#     Shading\Lighting\SkyLighting
+screen.SkyLighting=Sky Lighting
+
+option.SKY_LIGHT_ANISOTROPY=Anisotropy
+
+option.SKY_LIGHT_INTENSITY=Intensity
+
+option.SKY_LIGHT_ATTENUATION=Attenuation
+
+#   Shading\Shadowing
+screen.Shadowing=Shadowing
+
+option.shadowMapResolution=Resolution
+
+option.SHADOW_QUALITY=Samples
+
+option.SHADOW_DISTORTION_FACTOR=Distortion Factor
+
+#   Shading\Specular
+screen.Specular=Specular
+
+option.SPECULAR_DUAL_LAYER=Dual Layer Mode
+
+option.SPECULAR_SAMPLES=Samples
+
+option.SPECULAR_QUALITY=Accuracy
+
+option.SPECULAR_REFINEMENTS=Refinements
+
+# Atmospherics
+screen.Atmospherics=Atmospherics
+
+#   Atmospherics\Sky
+screen.Sky=Sky
+
+#   Atmospherics\Volumetrics
+screen.Volumetrics=Volumetrics
+
+option.VOLUMETRICS=Volumetrics
+
+#     Atmospherics\Volumetrics\AtmosphericScattering
+screen.AtmosphericScattering=Atmospheric Scattering
+
+option.ATMOSPHERIC_SCATTERING=Atmospheric Scattering
+
+#     Atmospherics\Volumetrics\VolumetricFog
+screen.VolumetricFog=Volumetric Fog
+
+option.VOLUMETRIC_FOG=Volumetric Fog
+
+#       Atmospherics\Volumetrics\VolumetricFog\HeightFog
+screen.HeightFog=Height Fog
+
+option.HEIGHT_FOG=Height Fog
+
+#       Atmospherics\Volumetrics\VolumetricFog\SheetFog
+screen.SheetFog=Sheet Fog
+
+option.SHEET_FOG=Sheet Fog
+
+#     Atmospherics\Volumetrics\VolumetricWater
+screen.VolumetricWater=Volumetric Water
+
+option.VOLUMETRIC_WATER=Volumetric Water
+
+option.VOLUMETRIC_WATER_DENSITY=Density
+
+option.VOLUMETRIC_WATER_ABSORPTION=Absorption
+
+option.VOLUMETRIC_WATER_TURBIDITY=Turbidity
+
+option.VOLUMETRIC_WATER_SCATTER_COLOUR=Scatter Colour
+value.VOLUMETRIC_WATER_SCATTER_COLOUR.0=Clear
+value.VOLUMETRIC_WATER_SCATTER_COLOUR.1=Ocean
+
+#   Atmospherics\Clouds
+screen.Clouds=Volumetric Clouds
+
+option.CLOUDS=Volumetric Clouds
+
+option.CLOUDS_STEPS=Steps
+
+option.CLOUDS_OCTAVES=Noise Octaves
+
+option.CLOUDS_LIGHTING_DIRECT_STEPS=Direct Light Steps
+value.CLOUDS_LIGHTING_DIRECT_STEPS.0=None
+
+option.CLOUDS_LIGHTING_SKY_STEPS=Sky Light Steps
+value.CLOUDS_LIGHTING_SKY_STEPS.0=None
+
+option.CLOUDS_LIGHTING_BOUNCED_STEPS=Bounced Light Steps
+value.CLOUDS_LIGHTING_BOUNCED_STEPS.0=None
+
+# Materials
+screen.Materials=Materials
+
+#   Materials\Normals
+screen.Normals=Normal Mapping
+
+#   Materials\Parallax
+screen.Parallax=Parallax
+
+#     Materials\Parallax\ParallaxTerrain
+screen.ParallaxTerrain=Terrain Parallax
+
+option.PARALLAX_TERRAIN=Terrain Parallax
+
+option.PARALLAX_TERRAIN_SAMPLES=Samples
+
+option.PARALLAX_TERRAIN_DEPTH=Depth
+
+#     Materials\Parallax\ParallaxWater
+screen.ParallaxWater=Water Parallax
+
+option.PARALLAX_WATER=Water Parallax
+
+# Post
+screen.Post=Post Processing
+
+#   Post\Tonemapping
+screen.Tonemapping=Tonemapping
+
+option.EXPOSURE=Exposure
+
+option.GAMMA=Gamma
+
+option.SATURATION=Saturation Boost
+
+#   Post\Bloom
+screen.Bloom=Bloom
+
+#   Post\DOF
+screen.DOF=Depth of Field
+
+# Miscellaneous
+screen.Miscellaneous=Miscellaneous
+
+#   Miscellaneous\Uncategorised
+screen.Uncategorised=Uncategorised Options
