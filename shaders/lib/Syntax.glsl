@@ -14,7 +14,7 @@
   #define DEFINE_genUType(func) func(uint) func(uvec2) func(uvec3) func(uvec4)
   #define DEFINE_genBType(func) func(bool) func(bvec2) func(bvec3) func(bvec4)
 
-  #include "/lib/syntax/MacroConstant.glsl"
+  #include "/lib/syntax/MacroEarly.glsl"
 
   #include "/lib/syntax/BlockID.glsl"
   #include "/lib/syntax/ObjectID.glsl"

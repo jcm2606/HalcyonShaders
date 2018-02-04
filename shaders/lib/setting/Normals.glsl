@@ -8,7 +8,7 @@
   #define INTERNAL_INCLUDED_SETTING_NORMALS
 
   // WATER
-  #define WATER_NORMAL_ANISOTROPY 0.2
+  #define WATER_NORMAL_ANISOTROPY 0.2 // [0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4]
   #define WATER_WAVE_0_OCTAVES 10 // [8 10 12 14 16 18 20 22 24]
 
   #define _waterHeight water0 // [water0 water1]

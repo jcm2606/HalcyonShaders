@@ -49,6 +49,7 @@ uniform float sunAngle;
 uniform float near;
 uniform float far;
 uniform float frameTimeCounter;
+uniform float rainStrength;
 
 /* GLOBAL */
 /* STRUCT */

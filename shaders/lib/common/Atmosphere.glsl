@@ -78,7 +78,7 @@
     vec3 skyS = (vec3(float(mode == 0)) * getBodyMask(VoS, SUN_SIZE)) * sunSpotIntensity + background;
     vec3 skyM = (vec3(float(mode == 0)) * getBodyMask(VoM, MOON_SIZE)) * moonSpotIntensity + background;
 
-    for(int i = 0; i < steps; i++) {
+    for(int i = 0; i < steps; ++i) {
       scatterS *= absorbS;
       scatterM *= absorbM;
 

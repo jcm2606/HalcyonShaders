@@ -30,8 +30,13 @@
     cv(float) cloudStepSize = cloudHeight * cloudStepsRCP;
 
     cv(float) cloudDensityScale = cloudOctavesRCP * cloudHeightRCP;
-    cv(float) cloudDensity = 1600.0 * cloudDensityScale;
-    cv(vec3) cloudScatterAbsorbCoeff = vec3(0.02, 0.05 * cloudDensity, 0.02 * cloudDensity); // x = scatter, y = view absorb, z = light absorb
+    float cloudDensity = mix(
+      CLOUDS_DENSITY_CLEAR,
+      CLOUDS_DENSITY_RAIN,
+      rainStrength
+    ) * cloudDensityScale;
+
+    vec3 cloudScatterAbsorbCoeff = vec3(0.02, 0.05 * cloudDensity, 0.02 * cloudDensity); // x = scatter, y = view absorb, z = light absorb
 
     #include "/lib/util/Noise.glsl"
 
@@ -47,7 +52,7 @@
       cv(vec2) windDir = vec2(0.0, 1.0) * 0.04;
       vec3 wind = windDir.xxy * globalTime;
 
-      for(int i = 0; i < cloudOctaves; i++) {
+      for(int i = 0; i < cloudOctaves; ++i) {
         cloud = texnoise3D(noisetex, wind + world) * weight + cloud;
 
         world *= 2.3;
@@ -57,7 +62,11 @@
         weight *= 0.5;
       }
 
-      float coverage = 0.9;
+      float coverage = mix(
+        cloudCoverageClear,
+        cloudCoverageRain,
+        rainStrength
+      );
 
       cloud -= coverage;
       cloud  = _max0(cloud);
@@ -96,7 +105,7 @@
 
       odAtStart *= 0.5;
 
-      for(int i = 0; i < steps; i++, ray += dir) {
+      for(int i = 0; i < steps; ++i, ray += dir) {
         float falloff = 1.0 - saturate((ray.y - cloudStartAltitude) / (cloudEndAltitude - cloudStartAltitude));
 
         odAtStart -= cloudFBM(ray);
@@ -137,7 +146,7 @@
 
       vec3 ray = (incr * dither.x + start) + cameraPosition;
 
-      for(int i = 0; i < cloudSteps; i++, ray += incr) {
+      for(int i = 0; i < cloudSteps; ++i, ray += incr) {
         // COMPUTE OPTICAL DEPTH
         float opticalDepth = cloudFBM(ray);
 
