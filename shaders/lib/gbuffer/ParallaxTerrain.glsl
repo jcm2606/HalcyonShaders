@@ -11,7 +11,9 @@
     #define tileSize     tileInfo[0]
     #define tilePosition tileInfo[1]
 
-    #define wrapTexture(p) ( mod(p, tileSize) + tilePosition )
+    vec2 wrapTexture(vec2 p){
+      return ceil( (tilePosition-p)/tileSize ) * tileSize + p;
+    }
     
     cv(int) parallaxSamples = PARALLAX_TERRAIN_SAMPLES;
     cRCP(float, parallaxSamples);
@@ -35,8 +37,6 @@
       #ifndef PARALLAX_TERRAIN
         return coord;
       #endif
-
-      if(_isGroundFoliage(entity.x) || entity.x == GLASS.x || entity.x == GLASS.y) return coord;
 
       float stepLength = tileSize.x * parallaxSamplesRCP;
 

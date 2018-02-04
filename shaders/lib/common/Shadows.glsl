@@ -62,7 +62,7 @@
     // BLOCKER SEARCH
     vec2 blockers = vec2(0.0);
 
-    for(int i = 0; i < blockerSamples; i++) {
+    for(int i = 0; i < blockerSamples; ++i) {
       shadow = distortShadowPosition(spiralMap(i * dither.y + dither.x, blockerSamples * dither.y) * blockerRadius + shadowPosition.xy, true);
 
       blockers = vec2(
@@ -90,7 +90,7 @@
     bool isWater = false;
 
     // FILTER
-    for(int i = 0; i < filterSamples; i++) {
+    for(int i = 0; i < filterSamples; ++i) {
       offset = spiralMap(i * dither.y + dither.x, filterSamples * dither.y);
 
       shadowBack = vec3(distortShadowPosition(offset * radiusBack + shadowPosition.xy, true), shadowPosition.z);

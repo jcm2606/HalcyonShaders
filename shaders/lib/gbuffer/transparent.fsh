@@ -52,6 +52,8 @@ void main() {
 
   if(compare(objectID, OBJECT_WATER)) albedo = vec4(0.0);
 
+  if(compare(objectID, OBJECT_ICE)) albedo.a = ICE_ALBEDO.a;
+
   // SAMPLE NORMAL MAP
   vec4 normalMap = texture2D(normals, uvCoord);
 
@@ -118,7 +120,7 @@ void main() {
   smoothness = _max(0.0001, smoothness);
   smoothness = 1.0 - smoothness;
 
-  f0 = max(0.02, f0);
+  f0 = max(F0_DIELECTRIC, f0);
 
   // OUTGOING DATA
   /* DRAWBUFFERS:127 */

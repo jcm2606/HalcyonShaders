@@ -84,7 +84,7 @@
     vec3 H, L = vec3(0.0);
     float VoH = 0.0;
 
-    for(int i = 0; i < reflectionSamples; i++) {
+    for(int i = 0; i < reflectionSamples; ++i) {
       H = _normalize(tbn * MakeSample((dither.x + float(i)) * reflectionSamplesRCP, alpha2));
       L = -reflect(V, H);
       

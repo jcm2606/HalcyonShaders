@@ -20,7 +20,7 @@
 
       float waveHeight = getHeight(world, objectID) * height;
 
-      for(int i = 0; i < steps; i++) {
+      for(int i = 0; i < steps; ++i) {
         world.xz = waveHeight * view.xy - world.xz;
 
         waveHeight = getHeight(world, objectID) * height;

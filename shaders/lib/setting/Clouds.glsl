@@ -25,6 +25,16 @@
 
   cv(float) cloudScaleMultiplier = CLOUD_ALTITUDE * CLOUD_SCALE;
 
+  // PROPERTIES
+  #define CLOUDS_COVERAGE_CLEAR 1.0
+  #define CLOUDS_COVERAGE_RAIN 2.0 // [1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
+
+  cv(float) cloudCoverageClear = 1.0 / CLOUDS_COVERAGE_CLEAR;
+  cv(float) cloudCoverageRain = 1.0 / CLOUDS_COVERAGE_RAIN;
+
+  #define CLOUDS_DENSITY_CLEAR 1600.0
+  #define CLOUDS_DENSITY_RAIN 2400.0
+
   // LIGHTING
   #define CLOUDS_LIGHTING_DIRECT_INTENSITY 5.0
   #define CLOUDS_LIGHTING_SKY_INTENSITY 4.0

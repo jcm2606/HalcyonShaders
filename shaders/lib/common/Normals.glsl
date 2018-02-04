@@ -41,7 +41,7 @@
 
       vec2 noise = vec2(0.0);
 
-      for(int i = 0; i < octaves; i++) {
+      for(int i = 0; i < octaves; ++i) {
         noise = texnoise2D(noisetex, noisePosition / sqrt(waveLength));
 
         height += -gerstner(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 2.0, move, waveSteepness, waveAmplitude, waveLength, waveDirection) - noise.x * waveAmplitude;
@@ -71,13 +71,13 @@
       float weight = 1.0;
       float totalWeight = 0.0;
 
-      cv(vec2) wind = 0.01 * swizzle2;
+      cv(vec2) wind = 0.004 * swizzle2;
       vec2 move = wind * globalTime;
 
-      for(int i = 0; i < 6; i++) {
+      for(int i = 0; i < 6; ++i) {
         totalWeight += weight;
 
-        height -= texnoise2DSmooth(noisetex, position + move) * weight;
+        height -= texnoise2DSmooth(noisetex, position + move).x * weight;
 
         position *= 2.0;
         //position *= rot;
@@ -85,7 +85,7 @@
         weight *= 0.45;
       }
 
-      return height / totalWeight * 2.0;
+      return height / totalWeight * 4.0;
     }
 
     // GENERIC HEIGHT

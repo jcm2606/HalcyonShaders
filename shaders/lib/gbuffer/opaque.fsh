@@ -130,7 +130,7 @@ void main() {
   smoothness = _max(0.0001, smoothness);
   smoothness = 1.0 - smoothness;
 
-  f0 = max(0.02, f0);
+  f0 = max(F0_DIELECTRIC, f0);
 
   // OUTGOING DATA
   /* DRAWBUFFERS:012 */

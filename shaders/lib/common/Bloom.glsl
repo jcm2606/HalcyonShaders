@@ -29,7 +29,7 @@
         vec2 sampleCoord = vec2(0.0);
         float wg = 0.0;
 
-        for(int i = 0; i < 49; i++) {
+        for(int i = 0; i < 49; ++i) {
           sampleCoord = to2D(i, 7);
 
           wg = _sqr(1.0 - _length(sampleCoord - vec2(3.0)) * 0.25) * a;

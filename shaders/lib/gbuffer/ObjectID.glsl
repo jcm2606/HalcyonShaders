@@ -48,6 +48,10 @@
       ) objectID = OBJECT_WATER;
 
       if(
+        entity.x == ICE.x
+      ) objectID = OBJECT_ICE;
+
+      if(
         entity.x == STAINED_GLASS.x || entity.x == STAINED_GLASS.y
       ) objectID = OBJECT_STAINED_GLASS;
     #endif
