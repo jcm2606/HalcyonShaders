@@ -39,7 +39,7 @@
     cv(float) blockerRadius = 1.0 * 1.0E-3;
     cv(int) blockerLOD = 0;
 
-    cv(float) lightRadius = tan(radians(SUN_SIZE));
+    cv(float) lightRadius = tan(_radians(SUN_SIZE));
     cv(float) minWidth = 2.0 * shadowMapResolutionRCP;
     cv(float) maxWidth = 4.0;
     

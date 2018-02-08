@@ -14,7 +14,7 @@
     #include "/lib/sampler/Bicubic.glsl"
 
     vec3 drawVolumetricEffects(in GbufferData gbufferData, in PositionData positionData, in BufferList bufferList, in MaskList maskList, in vec3 background, in vec2 screenCoord, in mat2x3 atmosphereLighting, in float highlightOcclusion, in vec2 dither) {
-      cv(int) samples = 9; // 4, 9, 16, 25
+      cv(int) samples = 4; // 4, 9, 16, 25
       cRCP(float, samples);
 
       cv(float) radius = 4.5 / samples;
@@ -58,7 +58,7 @@
       }
 
       // DRAW TRANSPARENT ABSORPTION
-      //if(positionData.depthBack > positionData.depthFront && !maskList.water) background *= gbufferData.albedo * (1.0 - bufferList.tex7.a);
+      if(positionData.depthBack > positionData.depthFront && !maskList.water && !maskList.ice) background *= gbufferData.albedo * (1.0 - bufferList.tex7.a);
 
       // PERFORM BACK ABSORPTION
       if((underWater) || (positionData.depthBack > positionData.depthFront)) background *= volumetrics[2];
@@ -110,7 +110,7 @@
     #define _newRay(name) RayVolumetric name = RayVolumetric(vec3(0.0), vec3(0.0), 0.0)
 
     void computeRay(io RayVolumetric ray, in vec3 start, in vec3 end, in vec2 dither) {
-      ray.increment = (end - start) * volStepsRCP;
+      ray.increment = end * volStepsRCP + (-start * volStepsRCP);
       ray.position  = ray.increment * dither.x + start;
 
       ray.incrementLength = _length(ray.increment);
@@ -279,11 +279,11 @@
     /*
       PASS FUNCTION
     */
-    void computeVolumetricPass(io vec3 scatter, io vec3 absorb, in vec3 scatterAbsorb, in vec3 start, in vec3 end, in vec4 albedo, in vec2 screenCoord, in vec4 hitCoord, in vec2 dither, in mat2x3 atmosphereLighting, in float VoL, in float distanceToFront, in bool isBackPass, in bool isSkyPixel, in float objectID) {
+    void computeVolumetricPass(io vec3 scatter, io vec3 absorb, in vec3 scatterAbsorb, in vec3 start, in vec3 end, in vec2 screenCoord, in vec4 hitCoord, in vec2 dither, in mat2x3 atmosphereLighting, in float VoL, in float distanceToFront, in bool isBackPass, in bool isSkyPixel, in float objectID) {
       // COMPUTE PHASES
       vec3 phaseAir = vec3(phaseRayleigh(VoL), volumetrics_miePhase(VoL, 0.8), 0.5);
 
-      vec2 phaseFog = vec2(volumetrics_miePhase(VoL, 0.6) * 2.0 + 0.5, 1.0);
+      vec2 phaseFog = vec2(volumetrics_miePhase(VoL, 0.2), 1.0);
 
       vec2 phaseIce = vec2(volumetrics_miePhase(VoL, 0.8), 0.0);
       
@@ -322,12 +322,6 @@
 
         computeShadows(visibility, shadowColour, objectID, isTransparentShadow, worldRay.position - cameraPosition, shadowRay.position, isSkyPixel, isWaterPixel);
 
-        directLight *= shadowColour * visibilityBack;
-        skyLight    *= shadowColour * visibilityBack;
-
-        #undef visibilityFront
-        #undef visibilityBack
-
         // COMPUTE CLOUD SHADOWS
         float cloudShadowDirect = getCloudShadow(worldRay.position, wLightDirection);
         float cloudShadowSky = 
@@ -338,8 +332,17 @@
         #endif
         ;
 
-        directLight *= cloudShadowDirect;
-        skyLight    *= cloudShadowSky;
+        directLight *= shadowColour * (cloudShadowDirect * visibilityBack);
+        skyLight    *= shadowColour * (cloudShadowSky * 
+          #if   VOLUMETRICS_LIGHTING_SKY_OCCLUSION == 0
+            1.0 * float(!isWaterPixel)
+          #elif VOLUMETRICS_LIGHTING_SKY_OCCLUSION == 1
+            visibilityBack
+          #endif
+        );
+
+        #undef visibilityFront
+        #undef visibilityBack
 
         // COMPUTE ATMOSPHERE CONTRIBUTION
         // WATER
@@ -349,7 +352,7 @@
           #endif
         }
 
-        if(isBackPass) continue;
+        if(isBackPass && (isWaterPixel || isIcePixel)) continue;
 
         // AIR
         #ifdef ATMOSPHERIC_SCATTERING
@@ -361,8 +364,6 @@
           computeAtmosphereContribution(layerFog, scatter, absorb, scatterAbsorb, opticalDepthFog(worldRay.position) * worldRay.incrementLength, directLight, skyLight, phaseFog, distanceToFront, isBackPass);
         #endif
       }
-
-      //if(isBackPass && !isWaterPixel) scatter *= albedo.rgb * (1.0 - albedo.a);
     }
 
     /*
@@ -395,11 +396,11 @@
       float VoL = dot(normalize(worldBack), wLightDirection);
 
       // COMPUTE FRONT VOLUMETRICS PASS
-      computeVolumetricPass(scatter, frontAbsorption, vec3(1.0), (underWater) ? worldFront : worldEye, (underWater) ? worldBack : worldFront, vec4(gbufferData.albedo, bufferList.tex7.a), screenCoord, hitCoord, dither, atmosphereLighting, VoL, distanceToFront, false, isSkyPixel, gbufferData.objectID);
+      computeVolumetricPass(scatter, frontAbsorption, vec3(1.0), (underWater) ? worldFront : worldEye, (underWater) ? worldBack : worldFront, screenCoord, hitCoord, dither, atmosphereLighting, VoL, distanceToFront, false, isSkyPixel, gbufferData.objectID);
 
       // COMPUTE BACK VOLUMETRICS PASS
       if((!underWater && positionData.depthBack > positionData.depthFront) || (underWater))
-        computeVolumetricPass(scatter, backAbsorption, frontAbsorption, (underWater) ? worldEye : worldFront, (underWater) ? worldFront : worldBack, vec4(gbufferData.albedo, bufferList.tex7.a), screenCoord, hitCoord, dither, atmosphereLighting, VoL, distanceToFront, true, isSkyPixel, gbufferData.objectID);
+        computeVolumetricPass(scatter, backAbsorption, (underWater) ? vec3(1.0) : frontAbsorption * ((maskList.water || maskList.ice) ? vec3(1.0) : gbufferData.albedo * (1.0 - bufferList.tex7.a)), (underWater) ? worldEye : worldFront, (underWater) ? worldFront : worldBack, screenCoord, hitCoord, dither, atmosphereLighting, VoL, distanceToFront, true, isSkyPixel, gbufferData.objectID);
     }
   #endif
 

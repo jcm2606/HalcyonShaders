@@ -8,8 +8,8 @@
   #define INTERNAL_INCLUDED_SETTING_LIGHTING
 
   // ATMOSPHERE LIGHTING
-  #define ATMOS_LIGHTING_DIRECT_INTENSITY 0.0005
-  #define ATMOS_LIGHTING_SKY_INTENSITY 4.0
+  #define ATMOS_LIGHTING_DIRECT_INTENSITY 0.0002
+  #define ATMOS_LIGHTING_SKY_INTENSITY 1.0
 
   #define SUN_LIGHT_INTENSITY 32768.0
   #define SUN_SPOT_MULTIPLIER 0.25
@@ -36,6 +36,6 @@
 
   #define SPECULAR_SAMPLES 4 // How many samples should be taken for specular lighting?. More samples reduces the grain in reflections, at the cost of performance. [4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
   #define SPECULAR_QUALITY 4.0 // How accurate should specular lighting be?. Higher accuracy reduces the amount of artifacts in reflections, at the cost of performance. [2.0 4.0 6.0 8.0 10.0 12.0 14.0 16.0]
-  #define SPECULAR_REFINEMENTS 4 // [2 4 6 8 10 12 14 16]
+  #define SPECULAR_REFINEMENTS 2 // [2 4 6 8 10 12 14 16]
 
 #endif /* INTERNAL_INCLUDED_SETTING_LIGHTING */

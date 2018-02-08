@@ -57,6 +57,7 @@
     vec3 sky  = atmosphereLighting[1];
          sky *= getSkyLightmap(gbufferData.skyLight);
          sky *= cloudShadowSky;
+         sky *= _max0(dot(gbufferData.normal, upDirection) * 0.5 + 0.5);
 
     // BLOCK
     vec3 block  = blockLightColour;

@@ -25,6 +25,7 @@ uniform sampler2D texture;
 uniform sampler2D noisetex;
 
 uniform float frameTimeCounter;
+uniform float rainStrength;
 
 /* GLOBAL */
 /* STRUCT */

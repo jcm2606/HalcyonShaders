@@ -45,23 +45,23 @@
   cv(float) ebsRCP = 1.0 / 240.0;
   #define _getEBS() ( eyeBrightnessSmooth * ebsRCP )
 
-  float transmittedScatteringIntegral(in float od, cin(float) coeff) {
-    cv(float) a = -coeff / log(2.0);
-    cv(float) b = -1.0 / coeff;
-    cv(float) c =  1.0 / coeff;
+  float transmittedScatteringIntegral(in float od, const float coeff) {
+    const float a = -coeff / log(2.0);
+    const float b = -1.0 / coeff;
+    const float c =  1.0 / coeff;
 
     return exp2(a * od) * b + c;
   }
 
-  vec3 transmittedScatteringIntegral(in float od, cin(vec3) coeff) {
-    cv(vec3) a = -coeff / log(2.0);
-    cv(vec3) b = -1.0 / coeff;
-    cv(vec3) c =  1.0 / coeff;
+  vec3 transmittedScatteringIntegral(in float od, const vec3 coeff) {
+    const vec3 a = -coeff / log(2.0);
+    const vec3 b = -1.0 / coeff;
+    const vec3 c =  1.0 / coeff;
 
     return exp2(a * od) * b + c;
   }
 
-  vec2 to2D(int index, cin(int) total) {
+  vec2 to2D(int index, const int total) {
     cRCP(float, total);
     return vec2(float(index) / total, mod(index, total));
   }

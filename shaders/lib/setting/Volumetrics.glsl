@@ -10,6 +10,9 @@
   // GENERAL
   #define VOLUMETRICS
 
+  // LIGHTING
+  #define VOLUMETRICS_LIGHTING_SKY_OCCLUSION 1 // [0 1]
+
   // LAYERS
   // ATMOSPHERIC SCATTERING / AIR
   #define ATMOSPHERIC_SCATTERING
@@ -25,26 +28,26 @@
 
   #define VOLUMETRIC_FOG_HEIGHT
   #define VOLUMETRIC_FOG_HEIGHT_HEIGHT 48.0 // [8.0 16.0 24.0 32.0 40.0 48.0 56.0 64.0 72.0 80.0 88.0 96.0 104.0 112.0 120.0 128.0]
-  #define VOLUMETRIC_FOG_HEIGHT_DENSITY 0.025 // [0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3]
+  #define VOLUMETRIC_FOG_HEIGHT_DENSITY 0.05 // [0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3]
 
   cv(float) vol_fogHeightHeight = 1.0 / VOLUMETRIC_FOG_HEIGHT_HEIGHT;
   cv(float) vol_fogHeightDensity = VOLUMETRIC_FOG_HEIGHT_DENSITY;
 
   //#define VOLUMETRIC_FOG_SHEET
   #define VOLUMETRIC_FOG_SHEET_HEIGHT 2.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0]
-  #define VOLUMETRIC_FOG_SHEET_DENSITY 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+  #define VOLUMETRIC_FOG_SHEET_DENSITY 2.0 // [1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0 4.2 4.4 4.6 4.8 5.0 5.2 5.4 5.6 5.8 6.0 6.2 6.4 6.6 6.8 7.0 7.2 7.4 7.6 7.8 8.0]
 
   cv(float) vol_fogSheetHeight = 1.0 / VOLUMETRIC_FOG_SHEET_HEIGHT;
   cv(float) vol_fogSheetDensity = VOLUMETRIC_FOG_SHEET_DENSITY;
 
   #define VOLUMETRIC_FOG_RAIN
   #define VOLUMETRIC_FOG_RAIN_HEIGHT 48.0
-  #define VOLUMETRIC_FOG_RAIN_DENSITY 0.2
+  #define VOLUMETRIC_FOG_RAIN_DENSITY 0.4 // [0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4]
 
   cv(float) vol_fogRainHeight = 1.0 / VOLUMETRIC_FOG_RAIN_HEIGHT;
   cv(float) vol_fogRainDensity = VOLUMETRIC_FOG_RAIN_DENSITY;
 
-  cv(vec3) fogScatterCoeff = vec3(0.01) / log(2.0);
+  cv(vec3) fogScatterCoeff = vec3(0.02) / log(2.0);
   cv(vec3) fogAbsorbCoeff  = vec3(0.02) / log(2.0);
   cv(vec3) fogTransmittanceCoeff = fogScatterCoeff + fogAbsorbCoeff;
 

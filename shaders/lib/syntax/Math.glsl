@@ -20,6 +20,9 @@
   #define _min0(x) _min(x, 0.0)
   #define _min1(x) _min(x, 1.0)
 
+  #define rcp_(type) type rcp(type x) { return 1.0 / x; }
+  DEFINE_genFType(rcp_)
+
   #define _pow(x, y) exp2(log2((x)) * y)
 
   #define sqr_(type) type _sqr(type x) { return x * x; }
@@ -77,5 +80,9 @@
     return vector * mat2(cos(rad), -sin(rad), sin(rad), cos(rad));
   }
   #define rotate2(r) mat2(cos(r), -sin(r), sin(r), cos(r))
+
+  // AMD supposedly doesn't have a constant radians function, so I've implemented it manually using a macro.
+  // radians should have a hardware optimised implementation, so this is not for use in dynamic expressions, ONLY constant expressions.
+  #define _radians(x) ( (pi * x) / 180.0 )
 
 #endif /* INTERNAL_INCLUDED_SYNTAX_MATH */

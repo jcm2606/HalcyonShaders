@@ -93,6 +93,11 @@ screen.Volumetrics=Volumetrics
 
 option.VOLUMETRICS=Volumetrics
 
+option.VOLUMETRICS_LIGHTING_SKY_OCCLUSION=Sky Light Occlusion
+value.VOLUMETRICS_LIGHTING_SKY_OCCLUSION.0=None
+value.VOLUMETRICS_LIGHTING_SKY_OCCLUSION.1=Direct Shadow
+value.VOLUMETRICS_LIGHTING_SKY_OCCLUSION.2=Approximate
+
 #     Atmospherics\Volumetrics\AtmosphericScattering
 screen.AtmosphericScattering=Atmospheric Scattering
 

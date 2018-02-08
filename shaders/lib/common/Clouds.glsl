@@ -36,7 +36,7 @@
       rainStrength
     ) * cloudDensityScale;
 
-    vec3 cloudScatterAbsorbCoeff = vec3(0.02, 0.05 * cloudDensity, 0.02 * cloudDensity); // x = scatter, y = view absorb, z = light absorb
+    vec3 cloudScatterAbsorbCoeff = vec3(0.02, 0.05, 0.02) * vec3(1.0, cloudDensity, cloudDensity); // x = scatter, y = view absorb, z = light absorb
 
     #include "/lib/util/Noise.glsl"
 
@@ -55,7 +55,7 @@
       for(int i = 0; i < cloudOctaves; ++i) {
         cloud = texnoise3D(noisetex, wind + world) * weight + cloud;
 
-        world *= 2.3;
+        world *= 2.2;
         world.xy *= rot;
         world.yz *= rot;
         wind *= 1.4;
@@ -92,6 +92,7 @@
 
       float horizon = smoothstep(0.0, cloudHorizonFade, dot(direction, vec3(0.0, 1.0, 0.0)));
 
+      //return exp(-cloudScatterAbsorbCoeff.z * cloudStepSize * opticalDepth) * horizon + (1.0 - horizon);
       return mix(1.0, exp(-cloudScatterAbsorbCoeff.z * cloudStepSize * opticalDepth), horizon);
     }
   #endif
@@ -177,7 +178,7 @@
         vec3 lightingSky     = atmosphereLighting[1] * cloudLightSkyIntensity * visibilitySky;
         vec3 lightingBounced = atmosphereLighting[0] * cloudLightBouncedIntensity * visibilityBounced;
 
-        vec3 lighting = (lightingDirect + lightingSky + lightingBounced) * 0.02;
+        vec3 lighting = (lightingDirect + lightingSky + lightingBounced) * 0.3;
 
         // COMPUTE SCATTERING/ABSORPTION
         scattering = (lighting * transmittedScatteringIntegral(opticalDepth * cloudStepSize, cloudScatterAbsorbCoeff.x)) * transmittance + scattering;

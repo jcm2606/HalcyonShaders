@@ -29,6 +29,7 @@ uniform sampler2D specular;
 uniform sampler2D noisetex;
 
 uniform float frameTimeCounter;
+uniform float rainStrength;
 
 /* GLOBAL */
 /* STRUCT */

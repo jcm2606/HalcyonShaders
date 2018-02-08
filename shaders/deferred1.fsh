@@ -97,8 +97,8 @@ void main() {
   if(!_getLandMask(positionData.depthBack) && !maskList.weather) bufferList.tex0.rgb = drawSky(positionData.viewBack, SKY_MODE_DRAW);
 
   // COMPUTE DITHER
-  cv(float) ditherScale = pow(128.0, 2.0);
-  vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
+  cv(float) ditherScale = pow(32.0, 2.0);
+  vec2 dither = vec2(bayer32(gl_FragCoord.xy), ditherScale);
 
   // CALCULATE ATMOSPHERE LIGHTING
   mat2x3 atmosphereLighting = getAtmosphereLighting();

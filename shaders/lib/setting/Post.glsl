@@ -7,7 +7,7 @@
 #ifndef INTERNAL_INCLUDED_SETTING_POST
   #define INTERNAL_INCLUDED_SETTING_POST
 
-  #define EXPOSURE 0.7
+  #define EXPOSURE 0.9
 
   #define GAMMA 2.2
 

@@ -34,7 +34,7 @@
       float move = 0.3 * globalTime;
 
       float waveSteepness = 0.55;
-      float waveAmplitude = 0.6;
+      float waveAmplitude = mix(0.4, 0.8, rainStrength);
       vec2 waveDirection = vec2(0.5, 0.2);
       float waveLength = 8.0;
       float rotation = 0.0;

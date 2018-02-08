@@ -90,8 +90,8 @@ void main() {
   populateViewPositions(positionData, screenCoord);
 
   // COMPUTE DITHER
-  cv(float) ditherScale = pow(16.0, 2.0);
-  vec2 dither = vec2(bayer16(gl_FragCoord.xy * 4.0), ditherScale);
+  cv(float) ditherScale = pow(64.0, 2.0);
+  vec2 dither = vec2(bayer64(gl_FragCoord.xy), ditherScale);
 
   // DRAW VOLUMETRIC EFFECTS & TRANSPARENT REFLECTIONS
   bufferList.tex0.rgb = drawVolumetricEffects(gbufferData, positionData, bufferList, maskList, bufferList.tex0.rgb, screenCoord, getAtmosphereLighting(), bufferList.tex4.a, dither);

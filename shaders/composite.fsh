@@ -96,8 +96,8 @@ void main() {
   populateViewPositions(positionData, screenCoord);
 
   // COMPUTE DITHER
-  cv(float) ditherScale = pow(128.0, 2.0);
-  vec2 dither = vec2(bayer128(gl_FragCoord.xy), ditherScale);
+  cv(float) ditherScale = pow(32.0, 2.0);
+  vec2 dither = vec2(bayer32(gl_FragCoord.xy), ditherScale);
 
   // COMPUTE REFRACTION
   float refract_dist = 0.0;

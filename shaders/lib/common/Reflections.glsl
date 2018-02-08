@@ -24,7 +24,7 @@
     float metalness = float(gbufferData.f0 > 0.5);
 
     // PERFORM ROUGH RAYTRACE
-    vec3 specular = raytraceRough(vec3(screenCoord, positionData.depthFront), positionData.viewFront, normal, viewDirection, gbufferData.roughness, vec3(gbufferData.f0), pow(_min1(gbufferData.skyLight * 1.1), 6.0), dither);
+    vec3 specular = raytraceRough(vec3(screenCoord, positionData.depthFront), positionData.viewFront, normal, viewDirection, gbufferData.roughness, vec3(gbufferData.f0), pow(saturate(gbufferData.skyLight * 1.1), 6.0), dither);
 
     // COMPUTE SPECULAR HIGHLIGHT
     // TODO: Cloud shadow.

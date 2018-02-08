@@ -36,7 +36,7 @@
     cv(vec3) d = vec3(-1.5, -1.74, -1.98);
     cv(vec3) e = vec3(1.5625, 1.7569, 1.9801);
 
-    return dot((x * x + 1.0) * c / _pow(d * x + e, vec3(1.5)), vec3(0.333333));
+    return dot((x * x + 1.0) * c * _pow(d * x + e, -vec3(1.5)), vec3(0.333333));
   }
 
   vec3 absorb(in vec2 a) {

@@ -24,9 +24,9 @@
     cv(float) quality = SPECULAR_QUALITY;
     int refines = SPECULAR_REFINEMENTS;
     cv(float) maxLength = 1.0 / quality;
-    cv(float) minLength = 0.01 / quality;
+    cv(float) minLength = 0.03 / quality;
 
-    vec3 skyReflection = reflectSky(viewDirection) * skyOcclusion * _max0(dot(viewDirection, upDirection) * 0.5 + 0.5);
+    vec3 skyReflection = reflectSky(viewDirection) * (skyOcclusion * saturate(dot(viewDirection, upDirection) * 0.5 + 0.5));
 
     vec3 direction = _normalize(viewToClip(viewPosition + viewDirection) - p);
     float rz = 1.0 / abs(direction.z);
@@ -50,6 +50,7 @@
     }
 
     bool visible = _distance(clipToView(p.xy, depth), clipToView(p.xy, p.z)) < 1.0;
+    bool isSelfReflection = p.z > depth;
 
     vec3 terrain = texture2DLod(colortex0, p.xy, 0).rgb;
 
@@ -92,7 +93,7 @@
 
       #define NoL saturate(dot(N, L))
 
-      colour = (raytrace(L, viewSpacePosition, screenSpacePosition, skyOcclusion) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(alpha, NoV, NoL)) * reflectionSamplesRCP + colour;;
+      colour = (raytrace(L, viewSpacePosition, screenSpacePosition, skyOcclusion) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(alpha, NoV, NoL)) * reflectionSamplesRCP + colour;
 
       #undef NoL
     }

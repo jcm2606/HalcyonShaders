@@ -74,7 +74,7 @@
       cv(float) a = 1.0 / pow(2.0, float(lod));
       cv(float) b = pow(9.0 - float(lod), tilePower);
 
-      vec2 halfPixel = 1.0 / vec2(viewWidth, viewHeight) * 0.5;
+      vec2 halfPixel = rcp(vec2(viewWidth, viewHeight)) * 0.5;
 
       return bicubic2D(colortex4, (screenCoord - halfPixel) * a + offset).rgb * b;
     }

@@ -26,6 +26,7 @@ uniform sampler2D noisetex;
 uniform vec3 cameraPosition;
 
 uniform float frameTimeCounter;
+uniform float rainStrength;
 
 /* GLOBAL */
 /* STRUCT */
