@@ -25,17 +25,14 @@
             return uvCoord;
         #endif
         
-        const int   samples    = PARALLAX_TERRAIN_SAMPLES;
-        const float samplesRCP = rcp(samples);
-
-        float stepLength = tileSize.x * samplesRCP;
+        vec3 increment = tangentViewVector * fInverseLength(tangentViewVector.xy);
+             increment = fLength(increment.xy * texD) * increment;
 
         vec3 coord = vec3(uvCoord, 0.0);
-        int i = samples;
+        bool iterCheck = increment.z < -1.0e-5;
 
-        while(GetDepthGradient(coord.xy, texD) < coord.z && --i > 0.0) {
-            coord += viewDirection * stepLength;
-        }
+        while(GetDepthGradient(coord.xy, texD) <= coord.z && iterCheck)
+            coord += increment;
 
         return WrapTexture(coord.xy);
     }
@@ -45,20 +42,15 @@
             return 1.0;
         #endif
 
-        const int   samples    = PARALLAX_TERRAIN_SHADOW_SAMPLES;
-        const float samplesRCP = rcp(samples);
-
-        vec3 lightDirection = ((shadowLightPosition * 0.01) * tbn);
-
-        float stepLength = tileSize.x * samplesRCP;
-        vec3 increment = lightDirection * stepLength;
+        vec3 increment = ((shadowLightPosition * 0.01) * tbn);
+             increment = increment * fInverseLength(increment.xy);
+             increment = fLength(increment.xy * texD) * increment;
 
         vec3 coord = vec3(uvCoord, GetDepthGradient(uvCoord, texD));
-        int i = samples;
+        bool iterCheck = increment.z > 1.0e-6;
 
-        while(GetDepthGradient(coord.xy, texD) <= coord.z && --i > 0.0 && coord.z < 0.0) {
+        while(GetDepthGradient(coord.xy, texD) <= coord.z && iterCheck && coord.z < 0.0)
             coord += increment;
-        }
 
         return coord.z < 0.0 ? 0.0 : 1.0;
     }

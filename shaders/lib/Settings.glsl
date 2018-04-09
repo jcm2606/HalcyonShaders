@@ -34,13 +34,11 @@
     #define EXPOSURE 1.0
 
     // Parallax Configuration.
-    #define PARALLAX_TERRAIN
-    #define PARALLAX_TERRAIN_SAMPLES 64 // [64 96 128 160 192 224 256 288 320 352 384]
+    //#define PARALLAX_TERRAIN
     #define PARALLAX_TERRAIN_DEPTH 1.0 // [0.125 0.14286 0.16667 0.2 0.25 0.33333 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
     const float parallaxTerrainDepth = PARALLAX_TERRAIN_DEPTH * 0.5;
 
     #define PARALLAX_TERRAIN_SHADOW
-    #define PARALLAX_TERRAIN_SHADOW_SAMPLES 128 // [128 160 192 224 256]
 
     #ifdef PARALLAX_TERRAIN_SHADOW
     #endif

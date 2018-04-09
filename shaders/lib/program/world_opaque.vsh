@@ -9,6 +9,7 @@
 varying vec3 tint;
 
 varying vec3 viewPosition;
+varying vec3 tangentViewVector;
 varying vec3 worldPosition;
 
 varying vec3 vertexNormal;
@@ -30,6 +31,8 @@ flat(float) materialID;
 attribute vec3 mc_Entity;
 attribute vec2 mc_midTexCoord;
 attribute vec4 at_tangent;
+
+uniform sampler2D texture;
 
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
@@ -66,11 +69,17 @@ void main() {
     #endif
 
     vertexNormal = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 tangent = at_tangent.xyz / at_tangent.w;
 
     tbn    = mat3(0.0);
-    tbn[0] = normalize(gl_NormalMatrix * at_tangent.xyz / at_tangent.w);
+    tbn[0] = normalize(gl_NormalMatrix * tangent);
     tbn[1] = cross(tbn[0], vertexNormal);
     tbn[2] = vertexNormal;
+
+    vec2 atlasSize = vec2(textureSize2D(texture, 0));
+    mat3 tbnMod = mat3(tangent * atlasSize.y / atlasSize.x, cross(tangent, gl_Normal), gl_Normal);
+
+    tangentViewVector = (viewPosition * gl_NormalMatrix) * tbnMod;
 
     #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
         vec2 coordOffset = abs(gl_MultiTexCoord0.xy - mc_midTexCoord.xy);

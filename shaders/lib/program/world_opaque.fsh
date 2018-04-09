@@ -11,6 +11,7 @@
 varying vec3 tint;
 
 varying vec3 viewPosition;
+varying vec3 tangentViewVector;
 varying vec3 worldPosition;
 
 varying vec3 vertexNormal;

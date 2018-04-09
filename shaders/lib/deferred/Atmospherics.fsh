@@ -107,8 +107,8 @@
         vec3 scatter = vec3(0.0);
         vec3 absorb  = vec3(1.0);
 
-        vec2 phaseWater = vec2(1.0, PhaseG0());
-        vec3 phaseAir   = vec3(phaseRayleigh(VoL), PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8), PhaseG0());
+        const vec2 phaseWater = vec2(1.0, PhaseG0());
+        vec3 phaseAir = vec3(phaseRayleigh(VoL), PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8), PhaseG0());
 
         vec3 worldStep     = (end - start) * stepsRCP;
         vec3 worldPosition = worldStep * dither.x + start;
