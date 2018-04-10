@@ -85,7 +85,8 @@
         'w' = placeholder
     */
     
-    #define MATERIAL_DEFAULT vec4(0.0, 0.02, 0.0, 0.0)
+    #define SURFACE_DEFAULT vec4(0.0, 0.02, 0.0, 0.0)
+    #define SURFACE_WATER vec4(0.95, 0.021, 0.0, 0.0)
     
     // Atmospherics Configuration.
     #define ATMOSPHERICS
@@ -112,5 +113,18 @@
     const vec3 waterTransmittanceCoeff = waterScatterCoeff + waterAbsorbCoeff;
 
     #define ATMOSPHERICS_WATER_DENSITY 1.0
+
+    // Specular Configuration.
+    #define SPECULAR_SSR RoughSSR // Which method of screen space reflections should the shader use?. Rough SSR allows reflections to get softer with respect to roughness, but is slower than Smooth SSR. [RoughSSR]
+
+    #define SPECULAR_SSR_ROUGH_SAMPLES 3 // How many samples should Rough SSR use?. More samples removes the grain, at the cost of performance. [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
+
+    #define SPECULAR_RAYTRACER RaytraceClip1 // Which ray tracer should SSR use?. This can influence the quality and cost of screen space reflections substantially. [RaytraceClip0 RaytraceClip1]
+
+    #define SPECULAR_RAYTRACER_0_QUALITY 16.0
+    #define SPECULAR_RAYTRACER_0_REFINEMENTS 8
+
+    #define SPECULAR_RAYTRACER_1_QUALITY 4 // To get the amount of steps, add 4 to this number. [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
+    #define SPECULAR_RAYTRACER_1_REFINEMENTS 4
 
 #endif

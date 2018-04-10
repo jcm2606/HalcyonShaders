@@ -6,9 +6,7 @@
 
 #if !defined INCLUDED_UTIL_SPACETRANSFORM
     #define INCLUDED_UTIL_SPACETRANSFORM
-
-    float fovScale = gbufferProjection[1][1] * tan(atan(rcp(gbufferProjection[1][1])) * 0.85);
-
+    
     vec3 ClipToViewPosition(const vec2 screenCoord, const float depth) {
         vec3 screenPosition = vec3(screenCoord, depth) * 2.0 - 1.0;
 

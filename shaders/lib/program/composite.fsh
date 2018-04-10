@@ -21,6 +21,8 @@
 #define IN_TEX5
 
 // Constants.
+const bool colortex4MipmapEnabled = true;
+
 // Varyings.
 varying vec2 screenCoord;
 
@@ -42,6 +44,7 @@ uniform sampler2D shadowcolor1;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+uniform sampler2D depthtex2;
 
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
@@ -54,6 +57,8 @@ uniform vec3 cameraPosition;
 uniform float sunAngle;
 uniform float near;
 uniform float far;
+uniform float viewWidth;
+uniform float viewHeight;
 
 uniform int isEyeInWater;
 
@@ -67,9 +72,11 @@ uniform int isEyeInWater;
 #include "/lib/util/SpaceTransform.glsl"
 
 #include "/lib/common/Atmosphere.fsh"
-#include "/lib/common/DiffuseShading.fsh"
+#include "/lib/common/DiffuseLighting.fsh"
 
 #include "/lib/deferred/Atmospherics.fsh"
+
+#include "/lib/deferred/SpecularLighting.fsh"
 
 // Functions.
 // Main.
@@ -87,8 +94,8 @@ void main() {
     vec3 worldPositionBack  = ViewToWorldPosition(viewPositionBack);
     vec3 worldPositionFront = ViewToWorldPosition(viewPositionFront);
 
-    const float ditherScale = pow(32.0, 2.0);
-    vec2 dither = vec2(Bayer32(gl_FragCoord.xy), ditherScale);
+    const float ditherScale = pow(64.0, 2.0);
+    vec2 dither = vec2(Bayer64(gl_FragCoord.xy), ditherScale);
 
     vec3 image = DecodeColour(screenObject.tex4.rgb);
 
@@ -119,6 +126,9 @@ void main() {
     }
 
     image = mix(image, transparentGeometry.rgb, transparentGeometry.a);
+
+    if(getLandMask(depthFront) && !underWater && !underLava)
+        image = CalculateSpecularLighting(surfaceObject, atmosphereLighting, image, vec3(1.0), viewPositionFront, screenCoord, dither, depthFront);
 
     image = image * atmosphericsVolumeFront[1] + atmosphericsVolumeFront[0];
     

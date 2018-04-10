@@ -112,7 +112,7 @@
         return mod(encoded * uhalfMaxOverPositions, values) * maxValuesRCP;
     }
 
-    #define EncodeColour(c) ( c * 1.0 )
-    #define DecodeColour(c) ( c * 1.0 )
+    #define EncodeColour(c) ( c )
+    #define DecodeColour(c) ( c )
 
 #endif

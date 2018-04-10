@@ -63,7 +63,7 @@ uniform int isEyeInWater;
 
 #include "/lib/common/Atmosphere.fsh"
 #include "/lib/common/Sky.fsh"
-#include "/lib/common/DiffuseShading.fsh"
+#include "/lib/common/DiffuseLighting.fsh"
 
 // Functions.
 // Main.

@@ -4,15 +4,15 @@
     Please read "LICENSE.md" before editing this file.
 */
 
-#if !defined INCLUDED_COMMON_DIFFUSESHADING
-    #define INCLUDED_COMMON_DIFFUSESHADING
+#if !defined INCLUDED_COMMON_DIFFUSELIGHTING
+    #define INCLUDED_COMMON_DIFFUSELIGHTING
 
     #include "/lib/common/Shadows.fsh"
     
     float CalculateBlockLightFalloff(const float blockLight) {
         float squareDistance = pow2(clamp((1.0 - blockLight) * 16.0, 0.0, 16.0));
 
-        return (10.0 / max(squareDistance, pow2(0.01))) * blockLight;
+        return (10.0 / max(squareDistance, pow2(0.01))) * (blockLight);
     }
 
     vec3 CalculateShadedFragment(const mat2x3 atmosphereLighting, const vec3 albedo, const vec3 normal, const vec3 shadowColour, const vec3 viewPosition, const vec2 screenCoord, const vec2 dither, const float blockLight, const float skyLight, const float parallaxShadow, const float vanillaAO, const float roughness, const float emission, const bool isSubsurfaceMaterial, const bool isEmissiveSurface) {

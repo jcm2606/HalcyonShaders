@@ -29,7 +29,7 @@
              increment = fLength(increment.xy * texD) * increment;
 
         vec3 coord = vec3(uvCoord, 0.0);
-        bool iterCheck = increment.z < -1.0e-5;
+        bool iterCheck = increment.z < -1.0e-6;
 
         while(GetDepthGradient(coord.xy, texD) <= coord.z && iterCheck)
             coord += increment;

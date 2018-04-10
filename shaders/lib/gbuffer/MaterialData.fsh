@@ -8,7 +8,7 @@
     #define INCLUDED_GBUFFER_MATERIALDATA
 
     vec4 CalculateMaterialData(const vec2 uvCoord, const vec2 entity, const float materialID, const float puddle, const mat2 texD) {
-        vec4 materialData = MATERIAL_DEFAULT;
+        vec4 materialData = SURFACE_DEFAULT;
 
         #define smoothness materialData.x
         #define f0 materialData.y
@@ -41,7 +41,15 @@
             #else
 
             #endif
+        #elif PROGRAM == GBUFFERS_WATER || PROGRAM == GBUFFERS_HAND_WATER
+            switch(int(entity.x)) {
+                case WATER.x:
+                case WATER.y: materialData = SURFACE_WATER; break;
+                default: break;
+            }
         #endif
+
+        smoothness = 1.0 - smoothness;
 
         #undef smoothness
         #undef f0
