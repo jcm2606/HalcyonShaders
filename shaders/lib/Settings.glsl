@@ -34,7 +34,7 @@
     #define EXPOSURE 1.0
 
     // Parallax Configuration.
-    //#define PARALLAX_TERRAIN
+    #define PARALLAX_TERRAIN
     #define PARALLAX_TERRAIN_DEPTH 1.0 // [0.125 0.14286 0.16667 0.2 0.25 0.33333 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
     const float parallaxTerrainDepth = PARALLAX_TERRAIN_DEPTH * 0.5;
 
@@ -53,7 +53,7 @@
     const float shadowDepthBlocks = 1024.0;
     const float shadowDepthMult   = 256.0 / shadowDepthBlocks;
 
-    const float shadowDistance = 160.0;
+    const float shadowDistance = 160.0; // Needs to be `16 * (renderDistance + 2)` to properly capture the whole world reliably. [160.0 288.0 416.0 544.0 800.0 1056.0]
     const float shadowDistanceRCP = rcp(shadowDistance);
     const float shadowDistanceScale = 160.0 / shadowDistance;
 
@@ -93,14 +93,17 @@
 
     // Atmospherics Layers.
     // Air.
-    #define ATMOSPHERICS_AIR_HEIGHT 64.0 // [32.0 64.0 96.0 128.0]
+    #define ATMOSPHERICS_AIR_HEIGHT 384.0 // [32.0 64.0 96.0 128.0]
     #define ATMOSPHERICS_AIR_DENSITY 15.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0]
 
     // Fog.
     const vec3 fogScatterCoeff = vec3(0.1) / log(2.0);
-    const vec3 fogAbsorbCoeff  = vec3(0.1) / log(2.0);
+    const vec3 fogAbsorbCoeff  = vec3(0.02) / log(2.0);
 
     const vec3 fogTransmittanceCoeff = fogScatterCoeff + fogAbsorbCoeff;
+
+    #define ATMOSPHERICS_HEIGHT_FOG_HEIGHT 64.0
+    #define ATMOSPHERICS_HEIGHT_FOG_DENSITY 0.01
 
     // Water.
     const vec3 waterScatterCoeff = vec3(1.0) * 0.001 / log(2.0);

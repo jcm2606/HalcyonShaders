@@ -110,8 +110,13 @@ void main() {
 
     mat2x3 atmosphericsVolumeFront = CalculateAtmosphericsVolume(atmosphereLighting, (underWater) ? worldPositionFront : worldPositionEye, (underWater) ? worldPositionBack : worldPositionFront, vec3(1.0), screenCoord, dither, VoL, distFront, false, isSkyPixel, false, isTransparentPixel);
 
-    if(isTransparentPixel || underWater)
-        image = CalculateAtmosphericsInteraction(atmosphereLighting, image, (underWater) ? worldPositionEye : worldPositionFront, (underWater) ? worldPositionFront : worldPositionBack, atmosphericsVolumeFront[1], screenCoord, dither, VoL, distFront, true, isSkyPixel, isWaterPixel || underWater, isTransparentPixel);
+    if(isTransparentPixel || underWater) {
+        mat2x3 atmosphericsVolumeBack = CalculateAtmosphericsVolume(atmosphereLighting, (underWater) ? worldPositionEye : worldPositionFront, (underWater) ? worldPositionFront : worldPositionBack, atmosphericsVolumeFront[1], screenCoord, dither, VoL, distFront, true, isSkyPixel, isWaterPixel || underWater, isTransparentPixel);
+
+        image *= atmosphericsVolumeBack[1];
+
+        atmosphericsVolumeFront[0] += atmosphericsVolumeBack[0];
+    }
 
     image = mix(image, transparentGeometry.rgb, transparentGeometry.a);
 

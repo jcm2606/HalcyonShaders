@@ -198,6 +198,18 @@
 
     vec2 MapCircle(const float i) { return vec2(cos(i), sin(i)); }
 
+    vec2 Map2D(const int i, const int t) {
+        float tSqrt = sqrt(t);
+
+        return vec2(floor(float(i) / tSqrt), mod(i, tSqrt));
+    }
+
+    vec2 Map2DCentered(const int i, const int t) {
+        float tSqrt = sqrt(t);
+        
+        return vec2(floor(float(i) / tSqrt), mod(i, tSqrt)) - floor(tSqrt * 0.5);
+    }
+
     // Bayer Dither Matrices.
     float Bayer2(vec2 a) {
         a = floor(a);

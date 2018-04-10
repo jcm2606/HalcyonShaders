@@ -25,7 +25,7 @@
         mat2x3(rayleighCoeff + ozoneCoeff, vec3(mieCoeff) * 1.11)
     );
 
-    const AtmosphereLayerMie atmospericsLayerFog = AtmosphereLayerMie(
+    const AtmosphereLayerMie atmosphericsLayerFog = AtmosphereLayerMie(
         fogScatterCoeff,
         fogTransmittanceCoeff
     );
@@ -35,8 +35,10 @@
         waterTransmittanceCoeff
     );
 
+    const vec3 waterAbsorption = atmosphericsLayerWater.transmittanceCoeff * ATMOSPHERICS_WATER_DENSITY;
+
     #define partialWaterAbsorption \
-        ( (!isBackPass && underWater) ? exp2(-atmosphericsLayerWater.transmittanceCoeff * ATMOSPHERICS_WATER_DENSITY * distFront) : vec3(1.0) )
+        ( (!isBackPass && underWater) ? exp2(-waterAbsorption * distFront) : vec3(1.0) )
 
     // Layer Functions.
     void CalculateLayerContribution(const AtmosphereLayerRayleighMie atmosphereLayer, io vec3 scatter, io vec3 absorb, mat2x3 light, vec3 existingAbsorb, vec3 phase, float opticalDepth, float distFront, bool isBackPass) {
@@ -86,12 +88,22 @@
               waterDepth = (transMAD(shadowModelView, worldPosition)).z - waterDepth;
 
         if(waterDepth < 0.0)
-            shadowColour *= exp2(atmosphericsLayerWater.transmittanceCoeff * ATMOSPHERICS_WATER_DENSITY * waterDepth);
+            shadowColour *= exp2(waterAbsorption * waterDepth);
     }
 
     // Optical Depth Functions.
     float OpticalDepthAir(vec3 worldPosition) {
-        return exp(-worldPosition.y * rcp(ATMOSPHERICS_AIR_HEIGHT)) * ATMOSPHERICS_AIR_DENSITY;
+        const float height = rcp(ATMOSPHERICS_AIR_HEIGHT);
+
+        return exp(-worldPosition.y * height) * ATMOSPHERICS_AIR_DENSITY;
+    }
+
+    float OpticalDepthFog(vec3 worldPosition) {
+        float opticalDepth = 0.0;
+
+        opticalDepth += exp(-worldPosition.y / ATMOSPHERICS_HEIGHT_FOG_HEIGHT) * ATMOSPHERICS_HEIGHT_FOG_DENSITY;
+
+        return opticalDepth;
     }
 
     // Volume Function.
@@ -104,11 +116,15 @@
         const int   steps    = ATMOSPHERICS_STEPS;
         const float stepsRCP = rcp(steps);
 
+        if(isBackPass && underWater)
+            existingAbsorb = vec3(1.0);
+
         vec3 scatter = vec3(0.0);
         vec3 absorb  = vec3(1.0);
 
         const vec2 phaseWater = vec2(1.0, PhaseG0());
         vec3 phaseAir = vec3(phaseRayleigh(VoL), PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8), PhaseG0());
+        vec2 phaseFog = vec2(PhaseG(VoL, 0.6) + PhaseG(-VoL, 0.8), 1.0);
 
         vec3 worldStep     = (end - start) * stepsRCP;
         vec3 worldPosition = worldStep * dither.x + start;
@@ -152,6 +168,9 @@
 
             // Air.
             CalculateLayerContribution(atmosphericsLayerAir, scatter, absorb, light, existingAbsorb, phaseAir, OpticalDepthAir(worldPosition) * stepSize, distFront, isBackPass);
+
+            // Fog.
+            CalculateLayerContribution(atmosphericsLayerFog, scatter, absorb, light, existingAbsorb, phaseFog, OpticalDepthFog(worldPosition) * stepSize, distFront, isBackPass);
         }
 
         return mat2x3(scatter, absorb);

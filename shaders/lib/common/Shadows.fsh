@@ -13,15 +13,18 @@
     float CompareShadowDepth(float depth, float comparison) { return saturate(1.0 - abs(comparison - depth) * float(shadowMapResolution)); }
 
     vec2 FindBlockers(const vec3 shadowPosition, const vec2 dither) {
-        const int   samples    = 9;
+        const int   samples    = 4;
         const float samplesRCP = rcp(samples);
 
         const float radius = 1.0e-3;
 
+        float spiralMapTotal = samples * dither.y;
+
         vec2 blockers = vec2(0.0);
 
         for(int i = 0; i < samples; ++i) {
-            vec2 coord = DistortShadowPositionProj(MapSpiral(i * dither.y + dither.x, samples * dither.y) * radius + shadowPosition.xy);
+            vec2 coord = DistortShadowPositionProj(MapSpiral(i * dither.y + dither.x, spiralMapTotal) * radius + shadowPosition.xy);
+            //vec2 coord = DistortShadowPositionProj(Map2DCentered(i, samples) * radius + shadowPosition.xy);
 
             blockers += vec2(
                 texture2D(shadowtex1, coord.xy).x,
@@ -36,21 +39,26 @@
         const int   samples    = SHADOW_QUALITY;
         const float samplesRCP = rcp(samples);
 
+        float spiralMapTotal = samples * dither.y;
+
+        vec3 waterAbsorption = waterTransmittanceCoeff * ATMOSPHERICS_WATER_DENSITY;
+
         vec3 shadowWorldPosition = transMAD(shadowModelView, worldPosition);
 
         vec3 shadowColour = vec3(0.0);
 
         for(int i = 0; i < samples; ++i) {
-            vec2 offset = MapSpiral(i * dither.y + dither.x, samples * dither.y);
+            vec2 offset = MapSpiral(i * dither.y + dither.x, spiralMapTotal);
 
             #if   PROGRAM == DEFERRED1
                 vec3 coordBack  = vec3(DistortShadowPositionProj(offset * spread.x + shadowPosition.xy), shadowPosition.z);
                 vec3 coordFront = vec3(DistortShadowPositionProj(offset * spread.y + shadowPosition.xy), shadowPosition.z);
 
+                float depthBack  = texture2D(shadowtex1, coordBack.xy).x;
                 float depthFront = texture2D(shadowtex0, coordFront.xy).x;
 
-                float shadowBack  = float(texture2D(shadowtex1, coordBack.xy).x > coordBack.z);//cutShadow(CompareShadowDepth(coordBack.z, texture2D(shadowtex1, coordBack.xy).x));
-                float shadowFront = float(depthFront > coordFront.z);//cutShadow(CompareShadowDepth(coordFront.z, depthFront));
+                float shadowBack  = float(depthBack > coordBack.z);
+                float shadowFront = float(depthFront > coordFront.z);
 
                 vec4 colourSample     = texture2D(shadowcolor0, coordFront.xy);
                      colourSample.rgb = ToLinear(colourSample.rgb);
@@ -58,13 +66,13 @@
                 vec3 shadowColourSample = (colourSample.rgb - 1.0) * (shadowBack * colourSample.a * abs(shadowFront - shadowBack)) + shadowBack;
 
                 bool isWaterShadow = bool(texture2D(shadowcolor1, coordFront.xy).a);
-
+                
                 float waterDepth = depthFront * 8.0 - 4.0;
                       waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
                       waterDepth = shadowWorldPosition.z - waterDepth;
 
                 if(isWaterShadow && waterDepth < 0.0)
-                    shadowColourSample *= exp2(waterTransmittanceCoeff * ATMOSPHERICS_WATER_DENSITY * waterDepth);
+                    shadowColourSample *= exp2(waterAbsorption * waterDepth);
 
                 shadowColour += shadowColourSample;
             #elif PROGRAM == COMPOSITE0

@@ -12,11 +12,11 @@
     float CalculateBlockLightFalloff(const float blockLight) {
         float squareDistance = pow2(clamp((1.0 - blockLight) * 16.0, 0.0, 16.0));
 
-        return (3.0 / max(squareDistance, pow2(0.01))) * blockLight;
+        return (10.0 / max(squareDistance, pow2(0.01))) * blockLight;
     }
 
     vec3 CalculateShadedFragment(const mat2x3 atmosphereLighting, const vec3 albedo, const vec3 normal, const vec3 shadowColour, const vec3 viewPosition, const vec2 screenCoord, const vec2 dither, const float blockLight, const float skyLight, const float parallaxShadow, const float vanillaAO, const float roughness, const float emission, const bool isSubsurfaceMaterial, const bool isEmissiveSurface) {
-        vec3 directOcclusion = shadowColour * mix(parallaxShadow, 1.0, saturate(pow4(length(viewPosition) * 0.05)));
+        vec3 directOcclusion = shadowColour * mix(parallaxShadow, 1.0, saturate(pow4(fLength(viewPosition) * 0.05)));
 
         vec3 lightDirect  = atmosphereLighting[0];
              lightDirect *= directOcclusion;

@@ -10,9 +10,7 @@
     // Exposure.
     #if PROGRAM == COMPOSITE1
         vec3 CalculateExposedImage(const vec3 image, const float averageLuma) {
-            float exposure = EXPOSURE / (averageLuma * 6.0 + mix(0.001, 0.1, timeNight));
-
-            return image * exposure;
+            return image * (EXPOSURE / (averageLuma * 6.0 + mix(0.001, 0.1, timeNight)));
         }
     #endif
 
