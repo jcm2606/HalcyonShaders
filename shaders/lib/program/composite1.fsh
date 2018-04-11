@@ -19,6 +19,7 @@
 #define IN_TEX4
 
 // Constants.
+const bool colortex3MipmapEnabled = true;
 const bool colortex4MipmapEnabled = true;
 
 // Varyings.
@@ -31,7 +32,22 @@ flat(vec4) timeVector;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 
+uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
+
+uniform mat4 gbufferProjection, gbufferProjectionInverse;
+uniform mat4 gbufferModelView, gbufferModelViewInverse;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferPreviousProjection;
+
+uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
+
 uniform float frameTime;
+uniform float viewWidth;
+uniform float viewHeight;
+
+uniform int frameCounter;
 
 // Structs.
 #include "/lib/struct/ScreenObject.fsh"
@@ -40,6 +56,8 @@ uniform float frameTime;
 // Includes.
 #include "/lib/deferred/TemporalSmoothing.fsh"
 #include "/lib/deferred/Camera.fsh"
+
+#include "/lib/deferred/TAA.fsh"
 
 // Functions.
 // Main.
@@ -51,7 +69,9 @@ void main() {
     float averageLuma = 0.0;
     temporalBuffer.a  = CalculateSmoothedTiles(screenCoord, temporalBuffer.a, averageLuma);
 
-    vec3 image = CalculateExposedImage(DecodeColour(screenObject.tex4.rgb), averageLuma);
+    vec3 image = CalculateTAA(DecodeColour(screenObject.tex4.rgb), screenCoord);
+    temporalBuffer.rgb = EncodeColour(image);
+    image = CalculateExposedImage(image, averageLuma);
     
     /* DRAWBUFFERS:34 */
     gl_FragData[0] = temporalBuffer;

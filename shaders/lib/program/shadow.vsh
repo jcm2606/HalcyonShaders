@@ -37,6 +37,7 @@ attribute vec3 mc_Entity;
 attribute vec2 mc_midTexCoord;
 attribute vec4 at_tangent;
 
+uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
 uniform mat4 shadowProjection;
@@ -44,12 +45,19 @@ uniform mat4 shadowModelView, shadowModelViewInverse;
 
 uniform vec3 cameraPosition;
 
+uniform float viewWidth;
+uniform float viewHeight;
+
+uniform int frameCounter;
+
 // Structs.
 // Globals.
 // Includes.
 #include "/lib/gbuffer/MaterialID.vsh"
 
 #include "/lib/util/ShadowTransform.glsl"
+
+#include "/lib/common/Jitter.glsl"
 
 // Functions.
 // Main.
@@ -63,8 +71,18 @@ void main() {
     
     viewPosition  = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
     worldPosition = transMAD(shadowModelViewInverse, viewPosition);
-
-    viewPosition = transMAD(shadowModelView, worldPosition);
+    
+    #if 0
+        viewPosition = transMAD(gbufferModelView, worldPosition);
+        gl_Position = gbufferProjection * vec4(viewPosition, 1.0);
+        gl_Position.xy = CalculateJitter() * gl_Position.w + gl_Position.xy;
+        gl_Position = gbufferProjectionInverse * gl_Position;
+        viewPosition = transMAD(gbufferModelViewInverse, gl_Position.xyz);
+    #else
+        viewPosition = worldPosition;
+    #endif
+    
+    viewPosition = transMAD(shadowModelView, viewPosition);
 
     gl_Position = viewPosition.xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
     gl_Position.xy = DistortShadowPosition(gl_Position.xy);

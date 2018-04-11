@@ -263,6 +263,9 @@
     }
     #define PhaseG0() ( 0.25 )
 
+    // Jitter Ops.
+    #define DitherJitter(dither, size) fract((dither * size + frameCounter * 7.0) / size)
+
     // Utility Includes.
     #include "/lib/util/Encoding.glsl"
     #include "/lib/util/EntityList.glsl"

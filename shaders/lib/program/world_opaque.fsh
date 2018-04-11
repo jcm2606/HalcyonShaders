@@ -87,7 +87,7 @@ void main() {
 
     /* DRAWBUFFERS:014 */
     gl_FragData[0] = vec4(EncodeAlbedo(albedo.rgb), Encode4x8F(vec4(lmCoord, parallaxShadow * 0.25, vanillaAO)), Encode4x8F(vec4(CalculateShadedLightmaps(viewPosition, normal, lmCoord), 0.0, 0.0)), albedo.a);
-    gl_FragData[1] = vec4(EncodeNormal(normalize(normal)), Encode4x8F(CalculateMaterialData(uvCoord, entity, materialID, 0.0, texD)), Encode4x8F(vec4(materialID, 0.0, 0.0, 0.0)), albedo.a);
+    gl_FragData[1] = vec4(EncodeNormal(normalize(normal)), Encode4x8F(CalculateMaterialData(texCoord, entity, materialID, 0.0, texD)), Encode4x8F(vec4(materialID, 0.0, 0.0, 0.0)), albedo.a);
     gl_FragData[2] = albedo;
 }
 // EOF.

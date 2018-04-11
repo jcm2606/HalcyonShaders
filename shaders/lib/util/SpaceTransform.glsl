@@ -7,6 +7,8 @@
 #if !defined INCLUDED_UTIL_SPACETRANSFORM
     #define INCLUDED_UTIL_SPACETRANSFORM
     
+    #include "/lib/util/Matrix.glsl"
+
     vec3 ClipToViewPosition(const vec2 screenCoord, const float depth) {
         vec3 screenPosition = vec3(screenCoord, depth) * 2.0 - 1.0;
 

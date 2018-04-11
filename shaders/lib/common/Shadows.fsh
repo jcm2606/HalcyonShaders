@@ -90,7 +90,7 @@
     vec3 CalculateShadows(const vec3 viewPosition, const vec2 dither) {
         const float spread = 200.0 * shadowDepthMult;
 
-        const float minWidth = 0.0;
+        const float minWidth = 0.05;
         const float maxWidth = 4.0;
 
         vec3 worldPosition  = ViewToWorldPosition(viewPosition);

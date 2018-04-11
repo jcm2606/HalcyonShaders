@@ -34,12 +34,19 @@ attribute vec4 at_tangent;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
+uniform float viewWidth;
+uniform float viewHeight;
+
+uniform int frameCounter;
+
 // Structs.
 // Globals.
 // Includes.
 #include "/lib/util/SpaceTransform.glsl"
 
 #include "/lib/gbuffer/MaterialID.vsh"
+
+#include "/lib/common/Jitter.glsl"
 
 // Functions.
 // Main.
@@ -60,6 +67,7 @@ void main() {
     viewPosition = transMAD(gbufferModelView, worldPosition);
 
     gl_Position = viewPosition.xyzz * diagonal4(gbufferProjection) + gbufferProjection[3];
+    gl_Position.xy = CalculateJitter() * gl_Position.w + gl_Position.xy;
 
     vertexNormal = normalize(gl_NormalMatrix * gl_Normal);
 

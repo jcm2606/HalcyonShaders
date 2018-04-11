@@ -48,7 +48,7 @@
 
     #define SHADOW_DISTORTION_FACTOR 0.9 // [0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95]
 
-    #define SHADOW_QUALITY 16 // [8 10 12 14 16 18 20 22 24 26 28 30 32]
+    #define SHADOW_QUALITY 12 // [8 10 12 14 16 18 20 22 24 26 28 30 32]
 
     const float shadowDepthBlocks = 1024.0;
     const float shadowDepthMult   = 256.0 / shadowDepthBlocks;
@@ -90,7 +90,7 @@
     
     // Atmospherics Configuration.
     #define ATMOSPHERICS
-    #define ATMOSPHERICS_STEPS 16 // [8 10 12 14 16 18 20 22 24 26 28 30 32]
+    #define ATMOSPHERICS_STEPS 8 // [2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 
     // Atmospherics Layers.
     // Air.
@@ -126,5 +126,8 @@
 
     #define SPECULAR_RAYTRACER_1_QUALITY 4 // To get the amount of steps, add 4 to this number. [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
     #define SPECULAR_RAYTRACER_1_REFINEMENTS 4
+
+    // TAA Configuration.
+    #define TAA
 
 #endif

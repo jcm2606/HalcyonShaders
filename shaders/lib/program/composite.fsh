@@ -61,6 +61,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 
 uniform int isEyeInWater;
+uniform int frameCounter;
 
 // Structs.
 #include "/lib/struct/ScreenObject.fsh"
@@ -95,7 +96,10 @@ void main() {
     vec3 worldPositionFront = ViewToWorldPosition(viewPositionFront);
 
     const float ditherScale = pow(64.0, 2.0);
-    vec2 dither = vec2(Bayer64(gl_FragCoord.xy), ditherScale);
+    vec2 dither   = vec2(Bayer64(gl_FragCoord.xy), ditherScale);
+    #ifdef TAA
+         dither.x = DitherJitter(dither.x, 64.0);
+    #endif
 
     vec3 image = DecodeColour(screenObject.tex4.rgb);
 

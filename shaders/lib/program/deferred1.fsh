@@ -49,8 +49,11 @@ uniform mat4 shadowModelView, shadowModelViewInverse;
 uniform float sunAngle;
 uniform float near;
 uniform float far;
+uniform float viewWidth;
+uniform float viewHeight;
 
 uniform int isEyeInWater;
+uniform int frameCounter;
 
 // Structs.
 #include "/lib/struct/ScreenObject.fsh"
@@ -73,10 +76,13 @@ void main() {
     MaterialObject materialObject = CreateMaterialObject(surfaceObject);
 
     float depthBack = texture2D(depthtex1, screenCoord).x;
-    vec3 viewPosition = ClipToViewPosition(screenCoord, depthBack);
+    vec3 viewPosition = ClipToViewPosition(screenCoord - CalculateJitter() * 0.5, depthBack);
 
-    const float ditherScale = pow(16.0, 2.0);
-    vec2 dither = vec2(Bayer16(gl_FragCoord.xy), ditherScale);
+    const float ditherScale = pow(32.0, 2.0);
+    vec2 dither = vec2(Bayer32(gl_FragCoord.xy), ditherScale);
+    #ifdef TAA
+         dither.x = DitherJitter(dither.x, 32.0);
+    #endif
 
     mat2x3 atmosphereLighting = CalculateAtmosphereLighting();
 
@@ -84,7 +90,7 @@ void main() {
 
     if(getLandMask(depthBack)) {
         // Is land.
-         image = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, surfaceObject.albedo, viewPosition, screenCoord, dither);
+         image = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, surfaceObject.albedo, viewPosition, screenCoord - CalculateJitter() * 0.5, dither);
     } else {
         // Is sky.
          image = CalculateSky(viewPosition);
