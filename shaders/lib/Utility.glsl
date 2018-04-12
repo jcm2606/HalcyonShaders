@@ -115,6 +115,15 @@
     #define min3v(v) ( min(v.x, min(v.y, v.z)) )
     #define min4v(v) ( min(v.x, min(v.y, min(v.z, v.w))) )
 
+    vec2 rotate2(vec2 v, float r) {
+        return v * mat2(cos(r), -sin(r), sin(r), cos(r));
+    }
+    #define cRotateMat2(r, var) \
+        const mat2 var = mat2( \
+            cos(r), -sin(r), \
+            sin(r),  cos(r) \
+        ); \
+
     // Matrix Ops.
     #define transMAD(mat, v) ( mat3(mat) * (v) + (mat)[3].xyz )
 

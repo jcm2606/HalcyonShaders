@@ -7,25 +7,33 @@
 #if !defined INCLUDED_SETTINGS
     #define INCLUDED_SETTINGS
 
-    // Optifine Configuration.
-    /*
-    const int colortex0Format = RGB32F;
-    const int colortex1Format = RGB32F;
-    const int colortex3Format = RGBA16F;
-    const int colortex4Format = RGBA16F;
+    #if PROGRAM == DEFERRED0
+        // Optifine Configuration.
+        /*
+        const int colortex0Format = RGB32F;
+        const int colortex1Format = RGB32F;
+        const int colortex3Format = RGBA16F;
+        const int colortex4Format = RGBA16F;
 
-    const bool colortex3Clear = false;
+        const bool colortex3Clear = false;
 
-    const bool shadowtex0Mipmap = false;
-    const bool shadowtex1Mipmap = false;
-    const bool shadowcolor0Mipmap = false;
-    const bool shadowcolor1Mipmap = false;
-    */
+        const bool shadowtex0Mipmap = false;
+        const bool shadowtex1Mipmap = false;
+        const bool shadowcolor0Mipmap = false;
+        const bool shadowcolor1Mipmap = false;
+        */
 
-    const float sunPathRotation = -40.0; // How rotated should the sun be, relative to the world?. [-70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0]
+        const float sunPathRotation = -40.0; // How rotated should the sun be, relative to the world?. [-70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0]
+        const int noiseTextureResolution = 64;
+    #endif
 
     // Internal Configuration.
+    #define GLOBAL_TIME 1.0
+    #define TIME ( frameTimeCounter * GLOBAL_TIME )
+
     //#define NO_ALBEDO
+
+    #define SEA_LEVEL 63.0
 
     const float materialIDRange = 255.0;
     const float materialIDMult  = rcp(materialIDRange);
@@ -90,21 +98,26 @@
     
     // Atmospherics Configuration.
     #define ATMOSPHERICS
-    #define ATMOSPHERICS_STEPS 8 // [2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
+    #define ATMOSPHERICS_STEPS 8 // [1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 
     // Atmospherics Layers.
     // Air.
     #define ATMOSPHERICS_AIR_HEIGHT 384.0 // [32.0 64.0 96.0 128.0]
-    #define ATMOSPHERICS_AIR_DENSITY 15.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0]
+    #define ATMOSPHERICS_AIR_DENSITY 2.5 // [1.0 2.5 5.0 7.5 10.0 12.5 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0]
 
     // Fog.
     const vec3 fogScatterCoeff = vec3(0.1) / log(2.0);
-    const vec3 fogAbsorbCoeff  = vec3(0.02) / log(2.0);
+    const vec3 fogAbsorbCoeff  = vec3(0.01) / log(2.0);
 
     const vec3 fogTransmittanceCoeff = fogScatterCoeff + fogAbsorbCoeff;
 
+    #define ATMOSPHERICS_HEIGHT_FOG
     #define ATMOSPHERICS_HEIGHT_FOG_HEIGHT 64.0
-    #define ATMOSPHERICS_HEIGHT_FOG_DENSITY 0.01
+    #define ATMOSPHERICS_HEIGHT_FOG_DENSITY 0.02
+
+    //#define ATMOSPHERICS_MIST_FOG
+    #define ATMOSPHERICS_MIST_FOG_HEIGHT 8.0
+    #define ATMOSPHERICS_MIST_FOG_DENSITY 0.1
 
     // Water.
     const vec3 waterScatterCoeff = vec3(1.0) * 0.001 / log(2.0);
@@ -119,7 +132,7 @@
 
     #define SPECULAR_SSR_ROUGH_SAMPLES 3 // How many samples should Rough SSR use?. More samples removes the grain, at the cost of performance. [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
 
-    #define SPECULAR_RAYTRACER RaytraceClip1 // Which ray tracer should SSR use?. This can influence the quality and cost of screen space reflections substantially. [RaytraceClip0 RaytraceClip1]
+    #define SPECULAR_RAYTRACER RaytraceClipStein // Which ray tracer should SSR use?. This can influence the quality and cost of screen space reflections substantially. [RaytraceClipJodie RaytraceClipStein]
 
     #define SPECULAR_RAYTRACER_0_QUALITY 16.0
     #define SPECULAR_RAYTRACER_0_REFINEMENTS 8

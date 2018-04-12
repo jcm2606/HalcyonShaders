@@ -11,7 +11,7 @@
 
     #include "/lib/common/Atmosphere.fsh"
 
-    vec3 RaytraceClip0(vec3 viewPosition, vec3 viewDirection, vec3 clipPosition, float skyLight) {
+    vec3 RaytraceClipJodie(vec3 viewPosition, vec3 viewDirection, vec3 clipPosition, float skyLight) {
         // This is Jodie's new clip space ray tracer.
         // While in theory this one should be faster, in my experience you need to use way more steps to achieve the same result as the old one.
         // The problem with this is the result seems to have obvious clipping issues, where the ray tracer seemingly only picks up part of the surface during the intersection check.
@@ -60,7 +60,7 @@
     #define faceVisible() abs(clipPosition.z - depth) < abs(stepLength * direction.z)
     #define onScreen() ( floor(clipPosition.xy) == vec2(0.0) )
 
-    vec3 RaytraceClip1(const vec3 viewPosition, const vec3 viewDirection, vec3 clipPosition, const float skyLight) {
+    vec3 RaytraceClipStein(const vec3 viewPosition, const vec3 viewDirection, vec3 clipPosition, const float skyLight) {
         // This is a modified version of Jodie's old clip space ray tracer.
         // The biggest modification is the binary search refinement system, borrowed from her new ray tracer.
         // The reason why I use this over the new one is the new one has issues with reflections clipping when parallel to the surface.
@@ -121,7 +121,7 @@
         if(
             faceVisible() + 0.001 // Not a back face.
             && depth < 1.0 // Not the sky.
-            && 0.9 < clipPosition.z // Not camera clipping.
+            && 0.95 < clipPosition.z // Not camera clipping.
             && rayHit
         ) return DecodeColour(texture2DLod(colortex4, clipPosition.xy, 0).rgb);
 

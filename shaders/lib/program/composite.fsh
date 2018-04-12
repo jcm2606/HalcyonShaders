@@ -79,6 +79,8 @@ uniform int frameCounter;
 
 #include "/lib/deferred/SpecularLighting.fsh"
 
+#include "/lib/deferred/Refraction.fsh"
+
 // Functions.
 // Main.
 void main() {
@@ -104,6 +106,17 @@ void main() {
     vec3 image = DecodeColour(screenObject.tex4.rgb);
 
     vec4 transparentGeometry     = screenObject.tex5;
+
+    vec3 refractedClipPosition = CalculateRefractedClipPosition(viewPositionBack, viewPositionFront, surfaceObject.normal);
+
+    if(refractedClipPosition.z > texture2D(depthtex0, refractedClipPosition.xy).x) {
+        image = DecodeColour(texture2DLod(colortex4, refractedClipPosition.xy, 0).rgb);
+        transparentGeometry = texture2DLod(colortex5, refractedClipPosition.xy, 0);
+
+        viewPositionBack = ClipToViewPosition(refractedClipPosition.xy, refractedClipPosition.z);
+        worldPositionBack = ViewToWorldPosition(viewPositionBack);
+    }
+
          transparentGeometry.rgb = ToLinear(transparentGeometry.rgb);
     
     bool isTransparentPixel = depthBack > depthFront;

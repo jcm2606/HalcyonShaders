@@ -31,10 +31,20 @@ uniform sampler2D texture;
 uniform sampler2D normals;
 uniform sampler2D specular;
 
+uniform sampler2D noisetex;
+
+uniform vec3 cameraPosition;
+
+uniform float frameTimeCounter;
+uniform float rainStrength;
+
 // Structs.
 // Globals.
 // Includes.
 #include "/lib/gbuffer/MaterialData.fsh"
+
+#include "/lib/common/WaterNormals.fsh"
+#include "/lib/gbuffer/ParallaxWater.fsh"
 
 // Functions.
 // Main.
@@ -44,6 +54,8 @@ void main() {
 
     bool isWater = CompareFloat(materialID, MATERIAL_WATER);
 
+    vec3 viewDirection = normalize(viewPosition * tbn);
+
     #ifdef NO_ALBEDO
         albedo.rgb = vec3(1.0);
     #endif
@@ -52,7 +64,13 @@ void main() {
         albedo = vec4(vec3(0.0), 0.1);
 
     vec3 normal = vec3(0.5, 0.5, 1.0);
-         normal = tbn * (normal * 2.0 - 1.0);
+         normal = texture2D(normals, uvCoord).xyz;
+         normal = normal * 2.0 - 1.0;
+
+    if(isWater)
+         normal = CalculateWaterNormal(CalculateWaterParallax(worldPosition + cameraPosition, viewDirection));
+
+         normal = normalize(tbn * normal);
 
     /* DRAWBUFFERS:015*/
     gl_FragData[0] = vec4(EncodeAlbedo(albedo.rgb), Encode4x8F(vec4(lmCoord, 0.25 /* parallaxShadow */, vanillaAO)), Encode4x8F(vec4(lmCoord, 0.0, 0.0)), 1.0);

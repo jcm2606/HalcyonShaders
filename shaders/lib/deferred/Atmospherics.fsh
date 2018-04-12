@@ -101,7 +101,15 @@
     float OpticalDepthFog(vec3 worldPosition) {
         float opticalDepth = 0.0;
 
-        opticalDepth += exp(-worldPosition.y / ATMOSPHERICS_HEIGHT_FOG_HEIGHT) * ATMOSPHERICS_HEIGHT_FOG_DENSITY;
+        float seaLevelHeight = worldPosition.y - SEA_LEVEL;
+
+        #ifdef ATMOSPHERICS_HEIGHT_FOG
+            opticalDepth += exp(-worldPosition.y / ATMOSPHERICS_HEIGHT_FOG_HEIGHT) * ATMOSPHERICS_HEIGHT_FOG_DENSITY;
+        #endif
+
+        #ifdef ATMOSPHERICS_MIST_FOG
+            opticalDepth += exp(-max0(seaLevelHeight) / ATMOSPHERICS_MIST_FOG_HEIGHT) * ATMOSPHERICS_MIST_FOG_DENSITY;
+        #endif
 
         return opticalDepth;
     }
@@ -124,7 +132,7 @@
 
         const vec2 phaseWater = vec2(1.0, PhaseG0());
         vec3 phaseAir = vec3(phaseRayleigh(VoL), PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8), PhaseG0());
-        vec2 phaseFog = vec2(PhaseG(VoL, 0.6) + PhaseG(-VoL, 0.8), 1.0);
+        vec2 phaseFog = vec2(PhaseG(VoL, 0.6) + PhaseG(-VoL, 0.8), PhaseG0());
 
         vec3 worldStep     = (end - start) * stepsRCP;
         vec3 worldPosition = worldStep * dither.x + start;
