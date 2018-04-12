@@ -61,9 +61,10 @@ void main() {
 
     #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND
         mat2 texD     = mat2(dFdx(uvCoord), dFdy(uvCoord));
-        vec2 texCoord = CalculateParallaxCoord(uvCoord, viewDirection, texD);
+        vec2 parallaxCoord = uvCoord;
+        vec2 texCoord = CalculateParallaxCoord(parallaxCoord, uvCoord, viewDirection, texD);
 
-        float parallaxShadow = CalculateParallaxShadow(texCoord, viewPosition, texD);
+        float parallaxShadow = CalculateParallaxShadow(parallaxCoord, viewPosition, texD);
     #else
         mat2 texD = mat2(0.0);
         vec2 texCoord = uvCoord;

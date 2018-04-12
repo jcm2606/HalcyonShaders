@@ -20,7 +20,7 @@
         return texture2DGradARB(normals, WrapTexture(uvCoord), texD[0], texD[1]).a * parallaxDepth - parallaxDepth;
     }
 
-    vec2 CalculateParallaxCoord(const vec2 uvCoord, const vec3 viewDirection, const mat2 texD) {
+    vec2 CalculateParallaxCoord(out vec2 parallaxCoord, const vec2 uvCoord, const vec3 viewDirection, const mat2 texD) {
         #ifndef PARALLAX_TERRAIN
             return uvCoord;
         #endif
@@ -34,6 +34,7 @@
         while(GetDepthGradient(coord.xy, texD) <= coord.z && iterCheck)
             coord += increment;
 
+        parallaxCoord = coord.xy;
         return WrapTexture(coord.xy);
     }
 
@@ -41,8 +42,8 @@
         #ifndef PARALLAX_TERRAIN_SHADOW
             return 1.0;
         #endif
-
-        vec3 increment = ((shadowLightPosition * 0.01) * tbn);
+        
+        vec3 increment = ((shadowLightPosition) * tbn);
              increment = increment * fInverseLength(increment.xy);
              increment = fLength(increment.xy * texD) * increment;
 
