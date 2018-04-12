@@ -82,7 +82,7 @@
         float maxStepLength = min3v(maxLengths) * qualityRCP;
         float minStepLength = maxStepLength * 0.1;
 
-        float stepLength = maxStepLength;
+        float stepLength = minStepLength;
         float stepWeight = 1.0 / abs(direction.z);
 
         clipPosition += direction * stepLength;
@@ -121,7 +121,7 @@
         if(
             faceVisible() + 0.001 // Not a back face.
             && depth < 1.0 // Not the sky.
-            && 0.97 < clipPosition.z // Not camera clipping.
+            && 0.9 < clipPosition.z // Not camera clipping.
             && rayHit
         ) return DecodeColour(texture2DLod(colortex4, clipPosition.xy, 0).rgb);
 
