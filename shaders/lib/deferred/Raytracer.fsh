@@ -25,7 +25,7 @@
         vec3 direction = normalize(ViewToClipPosition(viewPosition + viewDirection) - clipPosition);
         float rz = 1.0 / abs(direction.z);
 
-        vec3 skyReflection = CalculateScatter(vec3(0.0), viewDirection, 0);
+        vec3 skyReflection = CalculateScatter(vec3(0.0), viewDirection, 1) * skyLight;
 
         float stepLength = minLength;
         float depth = clipPosition.z;
@@ -72,7 +72,7 @@
         int steps = quality + 4;
         int refinements = SPECULAR_RAYTRACER_1_REFINEMENTS;
 
-        vec3 skyReflection = CalculateScatter(vec3(0.0), viewDirection, 1);
+        vec3 skyReflection = CalculateScatter(vec3(0.0), viewDirection, 1) * skyLight;
 
         vec3 direction = normalize(ViewToClipPosition(viewPosition + viewDirection) - clipPosition);
         direction.xy = normalize(direction.xy);
@@ -82,7 +82,7 @@
         float maxStepLength = min3v(maxLengths) * qualityRCP;
         float minStepLength = maxStepLength * 0.1;
 
-        float stepLength = maxStepLength * (0.0 * 0.9 + 0.1);
+        float stepLength = maxStepLength;
         float stepWeight = 1.0 / abs(direction.z);
 
         clipPosition += direction * stepLength;

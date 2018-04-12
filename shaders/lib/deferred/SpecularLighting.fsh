@@ -140,10 +140,10 @@
     // Specular Function.
     vec3 CalculateSpecularLighting(SurfaceObject surfaceObject, mat2x3 atmosphereLighting, vec3 diffuse, vec3 shadow, vec3 viewPosition, vec2 screenCoord, vec2 dither, float depth) {
         vec3 V = normalize(-viewPosition);
-        
+
         bool metalness = surfaceObject.f0 > 0.5;
 
-        vec3 specular = SPECULAR_SSR(viewPosition, vec3(screenCoord, depth), surfaceObject.normal, V, dither, surfaceObject.roughness, vec3(surfaceObject.f0), surfaceObject.skyLight);
+        vec3 specular = SPECULAR_SSR(viewPosition, vec3(screenCoord, depth), surfaceObject.normal, V, dither, surfaceObject.roughness, vec3(surfaceObject.f0), pow3(surfaceObject.skyLight));
 
         if(metalness)
             specular *= surfaceObject.albedo;
