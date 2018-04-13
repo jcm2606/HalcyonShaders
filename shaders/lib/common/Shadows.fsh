@@ -61,7 +61,7 @@
                 float shadowFront = float(depthFront > coordFront.z);
 
                 vec4 colourSample     = texture2D(shadowcolor0, coordFront.xy);
-                     colourSample.rgb = ToLinear(colourSample.rgb);
+                     colourSample.rgb = ToLinear(DecodeShadow(colourSample.rgb));
 
                 vec3 shadowColourSample = (colourSample.rgb - 1.0) * (shadowBack * colourSample.a * abs(shadowFront - shadowBack)) + shadowBack;
 

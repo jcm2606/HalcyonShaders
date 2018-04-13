@@ -78,7 +78,13 @@
 
         shadowColour = vec3(1.0);
 
-        isTransparentShadow = visibility.y - visibility.x > 0.0;
+        isTransparentShadow = visibility.x - visibility.y > 0.0;
+
+        if(!isTransparentShadow)
+            return;
+
+        vec4 shadowColourSample = texture2D(shadowcolor0, shadowPosition.xy);
+        shadowColour = ToLinear(DecodeShadow(shadowColourSample.rgb)) * shadowColourSample.a;
 
         if(!isWaterPixel)
             return;
@@ -130,7 +136,7 @@
         vec3 scatter = vec3(0.0);
         vec3 absorb  = vec3(1.0);
 
-        const vec2 phaseWater = vec2(1.0, PhaseG0());
+        vec2 phaseWater = vec2(PhaseG(VoL, 0.8) * 2.0 + 1.0, PhaseG0());
         vec3 phaseAir = vec3(phaseRayleigh(VoL), PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8), PhaseG0());
         vec2 phaseFog = vec2(PhaseG(VoL, 0.6) + PhaseG(-VoL, 0.8), PhaseG0());
 

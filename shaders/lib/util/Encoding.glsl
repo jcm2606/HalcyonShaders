@@ -115,4 +115,7 @@
     #define EncodeColour(c) ( c )
     #define DecodeColour(c) ( c )
 
+    #define EncodeShadow(c) ( c * 0.25 )
+    #define DecodeShadow(c) ( c * 4.0 )
+
 #endif

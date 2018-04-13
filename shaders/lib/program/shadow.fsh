@@ -38,9 +38,18 @@ flat(float) materialID;
 uniform sampler2D texture;
 uniform sampler2D normals;
 
+uniform sampler2D noisetex;
+
+uniform vec3 cameraPosition;
+
+uniform float frameTimeCounter;
+uniform float rainStrength;
+
 // Structs.
 // Globals.
 // Includes.
+#include "/lib/common/WaterNormals.fsh"
+
 // Functions.
 // Main.
 void main() {
@@ -53,9 +62,32 @@ void main() {
 
     vec3 normal = vec3(0.5, 0.5, 1.0);
          normal = texture2D(normals, uvCoord).xyz;
-         normal = tbn * (normal * 2.0 - 1.0);
+         normal = normal * 2.0 - 1.0;
 
-    gl_FragData[0] = albedo;
+    if(isWater)
+         normal = CalculateWaterNormal(worldPosition + cameraPosition);
+
+         normal = normalize(tbn * normal);
+        
+    #define PROJECTED_CAUSTICS_METHOD 1
+
+    if(isWater) {
+        #if   PROJECTED_CAUSTICS_METHOD == 0
+            float caustic = 1.0 - pow(1.0 - waterNormal.z, 0.333);
+                  caustic = pow(caustic, 4.0) * 1.0 + 0.5;
+
+            albedo.rgb = vec3(caustic);
+        #elif PROJECTED_CAUSTICS_METHOD == 1
+            vec3 refractedPosition = refract(normalize(worldPosition), normal, 0.75) + worldPosition;
+
+            float oldArea = fLength(dFdx(worldPosition)) * fLength(dFdy(worldPosition));
+            float newArea = fLength(dFdx(refractedPosition)) * fLength(dFdy(refractedPosition));
+
+            albedo.rgb = vec3(abs(pow3(oldArea / newArea)));
+        #endif
+    }
+
+    gl_FragData[0] = vec4(EncodeShadow(albedo.rgb), albedo.a);
     gl_FragData[1] = vec4(normal * 0.5 + 0.5, float(isWater));
 }
 // EOF.

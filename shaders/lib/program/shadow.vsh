@@ -72,26 +72,14 @@ void main() {
     viewPosition  = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
     worldPosition = transMAD(shadowModelViewInverse, viewPosition);
     
-    #if 0
-        viewPosition = transMAD(gbufferModelView, worldPosition);
-        gl_Position = gbufferProjection * vec4(viewPosition, 1.0);
-        gl_Position.xy = CalculateJitter() * gl_Position.w + gl_Position.xy;
-        gl_Position = gbufferProjectionInverse * gl_Position;
-        viewPosition = transMAD(gbufferModelViewInverse, gl_Position.xyz);
-    #else
-        viewPosition = worldPosition;
-    #endif
-    
-    viewPosition = transMAD(shadowModelView, viewPosition);
-
-    gl_Position = viewPosition.xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+    gl_Position = transMAD(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
     gl_Position.xy = DistortShadowPosition(gl_Position.xy);
     gl_Position.z *= shadowDepthMult;
 
-    vertexNormal = normalize(gl_NormalMatrix * gl_Normal);
+    vertexNormal = normalize(gl_NormalMatrix * gl_Normal) * mat3(shadowModelView);
 
     tbn    = mat3(0.0);
-    tbn[0] = normalize(gl_NormalMatrix * at_tangent.xyz / at_tangent.w);
+    tbn[0] = normalize(gl_NormalMatrix * at_tangent.xyz / at_tangent.w) * mat3(shadowModelView);
     tbn[1] = cross(tbn[0], vertexNormal);
     tbn[2] = vertexNormal;
 }

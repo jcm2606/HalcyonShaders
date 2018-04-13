@@ -120,7 +120,7 @@
     #define ATMOSPHERICS_MIST_FOG_DENSITY 0.1
 
     // Water.
-    const vec3 waterScatterCoeff = vec3(1.0) * 0.001 / log(2.0);
+    const vec3 waterScatterCoeff = vec3(1.0) * 0.002 / log(2.0);
     const vec3 waterAbsorbCoeff  = vec3(0.4510, 0.0867, 0.0476) / log(2.0);
 
     const vec3 waterTransmittanceCoeff = waterScatterCoeff + waterAbsorbCoeff;

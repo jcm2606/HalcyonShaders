@@ -28,7 +28,7 @@
     float Height0(vec3 worldPosition) {
         const int octaves = 9;
 
-        const float rotAmount = cRadians(30.0);
+        const float rotAmount = cRadians(40.0);
         cRotateMat2(rotAmount, rot);
 
         float height = 0.0;
@@ -37,8 +37,8 @@
         vec2 noisePosition = position * 0.005;
 
         float T = 0.3 * TIME;
-        float waveSteepness = 0.45;
-        float waveAmplitude = mix(0.2, 0.8, rainStrength);
+        float waveSteepness = 0.55;
+        float waveAmplitude = mix(0.2, 0.3, rainStrength);
         vec2  waveDirection = vec2(0.5, 0.2);
         float waveLength = 8.0;
 
@@ -48,10 +48,10 @@
 
             height += GerstnerOctave(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 2.0, waveDirection, waveSteepness, waveAmplitude, waveLength, T);
 
-            waveSteepness *= 1.225;
+            waveSteepness *= 1.125;
             waveAmplitude *= 0.685;
             waveLength *= 0.695;
-            T *= 1.08;
+            T *= 1.11;
             waveDirection *= rot;
         }
 

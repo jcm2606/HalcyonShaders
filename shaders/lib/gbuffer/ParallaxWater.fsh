@@ -13,7 +13,7 @@
         const int   steps    = 4;
         const float stepsRCP = rcp(steps);
 
-        const float height = 3.0;
+        const float height = 4.0;
 
         const float incrementLength = stepsRCP * 4.0;
 
