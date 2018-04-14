@@ -8,6 +8,10 @@
     #define INCLUDED_GBUFFER_MATERIALID
 
     vec2 CalculateShadedLightmaps(const vec3 viewPosition, const vec3 normal, const vec2 lightmap) {
+        #if PROGRAM == GBUFFERS_EYES
+            return lightmap;
+        #endif
+
         /*
         mat2x3 positionD = mat2x3(dFdx(worldSpacePosition), dFdy(worldSpacePosition));
         vec3 lightDirection = normalize( positionD * vec2( dFdx(lmCoord.x), dFdy(lmCoord.x) ) );

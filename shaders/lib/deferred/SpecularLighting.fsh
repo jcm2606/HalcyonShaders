@@ -65,10 +65,9 @@
 
         vec3 H = normalize(L + V);
 
-        float HoL = saturate(dot(H, L));
-
-        #define NoL saturate(dot(N, L))
-        #define NoH saturate(dot(N, H))
+        float   HoL = saturate(dot(H, L));
+        #define NoL   saturate(dot(N, L))
+        #define NoH   saturate(dot(N, H))
 
         #define F ( (1.0 - f0) * pow5(1.0 - HoL) + f0 )
 
@@ -101,8 +100,6 @@
 
         return vec3(cos(y) * s, sin(y) * s, c);
     }
-
-    #define Specular_Raytracer RaytraceClip1
 
     vec3 RoughSSR(const vec3 viewPosition, const vec3 clipPosition, const vec3 N, const vec3 V, const vec2 dither, const float roughness, const vec3 f0, const float skyLight) {
         const int   samples    = reflectionSamples;
@@ -143,7 +140,8 @@
 
         bool metalness = surfaceObject.f0 > 0.5;
 
-        vec3 specular = SPECULAR_SSR(viewPosition, vec3(screenCoord, depth), surfaceObject.normal, V, dither, surfaceObject.roughness, vec3(surfaceObject.f0), pow3(surfaceObject.skyLight));
+        vec3 specular  = SPECULAR_SSR(viewPosition, vec3(screenCoord, depth), surfaceObject.normal, V, dither, surfaceObject.roughness, vec3(surfaceObject.f0), pow3(surfaceObject.skyLight));
+             specular += GGX(V, lightDirection, surfaceObject.normal, surfaceObject.roughness, surfaceObject.f0) * atmosphereLighting[0] * shadow;
 
         if(metalness)
             specular *= surfaceObject.albedo;

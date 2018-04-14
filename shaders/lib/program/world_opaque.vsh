@@ -57,6 +57,10 @@ void main() {
     uvCoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     lmCoord = pow2(gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 
+    #if PROGRAM == GBUFFERS_EYES
+        lmCoord.x = 0.2;
+    #endif
+
     tint = gl_Color.rgb;
 
     vanillaAO = gl_Color.a;

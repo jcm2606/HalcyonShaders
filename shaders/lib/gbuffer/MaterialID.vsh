@@ -58,7 +58,7 @@
             materialID = MATERIAL_WEATHER;
         #endif
         #if PROGRAM == GBUFFERS_EYES || PROGRAM == GBUFFERS_BEAM
-            material = MATERIAL_UNLIT;
+            materialID = MATERIAL_UNLIT;
         #endif
 
         return materialID;

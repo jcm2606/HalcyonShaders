@@ -88,15 +88,17 @@ void main() {
 
     vec3 image = screenObject.tex4.rgb;
 
+    float highlightOcclusion = 0.0;
+
     if(getLandMask(depthBack)) {
         // Is land.
-         image = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, surfaceObject.albedo, viewPosition, screenCoord - CalculateJitter() * 0.5, dither);
+         image = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, surfaceObject.albedo, viewPosition, screenCoord - CalculateJitter() * 0.5, dither, highlightOcclusion);
     } else {
         // Is sky.
          image = CalculateSky(viewPosition);
     }
     
     /* DRAWBUFFERS:4 */
-    gl_FragData[0] = vec4(EncodeColour(image), 1.0);
+    gl_FragData[0] = vec4(EncodeColour(image), highlightOcclusion);
 }
 // EOF.

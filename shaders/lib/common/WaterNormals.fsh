@@ -28,7 +28,7 @@
     float Height0(vec3 worldPosition) {
         const int octaves = 9;
 
-        const float rotAmount = cRadians(40.0);
+        const float rotAmount = cRadians(30.0);
         cRotateMat2(rotAmount, rot);
 
         float height = 0.0;

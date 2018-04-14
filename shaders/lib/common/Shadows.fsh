@@ -71,8 +71,10 @@
                       waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
                       waterDepth = shadowWorldPosition.z - waterDepth;
 
-                if(isWaterShadow && waterDepth < 0.0)
+                if(isWaterShadow && waterDepth < 0.0) {
+                    //shadowColourSample  = clamp(pow(shadowColourSample, vec3(2.0) * abs(waterDepth)), 0.0, 1000.0) * exp2(waterDepth * 1.2);
                     shadowColourSample *= exp2(waterAbsorption * waterDepth);
+                }
 
                 shadowColour += shadowColourSample;
             #elif PROGRAM == COMPOSITE0

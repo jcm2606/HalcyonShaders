@@ -70,9 +70,9 @@ void main() {
     materialID = CalculateMaterialID(entity);
     
     viewPosition  = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
-    worldPosition = transMAD(shadowModelViewInverse, viewPosition);
+    worldPosition = transMAD(shadowModelViewInverse, viewPosition) + cameraPosition;
     
-    gl_Position = transMAD(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+    gl_Position = transMAD(shadowModelView, worldPosition - cameraPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
     gl_Position.xy = DistortShadowPosition(gl_Position.xy);
     gl_Position.z *= shadowDepthMult;
 

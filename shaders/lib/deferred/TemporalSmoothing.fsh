@@ -14,7 +14,7 @@
         const float lumaSpeed = 0.5;
 
         float prevLuma = ReadFromTile(colortex3, TILE_COORD_TEMPORAL_LUMA, TILE_WIDTH_TEMPORAL).a;
-        float currLuma = luma(DecodeColour(texture2DLod(colortex4, vec2(0.5), 10).rgb));
+        float currLuma = min(1.0e10, luma(DecodeColour(texture2DLod(colortex4, vec2(0.5), 10).rgb)));
               avgLuma  = mix(prevLuma, currLuma, clamp(frameTime * lumaSpeed, 0.01, 0.99));
 
         if(CanWriteToTile(screenCoord, TILE_COORD_TEMPORAL_LUMA, TILE_WIDTH_TEMPORAL))

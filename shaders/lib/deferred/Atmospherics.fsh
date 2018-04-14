@@ -117,6 +117,10 @@
             opticalDepth += exp(-max0(seaLevelHeight) / ATMOSPHERICS_MIST_FOG_HEIGHT) * ATMOSPHERICS_MIST_FOG_DENSITY;
         #endif
 
+        #ifdef ATMOSPHERICS_NIGHT_FOG
+            opticalDepth += exp(-worldPosition.y / 64.0) * 2.0 * timeNight;
+        #endif
+
         return opticalDepth;
     }
 

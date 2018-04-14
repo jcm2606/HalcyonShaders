@@ -88,6 +88,8 @@ void main() {
     SurfaceObject surfaceObject = CreateSurfaceObject(screenObject);
     MaterialObject materialObject = CreateMaterialObject(surfaceObject);
 
+    float highlightOcclusion = screenObject.tex4.a;
+
     float depthBack  = texture2D(depthtex1, screenCoord).x;
     float depthFront = texture2D(depthtex0, screenCoord).x;
 
@@ -124,7 +126,7 @@ void main() {
     mat2x3 atmosphereLighting = CalculateAtmosphereLighting();
 
     if(isTransparentPixel)
-         transparentGeometry.rgb = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, transparentGeometry.rgb, viewPositionFront, screenCoord, dither);
+         transparentGeometry.rgb = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, transparentGeometry.rgb, viewPositionFront, screenCoord, dither, highlightOcclusion);
 
     bool isSkyPixel = !getLandMask(depthBack);
     bool isWaterPixel = materialObject.water;
@@ -145,7 +147,7 @@ void main() {
     image = mix(image, transparentGeometry.rgb, transparentGeometry.a);
 
     if(getLandMask(depthFront) && !underWater && !underLava)
-        image = CalculateSpecularLighting(surfaceObject, atmosphereLighting, image, vec3(1.0), viewPositionFront, screenCoord, dither, depthFront);
+        image = CalculateSpecularLighting(surfaceObject, atmosphereLighting, image, vec3(highlightOcclusion), viewPositionFront, screenCoord, dither, depthFront);
 
     image = image * atmosphericsVolumeFront[1] + atmosphericsVolumeFront[0];
     
