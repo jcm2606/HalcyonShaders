@@ -19,7 +19,6 @@
 #define IN_TEX4
 
 // Constants.
-const bool colortex3MipmapEnabled = true;
 const bool colortex4MipmapEnabled = true;
 
 // Varyings.
@@ -55,7 +54,6 @@ uniform int frameCounter;
 // Globals.
 // Includes.
 #include "/lib/deferred/TemporalSmoothing.fsh"
-#include "/lib/deferred/Camera.fsh"
 
 #include "/lib/deferred/TAA.fsh"
 
@@ -71,7 +69,6 @@ void main() {
 
     vec3 image = CalculateTAA(DecodeColour(screenObject.tex4.rgb), screenCoord);
     temporalBuffer.rgb = EncodeColour(image);
-    image = CalculateExposedImage(image, averageLuma);
     
     /* DRAWBUFFERS:34 */
     gl_FragData[0] = temporalBuffer;

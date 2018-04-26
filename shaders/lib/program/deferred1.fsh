@@ -46,6 +46,8 @@ uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 shadowProjection, shadowProjectionInverse;
 uniform mat4 shadowModelView, shadowModelViewInverse;
 
+uniform vec3 cameraPosition;
+
 uniform float sunAngle;
 uniform float near;
 uniform float far;
@@ -64,6 +66,7 @@ uniform int frameCounter;
 // Includes.
 #include "/lib/util/SpaceTransform.glsl"
 
+#include "/lib/common/Jitter.glsl"
 #include "/lib/common/Atmosphere.fsh"
 #include "/lib/common/Sky.fsh"
 #include "/lib/common/DiffuseLighting.fsh"

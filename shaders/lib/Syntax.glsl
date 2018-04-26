@@ -18,8 +18,10 @@
 
     #define viewPositionEye  vec3(0.0)
     #define worldPositionEye gbufferModelViewInverse[3].xyz
+    #define worldPositionUp  vec3(0.0, 1.0, 0.0)
 
-    #define upDirection gbufferModelView[1].xyz
+    #define viewDirectionUp  gbufferModelView[1].xyz
+    #define worldDirectionUp vec3(0.0, 1.0, 0.0)
 
     #define underWater ( isEyeInWater == 1 )
     #define underLava  ( isEyeInWater == 2 )

@@ -10,10 +10,14 @@
     #include "/lib/common/WaterNormals.fsh"
 
     vec3 CalculateWaterParallax(vec3 worldPosition, vec3 viewDirection) {
-        const int   steps    = 4;
+        #ifndef PARALLAX_WATER
+            return worldPosition;
+        #endif
+
+        const int   steps    = PARALLAX_WATER_STEPS;
         const float stepsRCP = rcp(steps);
 
-        const float height = 4.0;
+        const float height = PARALLAX_WATER_HEIGHT;
 
         const float incrementLength = stepsRCP * 4.0;
 

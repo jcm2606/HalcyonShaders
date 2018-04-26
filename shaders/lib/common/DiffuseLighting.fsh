@@ -12,7 +12,7 @@
     float CalculateBlockLightFalloff(const float blockLight) {
         float squareDistance = pow2(clamp((1.0 - blockLight) * 16.0, 0.0, 16.0));
 
-        return (10.0 / max(squareDistance, pow2(0.01))) * (blockLight);
+        return (BLOCK_LIGHT_BRIGHTNESS / max(squareDistance, pow2(0.01))) * (blockLight);
     }
 
     vec3 CalculateShadedFragment(const mat2x3 atmosphereLighting, const vec3 albedo, const vec3 normal, const vec3 shadowColour, const vec3 viewPosition, const vec2 screenCoord, const vec2 dither, const float blockLight, const float skyLight, const float parallaxShadow, const float vanillaAO, const float roughness, const float emission, const bool isSubsurfaceMaterial, const bool isEmissiveSurface, io float highlightOcclusion) {
@@ -26,21 +26,21 @@
              lightDirect *= float(!isSubsurfaceMaterial) * 0.5 + 0.5;
 
         vec3 lightSky  = atmosphereLighting[1];
-             lightSky *= pow(skyLight, 5.0);
+             lightSky *= pow(skyLight, 3.0);
              lightSky *= vanillaAO;
-             lightSky *= max0(dot(upDirection, normal)) * 0.5 + 0.5;
+             lightSky *= max0(dot(viewDirectionUp, normal)) * 0.5 + 0.5;
 
-        CFUNC_Blackbody(3700, lightBlockColour)
+        CFUNC_Blackbody(BLOCK_LIGHT_TEMPERATURE, lightBlockColour)
 
         vec3 lightBlock  = lightBlockColour;
              lightBlock *= CalculateBlockLightFalloff(blockLight);
              
-        if(isEmissiveSurface || emission > 0.1)
+        if(emission > 0.1)
              lightBlock  = lightBlockColour * emission;
 
         vec3 sss  = atmosphereLighting[0];
              sss *= shadowColour;
-             sss *= 0.5;
+             //sss *= 0.5;
              sss *= albedo;
              sss *= float(isSubsurfaceMaterial);
         

@@ -137,7 +137,7 @@
 
         if(closestDepth < 0.7) return currentFrame;
 
-        return TemporalReprojection(screenCoord, motion, pixelSize, currentFrame);
+        return max0(TemporalReprojection(screenCoord, motion, pixelSize, currentFrame));
     }
 
 #endif

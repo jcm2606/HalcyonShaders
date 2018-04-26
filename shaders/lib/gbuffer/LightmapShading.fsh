@@ -27,7 +27,7 @@
         vec3 blockL = normalize(vec3(blockD.x * T + 0.0005 * N + blockD.y * B));
         
         vec2 lightmapShading = saturate(min(vec2(0.85), saturate(vec2(
-            max0(dot(normal, blockL)) * 0.5 + 0.5,
+            max0(dot(normal, blockL)) * BLOCK_LIGHT_ANISOTROPY + (1.0 - BLOCK_LIGHT_ANISOTROPY),
             1.0
         ) * 1.5)) * 1.15);
 

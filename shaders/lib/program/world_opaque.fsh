@@ -72,7 +72,11 @@ void main() {
         float parallaxShadow = 1.0;
     #endif
 
-    vec4 albedo = textureSample(texture, texCoord) * vec4(tint, 1.0);
+    vec4 albedo = textureSample(texture, texCoord);
+
+    #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ITEM
+        albedo *= vec4(tint, 1.0);
+    #endif
 
     #ifdef NO_ALBEDO
         albedo.rgb = vec3(1.0);
@@ -80,15 +84,19 @@ void main() {
 
     vec3 normal = vec3(0.5, 0.5, 1.0);
 
-    #if PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES
+    #if defined NORMAL_MAPS && (PROGRAM == GBUFFERS_TERRAIN || PROGRAM == GBUFFERS_HAND || PROGRAM == GBUFFERS_ENTITIES)
          normal = textureSample(normals, texCoord).xyz;
     #endif
 
          normal = tbn * (normal * 2.0 - 1.0);
 
+    #if PROGRAM == GBUFFERS_TEXTURED || PROGRAM == GBUFFERS_TEXTURED_LIT
+         normal = vertexNormal;
+    #endif
+
     /* DRAWBUFFERS:014 */
-    gl_FragData[0] = vec4(EncodeAlbedo(albedo.rgb), Encode4x8F(vec4(lmCoord, parallaxShadow * 0.25, vanillaAO)), Encode4x8F(vec4(CalculateShadedLightmaps(viewPosition, normal, lmCoord), 0.0, 0.0)), albedo.a);
-    gl_FragData[1] = vec4(EncodeNormal(normalize(normal)), Encode4x8F(CalculateMaterialData(texCoord, entity, materialID, 0.0, texD)), Encode4x8F(vec4(materialID, 0.0, 0.0, 0.0)), albedo.a);
+    gl_FragData[0] = vec4(EncodeAlbedo(albedo.rgb), Encode4x8F(vec4(lmCoord, parallaxShadow * 0.25, vanillaAO)), Encode4x8F(vec4(CalculateShadedLightmaps(viewPosition, normal, lmCoord), 0.0, 0.0)), ceil(albedo.a));
+    gl_FragData[1] = vec4(EncodeNormal(normalize(normal)), Encode4x8F(CalculateMaterialData(texCoord, entity, materialID, 0.0, texD)), Encode4x8F(vec4(materialID, 0.0, 0.0, 0.0)), ceil(albedo.a));
     gl_FragData[2] = albedo;
 }
 // EOF.

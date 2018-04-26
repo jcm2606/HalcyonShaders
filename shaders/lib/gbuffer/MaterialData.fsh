@@ -20,23 +20,23 @@
 
             #if   MATERIAL_FORMAT == 1 // Specular.
                 smoothness = specularData.x;
-                f0 = 0.02;
+                f0 = F0_DIELECTRIC;
                 emission = float(CompareFloat(materialID, MATERIAL_EMISSIVE));
                 placeholder = 0.0;
             #elif MATERIAL_FORMAT == 2 // Old PBR, no emission.
                 smoothness = specularData.x;
-                f0 = mix(0.02, 0.8, specularData.y);
+                f0 = mix(F0_DIELECTRIC, F0_METALLIC, specularData.y);
                 emission = float(CompareFloat(materialID, MATERIAL_EMISSIVE));
                 placeholder = 0.0;
             #elif MATERIAL_FORMAT == 3 // Old PBR, emission.
                 smoothness = specularData.x;
-                f0 = mix(0.02, 0.8, specularData.y);
+                f0 = mix(F0_DIELECTRIC, F0_METALLIC, specularData.y);
                 emission = specularData.z;
                 placeholder = 0.0;
             #elif MATERIAL_FORMAT == 4 // New PBR / Pulchra.
                 smoothness = specularData.z;
                 f0 = specularData.x;
-                emission = 1.0 - specularData.a;
+                emission = (1.0 - specularData.a) * float(!CompareFloat(materialID, MATERIAL_SUBSURFACE));
                 placeholder = 0.0;
             #else
 
@@ -45,6 +45,8 @@
             switch(int(entity.x)) {
                 case WATER.x:
                 case WATER.y: materialData = SURFACE_WATER; break;
+                case STAINED_GLASS.x:
+                case STAINED_GLASS.y: materialData = SURFACE_STAINED_GLASS; break;
                 default: break;
             }
         #endif

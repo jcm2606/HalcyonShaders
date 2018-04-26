@@ -9,9 +9,9 @@
 
 #include "/lib/syntax/Form.glsl"
 #define STAGE FSH
-#define PROGRAM GBUFFERS_EYES
+#define PROGRAM GBUFFERS_SKY_TEXTURED
 #include "/lib/Syntax.glsl"
 #include "/lib/Utility.glsl"
 #include "/lib/Settings.glsl"
 
-#include "/lib/program/world_opaque.fsh"
+#include "/lib/program/world_sky_elements.fsh"

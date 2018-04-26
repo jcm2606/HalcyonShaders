@@ -9,6 +9,8 @@
 
     #include "/lib/util/ShadowTransform.glsl"
 
+    #include "/lib/util/Noise.glsl"
+
     // Layers.
     struct AtmosphereLayerRayleighMie {
         mat2x3 scatterCoeff;
@@ -116,9 +118,42 @@
         #ifdef ATMOSPHERICS_MIST_FOG
             opticalDepth += exp(-max0(seaLevelHeight) / ATMOSPHERICS_MIST_FOG_HEIGHT) * ATMOSPHERICS_MIST_FOG_DENSITY;
         #endif
+        
+        #ifdef ATMOSPHERICS_GROUND_FOG
+            #ifdef ATMOSPHERICS_GROUND_FOG_ROLLING
+                const float rotAmount = cRadians(30.0);
+                cRotateMat2(rotAmount, rot);
 
-        #ifdef ATMOSPHERICS_NIGHT_FOG
-            opticalDepth += exp(-worldPosition.y / 64.0) * 2.0 * timeNight;
+                const vec2 move = vec2(-1.0, 0.0) * 0.4;
+                vec2 movement = move * TIME;
+
+                vec3 groundFogPosition    = worldPosition * 0.8;
+
+                float groundFogNoise  = 0.0;
+
+                      groundFogPosition.xz *= rot;
+                      groundFogNoise += noise3D(groundFogPosition + movement.xyy);
+
+                      groundFogPosition.zy *= rot;
+                      groundFogNoise += noise3D(groundFogPosition * 2.0 + movement.xxy * 2.0) * 0.5;
+
+                      groundFogPosition.xz *= rot;
+                      groundFogNoise += noise3D(groundFogPosition * 4.0 + movement.yxy * 4.0) * 0.25;
+
+                      groundFogPosition.zy *= rot;
+                      groundFogNoise += noise3D(groundFogPosition * 8.0 + movement.yxx * 8.0) * 0.125;
+
+                      groundFogPosition.xz *= rot;
+                      groundFogNoise += noise3D(groundFogPosition * 16.0 + movement.xxx * 16.0) * 0.0625;
+
+                      groundFogNoise *= 0.3;
+                      groundFogNoise -= 0.17;
+                      groundFogNoise  = max0(groundFogNoise);
+            #else
+                const float groundFogNoise = 0.25;
+            #endif
+
+            opticalDepth += exp(-abs(seaLevelHeight) / ATMOSPHERICS_GROUND_FOG_HEIGHT) * fogGroundDensity * groundFogNoise;
         #endif
 
         return opticalDepth;
@@ -131,6 +166,10 @@
             return mat2x3(vec3(0.0), vec3(1.0));
         #endif
 
+        #ifndef VOLUMETRICS
+            return mat2x3(vec3(0.0), vec3(1.0));
+        #endif
+
         const int   steps    = ATMOSPHERICS_STEPS;
         const float stepsRCP = rcp(steps);
 
@@ -140,9 +179,9 @@
         vec3 scatter = vec3(0.0);
         vec3 absorb  = vec3(1.0);
 
-        vec2 phaseWater = vec2(PhaseG(VoL, 0.8) * 2.0 + 1.0, PhaseG0());
+        vec2 phaseWater = vec2(PhaseG(VoL, 0.8) * 4.0 + 1.0, PhaseG0());
         vec3 phaseAir = vec3(phaseRayleigh(VoL), PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8), PhaseG0());
-        vec2 phaseFog = vec2(PhaseG(VoL, 0.6) + PhaseG(-VoL, 0.8), PhaseG0());
+        vec2 phaseFog = vec2(PhaseG(VoL, 0.6) + PhaseG(VoL, -0.8) + PhaseG(VoL, 0.2), 1.0);
 
         vec3 worldStep     = (end - start) * stepsRCP;
         vec3 worldPosition = worldStep * dither.x + start;
@@ -171,24 +210,33 @@
             CalculateVolumeLighting(visibility, shadowColour, materialID, isTransparentShadow, shadowPosition, worldPosition - cameraPosition, isSkyPixel, isWaterPixel);
 
             light[0] *= shadowColour * visibility.x;
-            light[1] *= shadowColour * visibility.x;
+            light[1] *= shadowColour;
 
-            // TODO: Atmospherics lighting.
+            #if   ATMOSPHERICS_LIGHTING_SKY_SHADOW == 0
+                light[1] *= float(!isWaterPixel);
+            #elif ATMOSPHERICS_LIGHTING_SKY_SHADOW == 1
+                light[1] *= visibility.x;                
+            #endif
 
             // Layers.
             // Water.
-            if(isWaterPixel) {
-                CalculateLayerContribution(atmosphericsLayerWater, scatter, absorb, light, existingAbsorb, phaseWater, ATMOSPHERICS_WATER_DENSITY * stepSize, distFront, isBackPass);
-            }
+            #ifdef ATMOSPHERICS_WATER
+                if(isWaterPixel)
+                    CalculateLayerContribution(atmosphericsLayerWater, scatter, absorb, light, existingAbsorb, phaseWater, ATMOSPHERICS_WATER_DENSITY * stepSize, distFront, isBackPass);
+            #endif
 
             if(isBackPass && isWaterPixel)
                 continue;
 
             // Air.
-            CalculateLayerContribution(atmosphericsLayerAir, scatter, absorb, light, existingAbsorb, phaseAir, OpticalDepthAir(worldPosition) * stepSize, distFront, isBackPass);
+            #ifdef ATMOSPHERICS_AIR
+                CalculateLayerContribution(atmosphericsLayerAir, scatter, absorb, light, existingAbsorb, phaseAir, OpticalDepthAir(worldPosition) * stepSize, distFront, isBackPass);
+            #endif
 
             // Fog.
-            CalculateLayerContribution(atmosphericsLayerFog, scatter, absorb, light, existingAbsorb, phaseFog, OpticalDepthFog(worldPosition) * stepSize, distFront, isBackPass);
+            #ifdef ATMOSPHERICS_FOG
+                CalculateLayerContribution(atmosphericsLayerFog, scatter, absorb, light, existingAbsorb, phaseFog, OpticalDepthFog(worldPosition) * stepSize, distFront, isBackPass);
+            #endif
         }
 
         return mat2x3(scatter, absorb);

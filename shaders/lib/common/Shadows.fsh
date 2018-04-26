@@ -13,18 +13,17 @@
     float CompareShadowDepth(float depth, float comparison) { return saturate(1.0 - abs(comparison - depth) * float(shadowMapResolution)); }
 
     vec2 FindBlockers(const vec3 shadowPosition, const vec2 dither) {
-        const int   samples    = 4;
+        const int   samples    = SHADOW_BLOCKER_QUALITY;
         const float samplesRCP = rcp(samples);
 
-        const float radius = 1.0e-3;
+        const float radius = 1.0e-5;
 
         float spiralMapTotal = samples * dither.y;
 
         vec2 blockers = vec2(0.0);
 
         for(int i = 0; i < samples; ++i) {
-            vec2 coord = DistortShadowPositionProj(MapSpiral(i * dither.y + dither.x, spiralMapTotal) * radius + shadowPosition.xy);
-            //vec2 coord = DistortShadowPositionProj(Map2DCentered(i, samples) * radius + shadowPosition.xy);
+            vec2 coord = DistortShadowPositionProj(MapCircle(i * dither.y + dither.x, spiralMapTotal) * radius + shadowPosition.xy);
 
             blockers += vec2(
                 texture2D(shadowtex1, coord.xy).x,
@@ -48,7 +47,7 @@
         vec3 shadowColour = vec3(0.0);
 
         for(int i = 0; i < samples; ++i) {
-            vec2 offset = MapSpiral(i * dither.y + dither.x, spiralMapTotal);
+            vec2 offset = MapCircle(i * dither.y + dither.x, spiralMapTotal);
 
             #if   PROGRAM == DEFERRED1
                 vec3 coordBack  = vec3(DistortShadowPositionProj(offset * spread.x + shadowPosition.xy), shadowPosition.z);
@@ -92,8 +91,8 @@
     vec3 CalculateShadows(const vec3 viewPosition, const vec2 dither) {
         const float spread = 200.0 * shadowDepthMult;
 
-        const float minWidth = 0.05;
-        const float maxWidth = 4.0;
+        const float minWidth = 0.0;
+        const float maxWidth = 64.0;
 
         vec3 worldPosition  = ViewToWorldPosition(viewPosition);
         vec3 shadowPosition = WorldToShadowPosition(worldPosition);
@@ -104,10 +103,11 @@
         vec2 blockers  = FindBlockers(shadowPosition, dither);
              blockers  = abs(vec2(shadowPosition.z) - blockers);
              blockers *= spread;
+             blockers *= shadowDistanceScale;
              blockers  = clamp(blockers, vec2(minWidth), vec2(maxWidth));
-             blockers *= 0.001;
+             blockers *= 1.0e-5;
 
-        return CalculateShadowColour(shadowPosition, worldPosition, blockers, dither);
+        return saturate(CalculateShadowColour(shadowPosition, worldPosition, blockers, dither));
     }
 
 #endif

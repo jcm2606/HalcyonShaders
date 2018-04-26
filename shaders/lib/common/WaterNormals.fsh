@@ -66,7 +66,7 @@
         const float deltaDist = 0.4;
         const vec2  deltaPos  = vec2(deltaDist, 0.0);
 
-        const float anisotropy = 0.55;
+        const float anisotropy = 0.5;
 
         float   height0 = CalculateWaterHeight(worldPosition);
         #define height1   CalculateWaterHeight(worldPosition + deltaPos.xyy)

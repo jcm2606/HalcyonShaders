@@ -101,7 +101,7 @@
         return vec3(cos(y) * s, sin(y) * s, c);
     }
 
-    vec3 RoughSSR(const vec3 viewPosition, const vec3 clipPosition, const vec3 N, const vec3 V, const vec2 dither, const float roughness, const vec3 f0, const float skyLight) {
+    vec3 RoughSSR(const vec3 viewPosition, const vec3 clipPosition, const vec3 N, const vec3 V, const vec2 dither, const float roughness, const vec3 f0, const float skyReflectionOcclusion) {
         const int   samples    = reflectionSamples;
         const float samplesRCP = rcp(samples);
 
@@ -122,7 +122,7 @@
             float VoH = saturate(dot(V, H));
             #define NoL saturate(dot(N, L))
 
-            colour += (SPECULAR_RAYTRACER(viewPosition, L, clipPosition, skyLight) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(a, NoV, NoL)) * samplesRCP;
+            colour += (SPECULAR_RAYTRACER(viewPosition, L, clipPosition, skyReflectionOcclusion) * Fresnel(f0, 1.0, VoH) * ExactCorrelatedG2(a, NoV, NoL)) * samplesRCP;
 
             #undef NoL
         }
@@ -130,7 +130,7 @@
         return colour;
     }
 
-    vec3 SmoothSSR(const vec3 viewPosition, const vec3 clipPosition, const vec3 N, const vec3 V, const vec2 dither, const float roughness, const vec3 f0, const float skyLight) {
+    vec3 SmoothSSR(const vec3 viewPosition, const vec3 clipPosition, const vec3 N, const vec3 V, const vec2 dither, const float roughness, const vec3 f0, const float skyReflectionOcclusion) {
         return vec3(0.0);
     }
 
@@ -140,7 +140,7 @@
 
         bool metalness = surfaceObject.f0 > 0.5;
 
-        vec3 specular  = SPECULAR_SSR(viewPosition, vec3(screenCoord, depth), surfaceObject.normal, V, dither, surfaceObject.roughness, vec3(surfaceObject.f0), pow3(surfaceObject.skyLight));
+        vec3 specular  = SPECULAR_SSR(viewPosition, vec3(screenCoord, depth), surfaceObject.normal, V, dither, surfaceObject.roughness, vec3(surfaceObject.f0), pow3(surfaceObject.skyLight) * (dot(surfaceObject.normal, viewDirectionUp) * 0.5 + 0.5));
              specular += GGX(V, lightDirection, surfaceObject.normal, surfaceObject.roughness, surfaceObject.f0) * atmosphereLighting[0] * shadow;
 
         if(metalness)

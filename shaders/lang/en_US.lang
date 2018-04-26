@@ -1,0 +1,210 @@
+# Profiles.
+# Screens.
+screen.ShaderConfig=Master Settings
+screen.Miscellaneous=Miscellaneous
+screen.Internal=Internal Settings
+screen.Uncategorised=Uncategorised
+screen.Lighting=Lighting
+screen.Shadows=Shadows
+screen.DiffuseLighting=Diffuse Lighting
+screen.SpecularLighting=Specular Lighting
+screen.RaytracerSteinSettings='Stein' Ray Tracer Settings
+screen.RaytracerJodieSettings='Jodie' Ray Tracer Settings
+screen.Volumetrics=Volumetric Effects
+screen.Atmospherics=Atmospherics
+screen.LayerAirSettings=Air Settings
+screen.LayerWaterSettings=Volumetric Water Settings
+screen.LayerFogSettings=Volumetric Fog Settings
+screen.FogHeightSettings=Height Fog Settings
+screen.FogMistSettings=Mist Settings
+screen.FogGroundSettings=Ground Fog Settings
+screen.FogMorningSettings=Morning Fog Settings
+screen.FogNightSettings=Night Fog Settings
+screen.Geometry=Geometry
+screen.TerrainParallax=Terrain Parallax
+screen.WaterParallax=Water Parallax
+screen.VertexDeformation=Vertex Deformation
+screen.Camera=Camera
+screen.LensSettings=Lens Settings
+screen.PostProcessing=Post Processing
+
+# Options.
+# Master Settings.
+option.GLOBAL_SPEED=Global Speed
+
+option.MATERIAL_FORMAT=Material Format
+value.MATERIAL_FORMAT.0=Hardcoded
+value.MATERIAL_FORMAT.1=Specular
+value.MATERIAL_FORMAT.2=Old PBR, No Emission
+value.MATERIAL_FORMAT.3=Old PBR, Emission
+value.MATERIAL_FORMAT.4=New PBR, Pulchra
+
+option.NO_ALBEDO=White World
+
+option.NORMAL_MAPS=Normal Maps
+
+option.SEA_LEVEL=Sea Level
+
+option.sunPathRotation=Sun Rotation
+
+option.wetnessHalflife=Wetness Halflife
+
+option.drynessHalflife=Dryness Halflife
+
+# Miscellaneous.
+# Internal Settings.
+# Uncategorised.
+# Lighting.
+# Shadows.
+option.shadowMapResolution=Resolution
+
+option.SHADOW_QUALITY=Quality
+
+option.SHADOW_DISTORTION_FACTOR=Distortion Factor
+
+option.SHADOW_BLOCKER_QUALITY=Blocker Accuracy
+
+# Diffuse Lighting.
+option.BLOCK_LIGHT_ANISOTROPY=Block Light Anisotropy
+
+option.BLOCK_LIGHT_BRIGHTNESS=Block Light Intensity
+
+option.BLOCK_LIGHT_TEMPERATURE=Block Light Temperature
+
+option.SKY_LIGHT_ANISOTROPY=Sky Light Anisotropy
+
+# Specular Lighting.
+option.SPECULAR_SSR=Specular Model
+value.SPECULAR_SSR.RoughSSR=Variable Softness
+value.SPECULAR_SSR.SharpSSR=Sharp
+
+option.SPECULAR_SSR_ROUGH_SAMPLES=Variable Softness Samples
+
+option.SPECULAR_RAYTRACER=Ray Tracer
+value.SPECULAR_RAYTRACER.RaytraceClipStein='Stein'
+value.SPECULAR_RAYTRACER.RaytraceClipJodie='Jodie'
+
+# Stein Ray Tracer.
+option.SPECULAR_RAYTRACER_1_QUALITY=Accuracy
+
+option.SPECULAR_RAYTRACER_1_REFINEMENTS=Refinements
+
+# Jodie Ray Tracer.
+option.SPECULAR_RAYTRACER_0_QUALITY=Accuracy
+
+option.SPECULAR_RAYTRACER_0_REFINEMENTS=Refinements
+
+# Volumetric Effects.
+option.VOLUMETRICS=Volumetric Effects
+
+# Atmospherics.
+option.ATMOSPHERICS=Atmospherics
+
+option.ATMOSPHERICS_STEPS=Steps
+
+option.ATMOSPHERICS_AIR=Air
+
+option.ATMOSPHERICS_WATER=Volumetric Water
+
+option.ATMOSPHERICS_FOG=Volumetric Fog
+
+option.ATMOSPHERICS_LIGHTING_SKY_SHADOW=Sky Light Shadowing
+value.ATMOSPHERICS_LIGHTING_SKY_SHADOW.0=None
+value.ATMOSPHERICS_LIGHTING_SKY_SHADOW.1=Direct
+value.ATMOSPHERICS_LIGHTING_SKY_SHADOW.2=Approximate
+
+# Air Settings.
+option.ATMOSPHERICS_AIR_HEIGHT=Height
+
+option.ATMOSPHERICS_AIR_DENSITY=Density
+
+# Volumetric Water Settings.
+option.ATMOSPHERICS_WATER_DENSITY=Density
+
+option.ATMOSPHERICS_WATER_TURBIDITY=Turbidity
+
+option.ATMOSPHERICS_WATER_ABSORPTION=Absorption Intensity
+
+# Volumetric Fog Settings.
+option.ATMOSPHERICS_HEIGHT_FOG=Height Fog
+
+option.ATMOSPHERICS_MIST_FOG=Mist
+
+option.ATMOSPHERICS_GROUND_FOG=Ground Fog
+
+option.ATMOSPHERICS_MORNING_FOG=Morning Fog
+
+option.ATMOSPHERICS_NIGHT_FOG=Night Fog
+
+option.ATMOSPHERICS_RAIN_FOG=Rain Fog
+
+# Height Fog Settings.
+option.ATMOSPHERICS_HEIGHT_FOG_HEIGHT=Height
+
+option.ATMOSPHERICS_HEIGHT_FOG_DENSITY=Density
+
+# Mist Settings.
+option.ATMOSPHERICS_MIST_FOG_HEIGHT=Height
+
+option.ATMOSPHERICS_MIST_FOG_DENSITY=Density
+
+# Ground Fog Settings.
+option.ATMOSPHERICS_GROUND_FOG_HEIGHT=Height
+
+option.ATMOSPHERICS_GROUND_FOG_DENSITY=Density
+
+option.ATMOSPHERICS_GROUND_FOG_ROLLING=Rolling Ground Fog
+
+# Morning Fog Settings.
+# Night Fog Settings.
+# Geometry.
+# Terrain Parallax.
+option.PARALLAX_TERRAIN=Terrain Parallax
+
+option.PARALLAX_TERRAIN_DEPTH=Depth
+
+option.PARALLAX_TERRAIN_SHADOW=Parallax Shadows
+
+# Water Parallax.
+option.PARALLAX_WATER=Water Parallax
+
+option.PARALLAX_WATER_STEPS=Steps
+
+option.PARALLAX_WATER_HEIGHT=Depth
+
+# Vertex Deformation.
+# Camera.
+option.EXPOSURE_AUTO=Automatic Exposure
+
+option.EXPOSURE=Manuel Exposure
+
+option.CAMERA_FOCAL_LENGTH=Focal Length
+
+option.CAMERA_APERTURE=Aperture
+
+option.DOF=Depth of Field
+
+option.DOF_SAMPLES=DOF Samples
+
+option.CAMERA_FOCUS_MODE=Focus Mode
+value.CAMERA_FOCUS_MODE.0=Manual
+value.CAMERA_FOCUS_MODE.1=Automatic
+
+option.CAMERA_MANUAL_FOCUS=Focal Point
+
+# Lens Settings.
+option.LENS_PREVIEW=Preview Lens
+
+option.LENS_BLADES=Blades
+
+option.LENS_ROTATION=Rotation
+
+option.LENS_ROUNDING=Rounding
+
+option.LENS_SHARPNESS=Sharpness
+
+option.LENS_SHIFT=Shift
+
+option.LENS_BIAS=Bias
+
+# Post Processing.

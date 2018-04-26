@@ -25,6 +25,9 @@
     const float phi    = 1.61803398875;
     const float phiRCP = rcp(phi);
 
+    const float goldenAngle    = tau / phi / phi;
+    const float goldenAngleRCP = rcp(goldenAngle);
+
     const float ubyteMax    = exp2(8);
     const float ubyteMaxRCP = rcp(ubyteMax);
 
@@ -124,6 +127,8 @@
             sin(r),  cos(r) \
         ); \
 
+    vec2 sincos(float x) { return vec2(sin(x), cos(x)); }
+
     // Matrix Ops.
     #define transMAD(mat, v) ( mat3(mat) * (v) + (mat)[3].xyz )
 
@@ -196,6 +201,9 @@
     // Scene Ops.
     #define getLandMask(x) ( x < 1.0 - near / far / far )
 
+    #define getDepthLinear(x) ( (2.0 * near) / (far + near - x * (far - near)) )
+    #define getDepthExp(x) ( (far * (x - near)) / (x * (far - near)) )
+
     // Point Mapping.
     vec2 MapLattice(const float i, const float n) { return vec2(mod(i * pi, sqrt(n)) * inversesqrt(n), i / n); }
 
@@ -205,7 +213,9 @@
         return vec2(sin(theta), cos(theta)) * sqrt(i / n);
     }
 
-    vec2 MapCircle(const float i) { return vec2(cos(i), sin(i)); }
+    vec2 MapCircle(const float i, float n) { return sincos(i * n * goldenAngle) * sqrt(i); }
+
+    vec3 MapCircle3(const float i, const float n) { return vec3(sincos(i * n * goldenAngle), sqrt(i)); }
 
     vec2 Map2D(const int i, const int t) {
         float tSqrt = sqrt(t);

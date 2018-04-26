@@ -22,6 +22,8 @@
 
     vec2 CalculateParallaxCoord(out vec2 parallaxCoord, const vec2 uvCoord, const vec3 viewDirection, const mat2 texD) {
         #ifndef PARALLAX_TERRAIN
+            parallaxCoord = uvCoord;
+
             return uvCoord;
         #endif
         

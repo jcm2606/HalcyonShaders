@@ -21,14 +21,14 @@
     vec2 GetSkyThickness(vec3 direction) {
         vec2 sr = earthRadius + vec2(atmosphereHeight, atmosphereHeight * mieDistribution * rayleighDistributionRCP);
 
-        vec3 ro = -upDirection * earthRadius;
+        vec3 ro = -viewDirectionUp * earthRadius;
 
         float b = dot(direction, ro);
 
         return b + sqrt(sr * sr + (b * b - dot(ro, ro)));
     }
 
-    #define getEarth(x) ( smoothstep(-0.1, 0.1, dot(upDirection, x)) )
+    #define getEarth(x) ( smoothstep(-0.1, 0.1, dot(viewDirectionUp, x)) )
     #define phaseRayleigh(x) ( 0.4 * x + 1.14 )
 
     float PhaseMie(float x) {
@@ -67,7 +67,7 @@
         vec3 scatterM = scatterCoeff.xyz * phaseRayleigh(VoM) + (scatterCoeff.w * PhaseMie((mode > 0) ? 0.0 : VoM));
 
         const float sunScatterIntensity = 1.5;
-        const float moonScatterIntensity = 0.002;
+        const float moonScatterIntensity = 0.0002;
 
         vec3 absorbS = Absorb(GetSkyThickness(sunDirection) * stepsRCP) * getEarth(sunDirection) * sunScatterIntensity;
         vec3 absorbM = Absorb(GetSkyThickness(moonDirection) * stepsRCP) * getEarth(moonDirection) * moonScatterIntensity;
@@ -92,7 +92,7 @@
     mat2x3 CalculateAtmosphereLighting() {
         return mat2x3(
             CalculateLightScatter(lightDirection),
-            CalculateScatter(vec3(0.0), upDirection, 1) * 2.0
+            CalculateScatter(vec3(0.0), viewDirectionUp, 1) * 2.0
         );
     }
 

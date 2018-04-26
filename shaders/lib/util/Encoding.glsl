@@ -30,7 +30,7 @@
         const vec3  cExponent2 = exp2(vec3(8.0, 16.0, 24.0));
         const vec3  cExponent3 = exp2(-vec3(0.0, 8.0, 16.0));
 
-        float exponent = 0.0;
+        int exponent = 0;
         float packedFloat = (frexp(encoded, exponent) - 0.5) * cExponent1;
         
         float z_sign2 = sign(packedFloat);
@@ -40,7 +40,7 @@
         decoded.xyz  = mod(vec3(packedFloat), cExponent2);
         decoded.yz  -= decoded.xy;
         decoded.xyz *= cExponent3;
-        decoded.w    = exponent + 125.0;
+        decoded.w    = float(exponent) + 125.0;
         
         if (z_sign2 < 0.0) decoded.z += 128.0;
         
@@ -112,8 +112,8 @@
         return mod(encoded * uhalfMaxOverPositions, values) * maxValuesRCP;
     }
 
-    #define EncodeColour(c) ( c )
-    #define DecodeColour(c) ( c )
+    #define EncodeColour(c) ( c * 0.25 )
+    #define DecodeColour(c) ( c * 4.0 )
 
     #define EncodeShadow(c) ( c * 0.25 )
     #define DecodeShadow(c) ( c * 4.0 )

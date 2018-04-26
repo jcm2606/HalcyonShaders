@@ -30,6 +30,8 @@ flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
 
+flat(vec4) timeVector;
+
 // Screen Samples.
 // Uniforms.
 uniform sampler2D colortex0;
@@ -46,6 +48,8 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
+uniform sampler2D noisetex;
+
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
@@ -59,6 +63,7 @@ uniform float near;
 uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float frameTimeCounter;
 
 uniform int isEyeInWater;
 uniform int frameCounter;
@@ -80,6 +85,8 @@ uniform int frameCounter;
 #include "/lib/deferred/SpecularLighting.fsh"
 
 #include "/lib/deferred/Refraction.fsh"
+
+#include "/lib/deferred/Camera.fsh"
 
 // Functions.
 // Main.
@@ -150,8 +157,12 @@ void main() {
         image = CalculateSpecularLighting(surfaceObject, atmosphereLighting, image, vec3(highlightOcclusion), viewPositionFront, screenCoord, dither, depthFront);
 
     image = image * atmosphericsVolumeFront[1] + atmosphericsVolumeFront[0];
+
+    //image = surfaceObject.normal * 0.5 + 0.5;
+    //image = (surfaceObject.albedo);
     
-    /* DRAWBUFFERS:4 */
+    /* DRAWBUFFERS:45 */
     gl_FragData[0] = vec4(EncodeColour(image), 1.0);
+    gl_FragData[1] = vec4(CalculateBokeh(screenCoord, BOKEH_OFFSET, 2.0), 1.0);
 }
 // EOF.

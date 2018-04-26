@@ -94,16 +94,15 @@
         while(--steps > 0) {
             // March a ray out from the surface to find any intersections.
 
-            rayHit = depth < clipPosition.z;
+            rayHit = depth <= clipPosition.z;
 
             if(!onScreen())
-                return skyReflection; // If the ray goes off the screen, then we can return the sky reflection, as it won't hit anything.
+                break; // If the ray goes off the screen, then we can return the sky reflection, as it won't hit anything.
 
             if(rayHit)
                 break; // If the ray hits something, break out of the loop.
 
-            stepLength = (depth - clipPosition.z) * stepWeight;
-            stepLength = clamp(stepLength, minStepLength, maxStepLength);
+            stepLength = clamp((depth - clipPosition.z) * stepWeight, minStepLength, maxStepLength);
 
             clipPosition = direction * stepLength + clipPosition;
 
@@ -116,12 +115,14 @@
             clipPosition += direction * clamp((depth - clipPosition.z) * stepWeight, -stepLength, stepLength);
             depth = texture2D(depthtex2, clipPosition.xy).x;
             stepLength *= 0.5;
+
+            //rayHit = depth <= clipPosition.z;
         }
 
         if(
             faceVisible() + 0.001 // Not a back face.
             && depth < 1.0 // Not the sky.
-            && 0.95 < clipPosition.z // Not camera clipping.
+            && 0.97 < clipPosition.z // Not camera clipping.
             && rayHit
         ) return DecodeColour(texture2DLod(colortex4, clipPosition.xy, 0).rgb);
 
