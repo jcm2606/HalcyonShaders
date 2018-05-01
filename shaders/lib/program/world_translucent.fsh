@@ -11,15 +11,12 @@ varying vec3 tint;
 varying vec3 viewPosition;
 varying vec3 worldPosition;
 
-varying vec3 vertexNormal;
-
 varying vec2 uvCoord;
 varying vec2 lmCoord;
 
 varying float vanillaAO;
 
 flat(mat3) tbn;
-flat(mat2) tileInfo;
 
 flat(vec2) entity;
 

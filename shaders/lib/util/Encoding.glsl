@@ -19,16 +19,14 @@
         
         float encode = dot(decoded.rgb, cExponent1);
         
-        float encodebuffer = encode * cExponent2 + 0.5;
-        encodebuffer = ldexp(encodebuffer * z_sign, int(decoded.a - 125.0));
-        
-        return encodebuffer;
+        return ldexp((encode * cExponent2 + 0.5) * z_sign, int(decoded.a - 125.0));
     }
 
     vec4 Decode4x8F(const float encoded) {
         const float cExponent1 = exp2(24.0);
         const vec3  cExponent2 = exp2(vec3(8.0, 16.0, 24.0));
         const vec3  cExponent3 = exp2(-vec3(0.0, 8.0, 16.0));
+        const vec4  divisor    = rcp(vec4(254.0, 255.0, 255.0, 252.0));
 
         int exponent = 0;
         float packedFloat = (frexp(encoded, exponent) - 0.5) * cExponent1;
@@ -44,7 +42,7 @@
         
         if (z_sign2 < 0.0) decoded.z += 128.0;
         
-        return decoded / vec4(254.0, 255.0, 255.0, 252.0);
+        return decoded * divisor;
     }
 
     float Encode2x16F(const vec2 decoded) {

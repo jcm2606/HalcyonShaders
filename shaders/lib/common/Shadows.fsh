@@ -89,7 +89,7 @@
     }
 
     vec3 CalculateShadows(const vec3 viewPosition, const vec2 dither) {
-        const float spread = 200.0 * shadowDepthMult;
+        const float spread = 200.0 * shadowDepthMult * shadowDistanceScale;
 
         const float minWidth = 0.0;
         const float maxWidth = 64.0;
@@ -103,11 +103,10 @@
         vec2 blockers  = FindBlockers(shadowPosition, dither);
              blockers  = abs(vec2(shadowPosition.z) - blockers);
              blockers *= spread;
-             blockers *= shadowDistanceScale;
              blockers  = clamp(blockers, vec2(minWidth), vec2(maxWidth));
              blockers *= 1.0e-5;
 
-        return saturate(CalculateShadowColour(shadowPosition, worldPosition, blockers, dither));
+        return CalculateShadowColour(shadowPosition, worldPosition, blockers, dither);
     }
 
 #endif

@@ -72,10 +72,13 @@ void main() {
     if(isWater) {
         vec3 refractedPosition = refract(normalize(worldPosition), normal, 0.75) * 4.0 + worldPosition;
 
-        float oldArea = fLength(dFdx(worldPosition)) * fLength(dFdy(worldPosition));
-        float newArea = fLength(dFdx(refractedPosition)) * fLength(dFdy(refractedPosition));
+        #define oldArea ( fLength(dFdx(worldPosition)) * fLength(dFdy(worldPosition)) )
+        #define newArea ( fLength(dFdx(refractedPosition)) * fLength(dFdy(refractedPosition)) )
 
         albedo.rgb = vec3(abs((oldArea / newArea)));
+
+        #undef oldArea
+        #undef newArea
     }
 
     gl_FragData[0] = vec4(EncodeShadow(albedo.rgb), albedo.a);

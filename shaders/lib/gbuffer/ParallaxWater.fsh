@@ -21,7 +21,7 @@
 
         const float incrementLength = stepsRCP * 4.0;
 
-        viewDirection.xy = viewDirection.xy * fInverseLength(viewDirection) * incrementLength;
+        //viewDirection.xy = viewDirection.xy * fInverseLength(viewDirection) * incrementLength;
 
         float waveHeight = CalculateWaterHeight(worldPosition) * height;
 

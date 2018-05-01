@@ -8,6 +8,8 @@
     #define INCLUDED_COMMON_DIFFUSELIGHTING
 
     #include "/lib/common/Shadows.fsh"
+
+    #include "/lib/common/Clouds.fsh"
     
     float CalculateBlockLightFalloff(const float blockLight) {
         float squareDistance = pow2(clamp((1.0 - blockLight) * 16.0, 0.0, 16.0));
@@ -16,12 +18,15 @@
     }
 
     vec3 CalculateShadedFragment(const mat2x3 atmosphereLighting, const vec3 albedo, const vec3 normal, const vec3 shadowColour, const vec3 viewPosition, const vec2 screenCoord, const vec2 dither, const float blockLight, const float skyLight, const float parallaxShadow, const float vanillaAO, const float roughness, const float emission, const bool isSubsurfaceMaterial, const bool isEmissiveSurface, io float highlightOcclusion) {
+        float cloudShadowDirect = CalculateCloudShadow(ViewToWorldPosition(viewPosition) + cameraPosition, lightDirectionWorld, CLOUDS_SHADOW_DENSITY_MULT);
+
         vec3 directOcclusion = shadowColour * parallaxShadow;//mix(parallaxShadow, 1.0, saturate(pow4(fLength(viewPosition) * 0.05)));
 
-        highlightOcclusion = dot(directOcclusion, vec3(0.333333));
+        highlightOcclusion = dot(directOcclusion * cloudShadowDirect, vec3(0.333333));
 
         vec3 lightDirect  = atmosphereLighting[0];
              lightDirect *= directOcclusion;
+             lightDirect *= cloudShadowDirect;
              lightDirect *= max0(dot(lightDirection, normal));
              lightDirect *= float(!isSubsurfaceMaterial) * 0.5 + 0.5;
 
@@ -40,6 +45,7 @@
 
         vec3 sss  = atmosphereLighting[0];
              sss *= shadowColour;
+             sss *= cloudShadowDirect;
              //sss *= 0.5;
              sss *= albedo;
              sss *= float(isSubsurfaceMaterial);

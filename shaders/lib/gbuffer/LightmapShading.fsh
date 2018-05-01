@@ -11,11 +11,6 @@
         #if PROGRAM == GBUFFERS_EYES
             return lightmap;
         #endif
-
-        /*
-        mat2x3 positionD = mat2x3(dFdx(worldSpacePosition), dFdy(worldSpacePosition));
-        vec3 lightDirection = normalize( positionD * vec2( dFdx(lmCoord.x), dFdy(lmCoord.x) ) );
-        */
         
         vec2 blockD = vec2(dFdx(lightmap.x), dFdy(lightmap.x)) * 256.0;
         vec2 skyD   = vec2(dFdx(lightmap.y), dFdy(lightmap.y)) * 256.0;

@@ -26,6 +26,7 @@ varying vec2 screenCoord;
 flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
+flat(vec3) lightDirectionWorld;
 
 // Screen Samples.
 // Uniforms.
@@ -40,6 +41,8 @@ uniform sampler2D shadowcolor1;
 
 uniform sampler2D depthtex1;
 
+uniform sampler2D noisetex;
+
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
@@ -53,6 +56,8 @@ uniform float near;
 uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float frameTimeCounter;
+uniform float rainStrength;
 
 uniform int isEyeInWater;
 uniform int frameCounter;
@@ -67,8 +72,11 @@ uniform int frameCounter;
 #include "/lib/util/SpaceTransform.glsl"
 
 #include "/lib/common/Jitter.glsl"
+
 #include "/lib/common/Atmosphere.fsh"
+
 #include "/lib/common/Sky.fsh"
+
 #include "/lib/common/DiffuseLighting.fsh"
 
 // Functions.

@@ -38,8 +38,7 @@ void main() {
     vec3 image = DecodeColour(screenObject.tex4.rgb);
          // TODO: Bloom.
          image = image / (1.0 + image);
-         image = ToGamma(image);
-    
-    gl_FragColor = vec4(image, 1.0);
+        
+    gl_FragColor = vec4(ToGamma(image), 1.0);
 }
 // EOF.

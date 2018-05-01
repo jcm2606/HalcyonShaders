@@ -44,6 +44,9 @@
     // AMD supposedly doesn't have a constant radians function, so I've implemented it manually using a macro.
     // radians should have a hardware optimised implementation, so this is not for use in dynamic expressions, ONLY constant expressions.
     #define cRadians(x) ( (pi * x) / 180.0 )
+
+    // Older NVIDIA drivers don't like using `mix()`.
+    #define cMix(x, y, a) ( x * (1.0 - a) + (y * a) )
     
     // Generic Ops.
     #define pow2_DEF(type) type pow2(const type x) { return x * x; }
@@ -154,7 +157,7 @@
     #define luma(x) ( dot(x, lumaCoefficient) )
 
     vec3 SaturationMod(const vec3 x, const float s) { return mix(vec3(dot(x, lumaCoefficient)), x, s); }
-    #define saturationMod(x, s) ( mix(vec3(dot(x, lumaCoefficient)), x, s) )
+    #define saturationMod(x, s) ( cMix(vec3(dot(x, lumaCoefficient)), x, s) )
 
     vec3 Blackbody(const float K) {
         const vec4 vx = vec4(-0.2661239e9, -0.2343580e6, 0.8776956e3, 0.179910);
@@ -203,6 +206,8 @@
 
     #define getDepthLinear(x) ( (2.0 * near) / (far + near - x * (far - near)) )
     #define getDepthExp(x) ( (far * (x - near)) / (x * (far - near)) )
+
+    #define worldDailyCycle() ( (float(moonPhase) * 24000.0 + float(worldTime)) * 0.00000595238095238 )
 
     // Point Mapping.
     vec2 MapLattice(const float i, const float n) { return vec2(mod(i * pi, sqrt(n)) * inversesqrt(n), i / n); }

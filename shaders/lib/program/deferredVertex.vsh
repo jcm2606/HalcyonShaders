@@ -7,13 +7,16 @@ flat(vec4) timeVector;
 flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
+flat(vec3) lightDirectionWorld;
 
 // Screen Samples.
 // Uniforms.
-uniform float sunAngle;
+uniform mat4 gbufferModelViewInverse;
 
 uniform vec3 sunPosition;
 uniform vec3 shadowLightPosition;
+
+uniform float sunAngle;
 
 // Structs.
 // Globals.
@@ -32,5 +35,6 @@ void main() {
     sunDirection = sunPosition * 0.01;
     moonDirection = -sunPosition * 0.01;
     lightDirection = normalize(shadowLightPosition);
+    lightDirectionWorld = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 }
 // EOF.

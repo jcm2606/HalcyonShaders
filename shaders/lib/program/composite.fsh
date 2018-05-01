@@ -29,6 +29,7 @@ varying vec2 screenCoord;
 flat(vec3) sunDirection;
 flat(vec3) moonDirection;
 flat(vec3) lightDirection;
+flat(vec3) lightDirectionWorld;
 
 flat(vec4) timeVector;
 
@@ -64,6 +65,7 @@ uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float frameTimeCounter;
+uniform float rainStrength;
 
 uniform int isEyeInWater;
 uniform int frameCounter;
@@ -79,6 +81,8 @@ uniform int frameCounter;
 
 #include "/lib/common/Atmosphere.fsh"
 #include "/lib/common/DiffuseLighting.fsh"
+
+#include "/lib/common/Clouds.fsh"
 
 #include "/lib/deferred/Atmospherics.fsh"
 
@@ -142,6 +146,9 @@ void main() {
     float distFront = distance(viewPositionEye, viewPositionFront);
 
     mat2x3 atmosphericsVolumeFront = CalculateAtmosphericsVolume(atmosphereLighting, (underWater) ? worldPositionFront : worldPositionEye, (underWater) ? worldPositionBack : worldPositionFront, vec3(1.0), screenCoord, dither, VoL, distFront, false, isSkyPixel, false, isTransparentPixel);
+
+    if(isSkyPixel)
+        image = CalculateClouds(atmosphereLighting, image, viewPositionBack, worldPositionBack, depthBack, dither);
 
     if(isTransparentPixel || underWater) {
         mat2x3 atmosphericsVolumeBack = CalculateAtmosphericsVolume(atmosphereLighting, (underWater) ? worldPositionEye : worldPositionFront, (underWater) ? worldPositionFront : worldPositionBack, atmosphericsVolumeFront[1], screenCoord, dither, VoL, distFront, true, isSkyPixel, isWaterPixel || underWater, isTransparentPixel);

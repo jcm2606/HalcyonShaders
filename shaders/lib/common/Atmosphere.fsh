@@ -18,6 +18,8 @@
     const vec3  ozoneCoeff = vec3(3.426, 8.298, 0.356) * 6.0e-5 / 100.0;
     const float mieCoeff = 3.0e-6 * mieMultiplier;
 
+    const vec3 moonColour = saturationMod(vec3(0.0, 0.0, 1.0), 0.11);
+
     vec2 GetSkyThickness(vec3 direction) {
         vec2 sr = earthRadius + vec2(atmosphereHeight, atmosphereHeight * mieDistribution * rayleighDistributionRCP);
 
@@ -44,7 +46,7 @@
     }
 
     vec3 CalculateLightScatter(vec3 direction) {
-        return Absorb(GetSkyThickness(direction)) * getEarth(direction) * ((sunAngle <= 0.5) ? LIGHT_SUN_INTENSITY : LIGHT_MOON_INTENSITY);
+        return Absorb(GetSkyThickness(direction)) * getEarth(direction) * ((sunAngle <= 0.5) ? vec3(LIGHT_SUN_INTENSITY) : LIGHT_MOON_INTENSITY * moonColour);
     }
 
     float GetBodyMask(float VoL, const float sizeDegrees) {
@@ -73,7 +75,7 @@
         vec3 absorbM = Absorb(GetSkyThickness(moonDirection) * stepsRCP) * getEarth(moonDirection) * moonScatterIntensity;
 
         const float sunSpotIntensity = LIGHT_SUN_INTENSITY * SUN_SPOT_MULTIPLIER;
-        const float moonSpotIntensity = LIGHT_MOON_INTENSITY * MOON_SPOT_MULTIPLIER;
+        const vec3 moonSpotIntensity = LIGHT_MOON_INTENSITY * MOON_SPOT_MULTIPLIER * moonColour;
 
         vec3 skyS = (vec3(float(mode == 0)) * GetBodyMask(VoS, SUN_SIZE)) * sunSpotIntensity + space;
         vec3 skyM = (vec3(float(mode == 0)) * GetBodyMask(VoM, MOON_SIZE)) * moonSpotIntensity + space;

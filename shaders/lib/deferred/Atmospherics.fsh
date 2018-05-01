@@ -156,6 +156,8 @@
             opticalDepth += exp(-abs(seaLevelHeight) / ATMOSPHERICS_GROUND_FOG_HEIGHT) * fogGroundDensity * groundFogNoise;
         #endif
 
+        opticalDepth += saturate(exp(-worldPosition.y / ATMOSPHERICS_RAIN_FOG_HEIGHT)) * ATMOSPHERICS_RAIN_FOG_DENSITY * rainStrength;
+
         return opticalDepth;
     }
 
@@ -209,7 +211,7 @@
 
             CalculateVolumeLighting(visibility, shadowColour, materialID, isTransparentShadow, shadowPosition, worldPosition - cameraPosition, isSkyPixel, isWaterPixel);
 
-            light[0] *= shadowColour * visibility.x;
+            light[0] *= shadowColour * visibility.x * CalculateCloudShadow(worldPosition, lightDirectionWorld, CLOUDS_SHADOW_DENSITY_MULT);
             light[1] *= shadowColour;
 
             #if   ATMOSPHERICS_LIGHTING_SKY_SHADOW == 0

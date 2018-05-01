@@ -12,6 +12,7 @@ screen.RaytracerSteinSettings='Stein' Ray Tracer Settings
 screen.RaytracerJodieSettings='Jodie' Ray Tracer Settings
 screen.Volumetrics=Volumetric Effects
 screen.Atmospherics=Atmospherics
+screen.Clouds=Volumetric Clouds
 screen.LayerAirSettings=Air Settings
 screen.LayerWaterSettings=Volumetric Water Settings
 screen.LayerFogSettings=Volumetric Fog Settings
@@ -30,7 +31,35 @@ screen.PostProcessing=Post Processing
 
 # Options.
 # Master Settings.
-option.GLOBAL_SPEED=Global Speed
+option.TIME_MULT=Global Speed
+value.TIME_MULT.0.0=Frozen
+value.TIME_MULT.0.083333=12x Slower
+value.TIME_MULT.0.090909=11x Slower
+value.TIME_MULT.0.1=10x Slower
+value.TIME_MULT.0.111111=9x Slower
+value.TIME_MULT.0.125=8x Slower
+value.TIME_MULT.0.142857=7x Slower
+value.TIME_MULT.0.166667=6x Slower
+value.TIME_MULT.0.2=5x Slower
+value.TIME_MULT.0.25=4x Slower
+value.TIME_MULT.0.333333=3x Slower
+value.TIME_MULT.0.5=2x Slower
+value.TIME_MULT.1.0=Real Time
+value.TIME_MULT.2.0=2x Faster
+value.TIME_MULT.3.0=3x Faster
+value.TIME_MULT.4.0=4x Faster
+value.TIME_MULT.5.0=5x Faster
+value.TIME_MULT.6.0=6x Faster
+value.TIME_MULT.7.0=7x Faster
+value.TIME_MULT.8.0=8x Faster
+value.TIME_MULT.9.0=9x Faster
+value.TIME_MULT.10.0=10x Faster
+value.TIME_MULT.11.0=11x Faster
+value.TIME_MULT.12.0=12x Faster
+
+option.TIME_SCRUB_MAJOR=Time Scrubber Major
+
+option.TIME_SCRUB_MINOR=Time Scrubber Minor
 
 option.MATERIAL_FORMAT=Material Format
 value.MATERIAL_FORMAT.0=Hardcoded
@@ -157,6 +186,42 @@ option.ATMOSPHERICS_GROUND_FOG_ROLLING=Rolling Ground Fog
 
 # Morning Fog Settings.
 # Night Fog Settings.
+# Clouds.
+option.CLOUDS=Volumetric Clouds
+
+option.CLOUDS_STEPS=Quality
+
+option.CLOUDS_DETAIL=Detail
+
+option.CLOUDS_ALTITUDE=Altitude
+
+option.CLOUDS_SCALE=Scale
+
+option.CLOUDS_SPEED=Speed Multiplier
+
+option.CLOUDS_HEIGHT=Height
+
+option.CLOUDS_COVERAGE_CLEAR=Clear Weather Coverage
+
+option.CLOUDS_COVERAGE_RAIN=Rainy Weather Coverage
+
+option.CLOUDS_DENSITY_CLEAR=Clear Weather Density
+
+option.CLOUDS_DENSITY_RAIN=Rainy Weather Density
+
+option.CLOUDS_SHADOW=Cloud Shadow
+
+option.CLOUDS_SHADOW_STEPS=Cloud Shadow Accuracy
+
+option.CLOUDS_LIGHTING_DIRECT_STEPS=Direct Light Steps
+value.CLOUDS_LIGHTING_DIRECT_STEPS.0=None
+
+option.CLOUDS_LIGHTING_SKY_STEPS=Sky Light Steps
+value.CLOUDS_LIGHTING_SKY_STEPS.0=None
+
+option.CLOUDS_LIGHTING_BOUNCED_STEPS=Bounced Light Steps
+value.CLOUDS_LIGHTING_BOUNCED_STEPS.0=None
+
 # Geometry.
 # Terrain Parallax.
 option.PARALLAX_TERRAIN=Terrain Parallax

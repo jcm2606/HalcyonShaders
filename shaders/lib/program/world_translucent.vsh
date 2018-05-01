@@ -11,15 +11,12 @@ varying vec3 tint;
 varying vec3 viewPosition;
 varying vec3 worldPosition;
 
-varying vec3 vertexNormal;
-
 varying vec2 uvCoord;
 varying vec2 lmCoord;
 
 varying float vanillaAO;
 
 flat(mat3) tbn;
-flat(mat2) tileInfo;
 
 flat(vec2) entity;
 
@@ -66,10 +63,14 @@ void main() {
 
     viewPosition = transMAD(gbufferModelView, worldPosition);
 
-    gl_Position = viewPosition.xyzz * diagonal4(gbufferProjection) + gbufferProjection[3];
-    gl_Position.xy = CalculateJitter() * gl_Position.w + gl_Position.xy;
+    #if PROGRAM == GBUFFERS_HAND_WATER
+        gl_Position = viewPosition.xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+    #else
+        gl_Position = viewPosition.xyzz * diagonal4(gbufferProjection) + gbufferProjection[3];
+        gl_Position.xy = CalculateJitter() * gl_Position.w + gl_Position.xy;
+    #endif
 
-    vertexNormal = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 vertexNormal = normalize(gl_NormalMatrix * gl_Normal);
 
     tbn    = mat3(0.0);
     tbn[0] = normalize(gl_NormalMatrix * at_tangent.xyz / at_tangent.w);

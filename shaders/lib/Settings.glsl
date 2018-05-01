@@ -28,8 +28,11 @@
     #endif
 
     // Internal Configuration.
-    #define GLOBAL_SPEED 1.0
-    #define TIME ( frameTimeCounter * GLOBAL_SPEED )
+    #define TIME_MULT 1.0 // [0.0 0.083333 0.090909 0.1 0.111111 0.125 0.142857 0.166667 0.2 0.25 0.333333 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0]
+    #define TIME_SCRUB_MAJOR 0.0 // [-10.0 -9.0 -8.0 -7.0 -6.0 -5.0 -4.0 -3.0 -2.0 -1.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+    #define TIME_SCRUB_MINOR 0.0 // [-10.0 -9.0 -8.0 -7.0 -6.0 -5.0 -4.0 -3.0 -2.0 -1.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+
+    #define TIME ( frameTimeCounter * TIME_MULT + TIME_SCRUB_MAJOR * 10.0 + TIME_SCRUB_MINOR )
 
     //#define NO_ALBEDO
 
@@ -49,8 +52,10 @@
     #define DOF_DISTORTION_ANAMORPHIC 1.0
     #define DOF_DISTORTION_BARREL 0.6
 
-    #define EXPOSURE 0.125
+    #define EXPOSURE 1.0 // [0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0]
     #define EXPOSURE_AUTO
+
+    const float exposure = EXPOSURE * 0.125;
 
     #define CAMERA_FOCUS_MODE 1 // [0 1]
     #define CAMERA_MANUAL_FOCUS 96.0 // [8.0 16.0 24.0 32.0 40.0 48.0 56.0 64.0 72.0 80.0 88.0 96.0 104.0 112.0 120.0 128.0 136.0 144.0 152.0 160.0 168.0 176.0 184.0 192.0 200.0 208.0 216.0 224.0 232.0 240.0 248.0 256.0]
@@ -88,8 +93,8 @@
 
     #define SHADOW_DISTORTION_FACTOR 0.9 // [0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95]
 
-    #define SHADOW_QUALITY 12 // [8 10 12 14 16 18 20 22 24 26 28 30 32]
-    #define SHADOW_BLOCKER_QUALITY 12 // [8 10 12 14 16 18 20 22 24 26 28 30 32]
+    #define SHADOW_QUALITY 12 // [4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
+    #define SHADOW_BLOCKER_QUALITY 8 // [4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 
     const float shadowDepthBlocks = 1024.0;
     const float shadowDepthMult   = 256.0 / shadowDepthBlocks;
@@ -103,7 +108,7 @@
 
     // Lighting Configuration.
     #define LIGHT_SUN_INTENSITY 32.0
-    #define LIGHT_MOON_INTENSITY 0.0001
+    #define LIGHT_MOON_INTENSITY 0.006
 
     #define BLOCK_LIGHT_ANISOTROPY 0.5 // [0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75]
     #define BLOCK_LIGHT_BRIGHTNESS 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
@@ -144,6 +149,47 @@
     #define VOLUMETRICS
 
     // Volumetric Clouds Configuration.
+    #define CLOUDS
+    #define CLOUDS_STEPS 8 // [4 5 6 7 8 9 10 11 12 13 14 15 16]
+    #define CLOUDS_DETAIL 6 // [4 5 6 7 8 9]
+
+    #define CLOUDS_ALTITUDE 1536.0 // [512.0 768.0 1024.0 1280.0 1536.0 1792.0 2048.0]
+    #define CLOUDS_HEIGHT 512.0 // [256.0 512.0 768.0 1024.0 1280.0 1536.0 1792.0 2048.0]
+    #define CLOUDS_SCALE 1.0 // [0.7 0.8 0.9 1.0 1.1 1.2 1.3]
+    #define CLOUDS_SPEED 1.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0]
+
+    #define CLOUDS_COVERAGE_CLEAR 1.1 // [0.7 0.75 0.8 0.85 0.9 0.95 1.0 1.05 1.1 1.15 1.2 1.25]
+    #define CLOUDS_COVERAGE_RAIN 0.75
+
+    #define CLOUDS_DENSITY_CLEAR 1.1 // [0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
+    #define CLOUDS_DENSITY_RAIN 1.0 // [0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
+
+    #define CLOUDS_OPACITY 1.0
+
+    const float cloudDensityClear = CLOUDS_DENSITY_CLEAR * CLOUDS_OPACITY;
+    const float cloudDensityRain  = CLOUDS_DENSITY_RAIN * CLOUDS_OPACITY;
+
+    #define CLOUDS_LIGHTING_DENSITY 300.0
+    const float cloudLightingDensity = CLOUDS_LIGHTING_DENSITY / CLOUDS_OPACITY;
+
+    #define CLOUDS_LIGHTING_DIRECT_STEPS 4 // [0 1 2 3 4 5 6 7 8 9 10 11 12]
+    const float cloudLightingDensityDirect = cloudLightingDensity;
+
+    #define CLOUDS_LIGHTING_SKY_STEPS 1 // [0 1 2 3 4 5 6 7 8 9 10 11 12]
+    const float cloudLightingDensitySky = cloudLightingDensity * piRCP;
+
+    #define CLOUDS_LIGHTING_BOUNCED_STEPS 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12]
+    const float cloudLightingDensityBounced = cloudLightingDensity * piRCP;
+    #define CLOUDS_LIGHTING_BOUNCED_BRIGHTNESS 0.1
+
+    #define CLOUDS_SHADOW
+    #define CLOUDS_SHADOW_STEPS 1 // [1 2 3 4 5]
+    #define CLOUDS_SHADOW_DENSITY_MULT 0.5
+
+    #ifdef CLOUDS_SHADOW
+    #endif
+
+    #define CLOUDS_HORIZON_FADE 0.05
 
     // Atmospherics Configuration.
     #define ATMOSPHERICS
@@ -171,8 +217,8 @@
     #define ATMOSPHERICS_HEIGHT_FOG_DENSITY 0.02
 
     //#define ATMOSPHERICS_MIST_FOG
-    #define ATMOSPHERICS_MIST_FOG_HEIGHT 8.0
-    #define ATMOSPHERICS_MIST_FOG_DENSITY 0.1
+    #define ATMOSPHERICS_MIST_FOG_HEIGHT 8.0 // [4.0 6.0 8.0 10.0 12.0 14.0 16.0 18.0 20.0 22.0 24.0 26.0 28.0 30.0 32.0]
+    #define ATMOSPHERICS_MIST_FOG_DENSITY 0.1 // [0.01 0.025 0.05 0.075 0.1 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5]
 
     #define ATMOSPHERICS_NIGHT_FOG
 
@@ -182,6 +228,10 @@
     //#define ATMOSPHERICS_GROUND_FOG_ROLLING
 
     const float fogGroundDensity = ATMOSPHERICS_GROUND_FOG_DENSITY * 0.5;
+
+    #define ATMOSPHERICS_RAIN_FOG
+    #define ATMOSPHERICS_RAIN_FOG_HEIGHT 64.0
+    #define ATMOSPHERICS_RAIN_FOG_DENSITY 0.2
 
     // Water.
     #define ATMOSPHERICS_WATER

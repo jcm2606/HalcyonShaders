@@ -132,10 +132,9 @@
         vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
 
         vec3 closestFrag = FindClosestFragment3x3(screenCoord, pixelSize);
-        float closestDepth = texture2D(depthtex0, closestFrag.xy).x;
         vec2 motion = CalculateCameraMotion(closestFrag);
 
-        if(closestDepth < 0.7) return currentFrame;
+        if(texture2D(depthtex0, closestFrag.xy).x < 0.7) return currentFrame;
 
         return max0(TemporalReprojection(screenCoord, motion, pixelSize, currentFrame));
     }

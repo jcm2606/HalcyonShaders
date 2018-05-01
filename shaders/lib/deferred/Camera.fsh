@@ -41,7 +41,7 @@
     #if PROGRAM == COMPOSITE2
         vec3 CalculateExposedImage(const vec3 image, float averageLuma) {
             #ifndef EXPOSURE_AUTO
-                averageLuma = EXPOSURE;
+                averageLuma = exposure;
             #else
                 averageLuma = max(0.0, 0.7 / (averageLuma + mix(0.001, 0.1, timeNight)));
             #endif
@@ -61,7 +61,7 @@
             #if   CAMERA_FOCUS_MODE == 1
                 float focus = ClipToViewDepth(centerDepthSmooth);
             #elif CAMERA_FOCUS_MODE == 0
-                float focus = ClipToViewDepth(getDepthExp(CAMERA_MANUAL_FOCUS));//ClipToViewDepth(CAMERA_MANUAL_FOCUS);
+                float focus = ClipToViewDepth(getDepthExp(CAMERA_MANUAL_FOCUS));
             #endif
 
             return aperture * (focalLength * (focus - depth)) / (focus * (depth - focalLength));
@@ -109,7 +109,7 @@
             const float sizeCorrection = 1.0 / (sqrt(samples) * 1.35914091423) * 0.5;
             const float apertureScale  = sizeCorrection * aperture * 1000.0;
 
-            const float inverseIter05 = mix(0.1, 1.0, samples / 1024.0) / samples;
+            const float inverseIter05 = cMix(0.1, 1.0, samples / 1024.0) / samples;
             float lod = log2(abs(pcoc) * viewHeight * viewWidth * inverseIter05);
 
             vec2 distOffsetScale = apertureScale * vec2(1.0, aspectRatio);
