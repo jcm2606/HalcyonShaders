@@ -9,12 +9,18 @@
     
     // Bokeh.
     #if PROGRAM == COMPOSITE0
-        vec3 CalculateBokeh(vec2 screenCoord, vec2 offset, float lod) {
+        vec3 CalculateBokeh(vec2 screenCoord, vec2 offset) {
+            const float lod  = 2.0;
+            const float lod2 = exp2(lod);
+
             const float a = tau / LENS_BLADES;
             const mat2 rot = mat2(cos(a), -sin(a), sin(a), cos(a));
-            const vec3 size = 0.4 * vec3(1.0 - vec2(LENS_SHIFT, LENS_SHIFT * 0.5), 1.0);
 
-            vec2 coord = (screenCoord - offset) * exp2(lod);
+            const vec3 size  = 0.4 * vec3(1.0 - vec2(LENS_SHIFT, LENS_SHIFT * 0.5), 1.0);
+            const vec3 size0 = size * LENS_SHARPNESS;
+            const vec3 size1 = size * LENS_SHARPNESS * 0.8;
+
+            vec2 coord = (screenCoord - offset) * lod2;
 
             float r = 0.0;
 
@@ -30,8 +36,8 @@
 
             r = mix(r, fLength(centerOffset) * 0.8, LENS_ROUNDING);
 
-            vec3 bokeh = saturate(1.0 - smoothstep(size * LENS_SHARPNESS, size, vec3(r)));
-                 bokeh = bokeh * (1.0 - saturate(smoothstep(size, size * LENS_SHARPNESS * 0.8, vec3(r)) * LENS_BIAS));
+            vec3 bokeh = saturate(1.0 - smoothstep(size0, size, vec3(r)));
+                 bokeh = bokeh * (1.0 - saturate(smoothstep(size, size1, vec3(r)) * LENS_BIAS));
 
             return bokeh;
         }
@@ -43,7 +49,7 @@
             #ifndef EXPOSURE_AUTO
                 averageLuma = exposure;
             #else
-                averageLuma = max(0.0, 0.7 / (averageLuma + mix(0.001, 0.1, timeNight)));
+                averageLuma = max(0.0, 0.7 / (averageLuma + mix(0.1, 0.1, timeNight)));
             #endif
 
             return image * averageLuma;

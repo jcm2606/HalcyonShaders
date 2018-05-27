@@ -47,6 +47,8 @@ uniform float aspectRatio;
 uniform float near;
 uniform float far;
 
+uniform int frameCounter;
+
 // Structs.
 #include "/lib/struct/ScreenObject.fsh"
 
@@ -55,6 +57,8 @@ uniform float far;
 #include "/lib/util/SpaceTransform.glsl"
 
 #include "/lib/deferred/Camera.fsh"
+
+#include "/lib/common/Bloom.fsh"
 
 // Functions.
 // Main.
@@ -66,16 +70,17 @@ void main() {
     vec3 image = DecodeColour(screenObject.tex4.rgb);
          image = CalculateDOF(screenCoord);
 
-    temporalBuffer.rgb = EncodeColour(image);
-
          image = CalculateExposedImage(image, ReadFromTile(colortex3, TILE_COORD_TEMPORAL_LUMA, TILE_WIDTH_TEMPORAL).a);
 
+         temporalBuffer.rgb = EncodeColour(image);
+
     #ifdef LENS_PREVIEW
-         image = texture2D(colortex5, screenCoord * vec2(1.0, 0.55) + vec2(0.0, 0.2)).rgb;
+         image = texture2D(colortex5, screenCoord * vec2(1.0, 0.55) + vec2(0.3, 0.2)).rgb;
     #endif
     
-    /* DRAWBUFFERS:34 */
+    /* DRAWBUFFERS:342 */
     gl_FragData[0] = temporalBuffer;
     gl_FragData[1] = vec4(EncodeColour(image), 1.0);
+    gl_FragData[2] = vec4(CalculateBloomTiles(screenCoord), 1.0);
 }
 // EOF.

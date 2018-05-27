@@ -84,6 +84,8 @@ uniform int frameCounter;
 
 #include "/lib/common/Clouds.fsh"
 
+#include "/lib/common/Caustics.fsh"
+
 #include "/lib/deferred/Atmospherics.fsh"
 
 #include "/lib/deferred/SpecularLighting.fsh"
@@ -104,8 +106,8 @@ void main() {
     float depthBack  = texture2D(depthtex1, screenCoord).x;
     float depthFront = texture2D(depthtex0, screenCoord).x;
 
-    vec3 viewPositionBack  = ClipToViewPosition(screenCoord, depthBack);
-    vec3 viewPositionFront = ClipToViewPosition(screenCoord, depthFront);
+    vec3 viewPositionBack  = ClipToViewPosition(screenCoord - CalculateJitter() * 0.5, depthBack);
+    vec3 viewPositionFront = ClipToViewPosition(screenCoord - CalculateJitter() * 0.5, depthFront);
 
     vec3 worldPositionBack  = ViewToWorldPosition(viewPositionBack);
     vec3 worldPositionFront = ViewToWorldPosition(viewPositionFront);
@@ -136,11 +138,13 @@ void main() {
 
     mat2x3 atmosphereLighting = CalculateAtmosphereLighting();
 
-    if(isTransparentPixel)
-         transparentGeometry.rgb = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, transparentGeometry.rgb, viewPositionFront, screenCoord, dither, highlightOcclusion);
+    transparentGeometry.rgb = CalculateShadedFragment(materialObject, surfaceObject, atmosphereLighting, transparentGeometry.rgb, viewPositionFront, screenCoord - CalculateJitter() * 0.5, dither, highlightOcclusion);
 
     bool isSkyPixel = !getLandMask(depthBack);
     bool isWaterPixel = materialObject.water;
+
+    if(isWaterPixel || (underWater && !isWaterPixel))
+        image *= CalculateCaustics(worldPositionBack, dither);
 
     float VoL = max0(dot(normalize(viewPositionBack), lightDirection));
     float distFront = distance(viewPositionEye, viewPositionFront);
@@ -155,13 +159,16 @@ void main() {
 
         image *= atmosphericsVolumeBack[1];
 
+        //atmosphericsVolumeBack[0] *= mix(vec3(1.0), surfaceObject.albedo * transparentGeometry.a, float(transparentGeometry.a > 0.1));
+
         atmosphericsVolumeFront[0] += atmosphericsVolumeBack[0];
     }
 
-    image = mix(image, transparentGeometry.rgb, transparentGeometry.a);
+    //image *= mix(vec3(1.0), surfaceObject.albedo * transparentGeometry.a, float(transparentGeometry.a > 0.1));
+    image  = mix(image, transparentGeometry.rgb, transparentGeometry.a);
 
     if(getLandMask(depthFront) && !underWater && !underLava)
-        image = CalculateSpecularLighting(surfaceObject, atmosphereLighting, image, vec3(highlightOcclusion), viewPositionFront, screenCoord, dither, depthFront);
+        image = CalculateSpecularLighting(surfaceObject, atmosphereLighting, image, vec3(highlightOcclusion), viewPositionFront, screenCoord - CalculateJitter() * 0.5, dither, depthFront);
 
     image = image * atmosphericsVolumeFront[1] + atmosphericsVolumeFront[0];
 
@@ -170,6 +177,6 @@ void main() {
     
     /* DRAWBUFFERS:45 */
     gl_FragData[0] = vec4(EncodeColour(image), 1.0);
-    gl_FragData[1] = vec4(CalculateBokeh(screenCoord, BOKEH_OFFSET, 2.0), 1.0);
+    gl_FragData[1] = vec4(CalculateBokeh(screenCoord, BOKEH_OFFSET), 1.0);
 }
 // EOF.

@@ -12,7 +12,7 @@
         #define flatNormal normalize(cross(dFdx(viewPositionFront), dFdy(viewPositionFront)))
         #define rayDirection refract(viewVector, normal - flatNormal, 0.75)
 
-        return rayDirection * abs(distance(viewPositionBack, viewPositionFront) * 8.0) / viewPositionFront.z + viewPositionFront;
+        return rayDirection * abs(distance(viewPositionBack, viewPositionFront) * 4.0) / viewPositionFront.z + viewPositionFront;
 
         #undef viewVector
         #undef flatNormal

@@ -18,7 +18,7 @@
     const vec3  ozoneCoeff = vec3(3.426, 8.298, 0.356) * 6.0e-5 / 100.0;
     const float mieCoeff = 3.0e-6 * mieMultiplier;
 
-    const vec3 moonColour = saturationMod(vec3(0.0, 0.0, 1.0), 0.11);
+    const vec3 moonColour = saturationMod(vec3(0.0, 0.0, 1.0), 0.06);
 
     vec2 GetSkyThickness(vec3 direction) {
         vec2 sr = earthRadius + vec2(atmosphereHeight, atmosphereHeight * mieDistribution * rayleighDistributionRCP);
@@ -68,8 +68,8 @@
         vec3 scatterS = scatterCoeff.xyz * phaseRayleigh(VoS) + (scatterCoeff.w * PhaseMie((mode > 0) ? 0.0 : VoS));
         vec3 scatterM = scatterCoeff.xyz * phaseRayleigh(VoM) + (scatterCoeff.w * PhaseMie((mode > 0) ? 0.0 : VoM));
 
-        const float sunScatterIntensity = 1.5;
-        const float moonScatterIntensity = 0.0002;
+        const float sunScatterIntensity = LIGHT_SUN_INTENSITY * 0.05;
+        const float moonScatterIntensity = LIGHT_MOON_INTENSITY * 0.05;
 
         vec3 absorbS = Absorb(GetSkyThickness(sunDirection) * stepsRCP) * getEarth(sunDirection) * sunScatterIntensity;
         vec3 absorbM = Absorb(GetSkyThickness(moonDirection) * stepsRCP) * getEarth(moonDirection) * moonScatterIntensity;

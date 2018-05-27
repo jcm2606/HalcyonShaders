@@ -11,7 +11,7 @@
         float newValue = oldValue;
 
         // Average Luma.
-        const float lumaSpeed = 0.5;
+        const float lumaSpeed = 1.0;
 
         float prevLuma = ReadFromTile(colortex3, TILE_COORD_TEMPORAL_LUMA, TILE_WIDTH_TEMPORAL).a;
         float currLuma = luma(DecodeColour(texture2DLod(colortex4, vec2(0.5), 10).rgb));

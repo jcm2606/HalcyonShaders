@@ -97,6 +97,9 @@
     #define fInverseLength_DEF(type) float fInverseLength(const type x) { return inversesqrt(dot(x, x)); }
     DEFINE_genFType(fInverseLength_DEF)
 
+    #define fDistance_DEF(type) float fDistance(const type a, const type b) { return fLength(b - a); }
+    DEFINE_genFType(fDistance_DEF)
+
     #define sum2(v) ( (v).x + (v).y )
     #define sum3(v) ( (v).x + (v).y + (v).z )
     #define sum4(v) ( (v).x + (v).y + (v).z + (v).w )

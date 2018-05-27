@@ -21,13 +21,13 @@
 
         const float incrementLength = stepsRCP * 4.0;
 
-        //viewDirection.xy = viewDirection.xy * fInverseLength(viewDirection) * incrementLength;
+        viewDirection.xy = viewDirection.xy * fInverseLength(viewDirection) * incrementLength;
 
         float waveHeight = CalculateWaterHeight(worldPosition) * height;
 
         int i = steps;
         while(--i > 0) {
-            worldPosition.xz = waveHeight * viewDirection.xy - worldPosition.xz;
+            worldPosition.xz = waveHeight * viewDirection.xy + worldPosition.xz;
 
             waveHeight = CalculateWaterHeight(worldPosition) * height;
         }

@@ -50,7 +50,7 @@
         a20 * b03 - a21 * b01 + a22 * b00) / det;
     }
 
-    #ifdef TAA
+    #if 0
         mat4 projMatrix = mat4(gbufferProjection[0], gbufferProjection[1], vec4(gbufferProjection[2].xy + CalculateJitter(), gbufferProjection[2].zw), gbufferProjection[3]);
         mat4 projMatrixInverse = inverse(projMatrix);
     #else

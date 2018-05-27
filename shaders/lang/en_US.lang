@@ -83,6 +83,12 @@ option.drynessHalflife=Dryness Halflife
 # Miscellaneous.
 # Internal Settings.
 # Uncategorised.
+option.CAUSTICS_MODEL=Caustics Model
+value.CAUSTICS_MODEL.0=None
+value.CAUSTICS_MODEL.1=Derivative
+value.CAUSTICS_MODEL.2=Area
+value.CAUSTICS_MODEL.3=Volumetric Area
+
 # Lighting.
 # Shadows.
 option.shadowMapResolution=Resolution

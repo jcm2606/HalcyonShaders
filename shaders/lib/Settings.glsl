@@ -12,6 +12,7 @@
         /*
         const int colortex0Format = RGB32F;
         const int colortex1Format = RGB32F;
+        const int colortex2Format = RGB16F;
         const int colortex3Format = RGBA32F;
         const int colortex4Format = RGBA16F;
 
@@ -28,6 +29,8 @@
     #endif
 
     // Internal Configuration.
+    #define MATERIAL_FORMAT 2 // [0 1 2 3 4]
+
     #define TIME_MULT 1.0 // [0.0 0.083333 0.090909 0.1 0.111111 0.125 0.142857 0.166667 0.2 0.25 0.333333 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0]
     #define TIME_SCRUB_MAJOR 0.0 // [-10.0 -9.0 -8.0 -7.0 -6.0 -5.0 -4.0 -3.0 -2.0 -1.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
     #define TIME_SCRUB_MINOR 0.0 // [-10.0 -9.0 -8.0 -7.0 -6.0 -5.0 -4.0 -3.0 -2.0 -1.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
@@ -43,10 +46,15 @@
     #ifdef NORMAL_MAPS
     #endif
 
+    #define ALBEDO_ALPHA_LIMIT 0.1000003
+    #define ALBEDO_ALPHA_OPTIMISATION_SHADOW
+
     const float materialIDRange = 255.0;
     const float materialIDMult  = rcp(materialIDRange);
 
     // Camera / Post Processing Configuration.
+    #define BLOOM
+
     #define DOF
     #define DOF_SAMPLES 64 // [32 64 96 128 160 192 224 256 288 320 352 384 416 448 480 512 544 576 608 640 672 704 736 768 800 832 864 896 928 960 992 1024]
     #define DOF_DISTORTION_ANAMORPHIC 1.0
@@ -77,23 +85,32 @@
     // Parallax Configuration.
     #define PARALLAX_TERRAIN
     #define PARALLAX_TERRAIN_DEPTH 1.0 // [0.0625 0.125 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0]
-    const float parallaxTerrainDepth = PARALLAX_TERRAIN_DEPTH * 0.5;
+    
+    #if MATERIAL_FORMAT == 4
+        #define PARALLAX_TERRAIN_DEPTH_INTERNAL 0.15
+    #else
+        #define PARALLAX_TERRAIN_DEPTH_INTERNAL 0.5
+    #endif
+
+    const float parallaxTerrainDepth = PARALLAX_TERRAIN_DEPTH * PARALLAX_TERRAIN_DEPTH_INTERNAL;
 
     #define PARALLAX_TERRAIN_SHADOW
 
     #ifdef PARALLAX_TERRAIN_SHADOW
     #endif
 
+    //#define PARALLAX_TERRAIN_SSS
+
     #define PARALLAX_WATER
     #define PARALLAX_WATER_STEPS 4
-    #define PARALLAX_WATER_HEIGHT 4.0
+    #define PARALLAX_WATER_HEIGHT 2.0
 
     // Shadow Configuration.
     #define cutShadow ceil // [floor ceil sign]
 
     #define SHADOW_DISTORTION_FACTOR 0.9 // [0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95]
 
-    #define SHADOW_QUALITY 12 // [4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
+    #define SHADOW_QUALITY 8 // [4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
     #define SHADOW_BLOCKER_QUALITY 8 // [4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 
     const float shadowDepthBlocks = 1024.0;
@@ -107,28 +124,36 @@
     const float shadowMapResolutionRCP = rcp(shadowMapResolution);
 
     // Lighting Configuration.
+    #define CAUSTICS_MODEL 1 // Which caustics model should the shader use?. WARNING: VOLUMETRIC AREA CAUSTICS ARE EXTREMELY SLOW! [0 1 2 3]
+    #define CAUSTICS_AREA_SAMPLES 4 // [4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64]
+
     #define LIGHT_SUN_INTENSITY 32.0
-    #define LIGHT_MOON_INTENSITY 0.006
+    #define LIGHT_MOON_INTENSITY 0.05
 
     #define BLOCK_LIGHT_ANISOTROPY 0.5 // [0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75]
     #define BLOCK_LIGHT_BRIGHTNESS 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
-    #define BLOCK_LIGHT_TEMPERATURE 3700 // [3700 6500]
+    #define BLOCK_LIGHT_TEMPERATURE 3700 // [2500 2700 3000 3700 6500]
 
     #define SKY_LIGHT_ANISOTROPY 0.5 // [0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75]
 
     // Sky Configuration.
-    #define SUN_SPOT_MULTIPLIER 0.1
+    #define SUN_SPOT_MULTIPLIER 1000.0
     #define MOON_SPOT_MULTIPLIER 100.0
 
-    #define SUN_SIZE 1.0
+    #define SUN_SIZE 0.5
     #define MOON_SIZE 1.0
 
     // Material Configuration.
-    #define MATERIAL_FORMAT 2 // [0 1 2 3 4]
+    //#define WORLD_METALLIC
 
-    #define F0_DIELECTRIC 0.02
     #define F0_WATER 0.021
     #define F0_METALLIC 0.8
+
+    #if defined WORLD_METALLIC
+        #define F0_DIELECTRIC F0_METALLIC
+    #else
+        #define F0_DIELECTRIC 0.02
+    #endif
 
     /*
         Material Key:
@@ -150,7 +175,7 @@
 
     // Volumetric Clouds Configuration.
     #define CLOUDS
-    #define CLOUDS_STEPS 8 // [4 5 6 7 8 9 10 11 12 13 14 15 16]
+    #define CLOUDS_STEPS 6 // [4 5 6 7 8 9 10 11 12 13 14 15 16]
     #define CLOUDS_DETAIL 6 // [4 5 6 7 8 9]
 
     #define CLOUDS_ALTITUDE 1536.0 // [512.0 768.0 1024.0 1280.0 1536.0 1792.0 2048.0]
@@ -161,13 +186,14 @@
     #define CLOUDS_COVERAGE_CLEAR 1.1 // [0.7 0.75 0.8 0.85 0.9 0.95 1.0 1.05 1.1 1.15 1.2 1.25]
     #define CLOUDS_COVERAGE_RAIN 0.75
 
-    #define CLOUDS_DENSITY_CLEAR 1.1 // [0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
-    #define CLOUDS_DENSITY_RAIN 1.0 // [0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
+    #define CLOUDS_DENSITY_CLEAR 1.0 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5]
+    #define CLOUDS_DENSITY_RAIN 1.0 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5]
 
+    #define CLOUDS_DENSITY 1.0
     #define CLOUDS_OPACITY 1.0
 
-    const float cloudDensityClear = CLOUDS_DENSITY_CLEAR * CLOUDS_OPACITY;
-    const float cloudDensityRain  = CLOUDS_DENSITY_RAIN * CLOUDS_OPACITY;
+    const float cloudDensityClear = CLOUDS_DENSITY_CLEAR * CLOUDS_DENSITY * CLOUDS_OPACITY;
+    const float cloudDensityRain  = CLOUDS_DENSITY_RAIN * CLOUDS_DENSITY * CLOUDS_OPACITY;
 
     #define CLOUDS_LIGHTING_DENSITY 300.0
     const float cloudLightingDensity = CLOUDS_LIGHTING_DENSITY / CLOUDS_OPACITY;
@@ -193,7 +219,7 @@
 
     // Atmospherics Configuration.
     #define ATMOSPHERICS
-    #define ATMOSPHERICS_STEPS 8 // [1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
+    #define ATMOSPHERICS_STEPS 6 // [1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 
     // Atmospherics Lighting.
     #define ATMOSPHERICS_LIGHTING_SKY_SHADOW 1 // [0 1]
@@ -221,6 +247,7 @@
     #define ATMOSPHERICS_MIST_FOG_DENSITY 0.1 // [0.01 0.025 0.05 0.075 0.1 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5]
 
     #define ATMOSPHERICS_NIGHT_FOG
+    #define ATMOSPHERICS_NIGHT_FOG_DENSITY 0.05
 
     //#define ATMOSPHERICS_GROUND_FOG
     #define ATMOSPHERICS_GROUND_FOG_HEIGHT 2.0

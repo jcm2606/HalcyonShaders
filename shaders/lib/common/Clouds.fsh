@@ -46,7 +46,7 @@
         return opticalDepth * mix(cloudDensityClear, cloudDensityRain, rainStrength);
     }
 
-    float CalculateCloudDensity(vec3 worldPosition, vec3 direction, int steps) {
+    float CalculateCloudDensity(vec3 worldPosition, const vec3 direction, const int steps) {
         #if !defined CLOUDS
             return 0.0;
         #endif
@@ -68,15 +68,14 @@
 
             float opticalDepth = 0.0;
 
-            for(int i = 0; i < steps; ++i, worldPosition += increment) {
+            for(int i = 0; i < steps; ++i, worldPosition += increment)
                 opticalDepth += CloudFBM(worldPosition);
-            }
 
             return opticalDepth * stepSize;
         }
     }
 
-    float CalculateCloudShadow(vec3 worldPosition, vec3 direction, float density) {
+    float CalculateCloudShadow(vec3 worldPosition, const vec3 direction, const float density) {
         #if !defined CLOUDS || !defined CLOUDS_SHADOW
             return 1.0;
         #endif
@@ -99,44 +98,44 @@
 
             float opticalDepth = 0.0;
 
-            for(int i = 0; i < steps; ++i, worldPosition += increment) {
+            for(int i = 0; i < steps; ++i, worldPosition += increment)
                 opticalDepth += CloudFBM(worldPosition);
-            }
 
             opticalDepth *= stepSize;
         #endif
 
-        float horizon = smoothstep(0.0, CLOUDS_HORIZON_FADE, dot(direction, worldPositionUp));
+        #define horizon smoothstep(0.0, CLOUDS_HORIZON_FADE, dot(direction, worldPositionUp))
 
         return mix(1.0, exp2(-cloudMaterial.y * opticalDepth * density), horizon);
+
+        #undef horizon
     }
 
     #if PROGRAM == COMPOSITE0
 
-        float CalculateCloudSelfOcclusion(vec3 worldPosition, vec3 increment, float opticalDepth, vec2 dither, float density, int steps) {
+        float CalculateCloudSelfOcclusion(vec3 worldPosition, vec3 increment, float opticalDepth, const vec2 dither, float density, const int steps) {
             if(steps <= 0) {
                 opticalDepth = ((cloudMaxAltitude - worldPosition.y) / (cloudMaxAltitude - cloudMinAltitude));
 
                 return exp2(-cloudMaterial.z * opticalDepth * density * 0.3);
+            } else {
+                density /= steps;
+
+                float stepSize = cloudHeight / (float(steps) + 0.5);
+
+                increment *= stepSize;
+                worldPosition = increment * dither.x + worldPosition;
+
+                opticalDepth = 0.0;
+
+                for(int i = 0; i < steps; ++i, worldPosition += increment)
+                    opticalDepth += CloudFBM(worldPosition);
+
+                return exp2(-cloudMaterial.z * opticalDepth * density);
             }
-
-            density /= steps;
-
-            float stepSize = cloudHeight / (float(steps) + 0.5);
-
-            increment *= stepSize;
-            worldPosition = increment * dither.x + worldPosition;
-
-            opticalDepth *= 0.0;
-
-            for(int i = 0; i < steps; ++i, worldPosition += increment) {
-                opticalDepth += CloudFBM(worldPosition);
-            }
-
-            return exp2(-cloudMaterial.z * opticalDepth * density);
         }
 
-        vec3 CalculateClouds(mat2x3 atmosphereLighting, vec3 background, vec3 viewPosition, vec3 worldPosition, float depth, vec2 dither) {
+        vec3 CalculateClouds(const mat2x3 atmosphereLighting, const vec3 background, const vec3 viewPosition, vec3 worldPosition, const float depth, const vec2 dither) {
             #ifndef CLOUDS
                 return background;
             #endif
@@ -144,14 +143,13 @@
             const float curvature = earthRadius;
             worldPosition.y -= sqrt(pow2(curvature) - pow2(fLength(worldPosition.xz))) - curvature;
 
-            if(normalize(worldPosition).y < 0.01 && cameraPosition.y <= cloudMinAltitude)
-                return background;
-
-            if(normalize(worldPosition).y > -0.01 && cameraPosition.y >= cloudMaxAltitude)
+            if((normalize(worldPosition).y < 0.01 && cameraPosition.y <= cloudMinAltitude) || normalize(worldPosition).y > -0.01 && cameraPosition.y >= cloudMaxAltitude)
                 return background;
 
             const int   steps    = CLOUDS_STEPS;
             const float stepsRCP = rcp(steps);
+
+            const float stepSize = cloudHeight * stepsRCP;
 
             float VoL = dot(normalize(viewPosition), lightDirection);
 
@@ -171,8 +169,6 @@
 
             vec3 position = (increment * dither.x + startPosition) + cameraPosition;
 
-            float stepSize = cloudHeight * stepsRCP;
-
             vec3 scatter = vec3(0.0);
             float transmittance = 1.0;
 
@@ -186,7 +182,7 @@
 
                 vec3 skyLight = atmosphereLighting[1] * CalculateCloudSelfOcclusion(position, worldPositionUp, opticalDepth, dither, cloudLightingDensitySky, CLOUDS_LIGHTING_SKY_STEPS);
 
-                vec3 bouncedLight = atmosphereLighting[0] * CalculateCloudSelfOcclusion(position, -worldPositionUp, opticalDepth, dither, cloudLightingDensityBounced, CLOUDS_LIGHTING_BOUNCED_STEPS) * CLOUDS_LIGHTING_BOUNCED_BRIGHTNESS * abs(dot(lightDirection, viewDirectionUp));
+                vec3 bouncedLight = atmosphereLighting[0] * CalculateCloudSelfOcclusion(position, -worldPositionUp, opticalDepth, dither, cloudLightingDensityBounced, CLOUDS_LIGHTING_BOUNCED_STEPS) * CLOUDS_LIGHTING_BOUNCED_BRIGHTNESS * abs(dot(lightDirection, -viewDirectionUp));
 
                 scatter += (directLight + skyLight + bouncedLight) * cloudMaterial.x * TransmittedScatteringIntegral(opticalDepth, cloudMaterial.y) * transmittance;
                 transmittance *= exp2(-cloudMaterial.y * opticalDepth);

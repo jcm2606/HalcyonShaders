@@ -26,19 +26,19 @@
     }
 
     float Height0(vec3 worldPosition) {
-        const int octaves = 9;
+        const int octaves = 14;
 
-        const float rotAmount = cRadians(30.0);
+        const float rotAmount = cRadians(45.0);
         cRotateMat2(rotAmount, rot);
 
-        float height = 0.0;
+        float height = 1.0;
 
         vec2 position = worldPosition.xz - worldPosition.y;
         vec2 noisePosition = position * 0.005;
 
-        float T = 0.3 * TIME;
-        float waveSteepness = 0.55;
-        float waveAmplitude = mix(0.2, 0.3, rainStrength);
+        float T = 0.4 * TIME;
+        float waveSteepness = 0.7;
+        float waveAmplitude = 0.37;
         vec2  waveDirection = vec2(0.5, 0.2);
         float waveLength = 8.0;
 
@@ -46,12 +46,12 @@
         while(--i > 0) {
             vec2 noise = noise2D(noisePosition / sqrt(waveLength));
 
-            height += GerstnerOctave(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 2.0, waveDirection, waveSteepness, waveAmplitude, waveLength, T);
+            height += -GerstnerOctave(position + (noise * 2.0 - 1.0) * sqrt(waveLength) * 3.0, waveDirection, waveSteepness, waveAmplitude, waveLength, T);
 
-            waveSteepness *= 1.125;
-            waveAmplitude *= 0.685;
+            waveSteepness *= 1.025;
+            waveAmplitude *= 0.535;
             waveLength *= 0.695;
-            T *= 1.11;
+            T *= 1.1;
             waveDirection *= rot;
         }
 
@@ -65,8 +65,8 @@
     vec3 CalculateWaterNormal(vec3 worldPosition) {
         const float deltaDist = 0.4;
         const vec2  deltaPos  = vec2(deltaDist, 0.0);
-
-        const float anisotropy = 0.5;
+        
+        const float anisotropy = 0.6;
 
         float   height0 = CalculateWaterHeight(worldPosition);
         #define height1   CalculateWaterHeight(worldPosition + deltaPos.xyy)
@@ -79,7 +79,7 @@
 
         vec3 normal = vec3(deltaHeight.x, deltaHeight.y, 1.0 - pow2(deltaHeight.x) - pow2(deltaHeight.y));
 
-        return normalize(normal) * anisotropy + vec3(0.0, 0.0, 1.0 - anisotropy);
+        return normalize(normal * anisotropy + vec3(0.0, 0.0, 1.0 - anisotropy));
     }
 
 #endif

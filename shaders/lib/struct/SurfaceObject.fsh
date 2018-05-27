@@ -15,7 +15,7 @@
         float blockLight;
         float skyLight;
         
-        float parallaxShadow;
+        vec3 parallaxLighting;
 
         float vanillaAO;
 
@@ -36,41 +36,35 @@
     };
 
     SurfaceObject CreateSurfaceObject(const ScreenObject screenObject) {
-        SurfaceObject surfaceObject = SurfaceObject(vec3(0.0), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vec3(0.0), 0.0, 0.0, 0.0, 0.0, 0.0);
+        SurfaceObject surfaceObject = SurfaceObject(vec3(0.0), 0.0, 0.0, vec3(0.0), 0.0, 0.0, 0.0, vec3(0.0), 0.0, 0.0, 0.0, 0.0, 0.0);
 
         // Albedo.
         surfaceObject.albedo = ToLinear(DecodeAlbedo(screenObject.tex0.r));
 
         // Lighting.
-        vec4 lightingData = Decode4x8F(screenObject.tex0.g);
-        
-        surfaceObject.blockLight = lightingData.x;
-        surfaceObject.skyLight = lightingData.y;
+        vec4 data01 = Decode4x8F(screenObject.tex0.g);
+        surfaceObject.blockLight = data01.x;
+        surfaceObject.skyLight = data01.y;
+        surfaceObject.blockLightShaded = data01.z;
+        surfaceObject.skyLightShaded = data01.w;
 
-        surfaceObject.parallaxShadow = lightingData.z * 4.0;
-        
-        surfaceObject.vanillaAO = lightingData.w;
-
-        vec2 shadedLightmaps = Decode4x8F(screenObject.tex0.b).xy;
-        
-        surfaceObject.blockLightShaded = shadedLightmaps.x;
-        surfaceObject.skyLightShaded = shadedLightmaps.y;
+        vec4 data02 = Decode4x8F(screenObject.tex0.b);
+        surfaceObject.parallaxLighting = data02.rgb;
+        surfaceObject.vanillaAO = data02.w;
 
         // Normal.
         surfaceObject.normal = normalize(DecodeNormal(screenObject.tex1.r));
 
         // Material Properties.
-        vec4 material0Data = Decode4x8F(screenObject.tex1.g);
-
-        surfaceObject.roughness = material0Data.x;
-        surfaceObject.f0 = material0Data.y;
-        surfaceObject.emission = material0Data.z;
-        surfaceObject.placeholderProperty = material0Data.w;
+        vec4 data11 = Decode4x8F(screenObject.tex1.g);
+        surfaceObject.roughness = data11.x;
+        surfaceObject.f0 = data11.y;
+        surfaceObject.emission = data11.z;
+        surfaceObject.placeholderProperty = data11.w;
 
         // Material ID.
-        vec4 material1Data = Decode4x8F(screenObject.tex1.b);
-
-        surfaceObject.materialID = material1Data.x;
+        vec4 data12 = Decode4x8F(screenObject.tex1.b);
+        surfaceObject.materialID = data12.x;
 
         return surfaceObject;
     }

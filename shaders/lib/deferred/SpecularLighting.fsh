@@ -7,6 +7,8 @@
 #if !defined INCLUDED_DEFERRED_SPECULARLIGHTING
     #define INCLUDED_DEFERRED_SPECULARLIGHTING
 
+    #include "/lib/common/Jitter.glsl"
+
     #include "/lib/deferred/Raytracer.fsh"
 
     const int   reflectionSamples    = SPECULAR_SSR_ROUGH_SAMPLES;

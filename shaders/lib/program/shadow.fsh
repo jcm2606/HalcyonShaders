@@ -57,6 +57,11 @@ void main() {
 
     bool isWater = CompareFloat(materialID, MATERIAL_WATER);
 
+    #if defined ALBEDO_ALPHA_OPTIMISATION_SHADOW
+        if(!isWater && albedo.a < ALBEDO_ALPHA_LIMIT)
+            discard;
+    #endif
+
     if(isWater)
         albedo.rgb = vec3(1.0);
 
@@ -68,18 +73,20 @@ void main() {
          normal = CalculateWaterNormal(worldPosition);
 
          normal = normalize(tbn * normal);
-        
-    if(isWater) {
-        vec3 refractedPosition = refract(normalize(worldPosition), normal, 0.75) * 4.0 + worldPosition;
+    
+    #if CAUSTICS_MODEL == 1
+        if(isWater) {
+            vec3 refractedPosition = refract(normalize(viewPosition), normal, 0.75) * 8.0 + viewPosition;
 
-        #define oldArea ( fLength(dFdx(worldPosition)) * fLength(dFdy(worldPosition)) )
-        #define newArea ( fLength(dFdx(refractedPosition)) * fLength(dFdy(refractedPosition)) )
+            #define oldArea ( fLength(dFdx(viewPosition)) * fLength(dFdy(viewPosition)) )
+            #define newArea ( fLength(dFdx(refractedPosition)) * fLength(dFdy(refractedPosition)) )
 
-        albedo.rgb = vec3(abs((oldArea / newArea)));
+            albedo.rgb = ToGamma(vec3(abs(oldArea / newArea)));
 
-        #undef oldArea
-        #undef newArea
-    }
+            #undef oldArea
+            #undef newArea
+        }
+    #endif
 
     gl_FragData[0] = vec4(EncodeShadow(albedo.rgb), albedo.a);
     gl_FragData[1] = vec4(normal * 0.5 + 0.5, float(isWater));

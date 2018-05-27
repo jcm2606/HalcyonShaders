@@ -21,22 +21,31 @@
 // Varyings.
 varying vec2 screenCoord;
 
+flat(vec4) timeVector;
+
 // Screen Samples.
 // Uniforms.
+uniform sampler2D colortex3;
+uniform sampler2D colortex2;
 uniform sampler2D colortex4;
+
+uniform float viewWidth;
+uniform float viewHeight;
 
 // Structs.
 #include "/lib/struct/ScreenObject.fsh"
 
 // Globals.
 // Includes.
+#include "/lib/common/Bloom.fsh"
+
 // Functions.
 // Main.
 void main() {
     ScreenObject screenObject = CreateScreenObject(screenCoord);
 
     vec3 image = DecodeColour(screenObject.tex4.rgb);
-         // TODO: Bloom.
+         image = CalculateBloom(image, screenCoord);
          image = image / (1.0 + image);
         
     gl_FragColor = vec4(ToGamma(image), 1.0);

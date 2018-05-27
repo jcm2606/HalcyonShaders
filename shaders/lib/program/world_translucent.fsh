@@ -62,7 +62,7 @@ void main() {
 
     vec3 normal = vec3(0.5, 0.5, 1.0);
          normal = texture2D(normals, uvCoord).xyz;
-         normal = normal * 2.0 - 1.0;
+         normal = normalize(normal * 2.0 - 1.0);
 
     if(isWater)
          normal = CalculateWaterNormal(CalculateWaterParallax(worldPosition + cameraPosition, viewDirection));
@@ -70,8 +70,8 @@ void main() {
          normal = normalize(tbn * normal);
 
     /* DRAWBUFFERS:015*/
-    gl_FragData[0] = vec4(EncodeAlbedo(albedo.rgb), Encode4x8F(vec4(lmCoord, 0.25 /* parallaxShadow */, vanillaAO)), Encode4x8F(vec4(lmCoord, 0.0, 0.0)), 1.0);
-    gl_FragData[1] = vec4(EncodeNormal(normal), Encode4x8F(CalculateMaterialData(uvCoord, entity, materialID, 0.0, mat2(0.0))), Encode4x8F(vec4(materialID, 0.0, 0.0, 0.0)), 1.0);
+    gl_FragData[0] = vec4(EncodeAlbedo(albedo.rgb), Encode4x8F(vec4(lmCoord, lmCoord)), Encode4x8F(vec4(vec3(1.0), vanillaAO)), ceil(albedo.a));
+    gl_FragData[1] = vec4(EncodeNormal(normalize(normal)), Encode4x8F(CalculateMaterialData(uvCoord, entity, materialID, 0.0, mat2(0.0))), Encode4x8F(vec4(materialID, 0.0, 0.0, 0.0)), ceil(albedo.a));
     gl_FragData[2] = albedo;
 }
 // EOF.

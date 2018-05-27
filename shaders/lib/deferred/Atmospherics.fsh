@@ -67,13 +67,17 @@
     }
 
     // Lighting Function.
-    void CalculateVolumeLighting(io vec2 visibility, io vec3 shadowColour, io float materialID, io bool isTransparentShadow, vec3 shadowPosition, vec3 worldPosition, bool isSkyPixel, bool isWaterPixel) {
+    void CalculateVolumeLighting(io vec2 visibility, io vec3 shadowColour, io float materialID, io bool isTransparentShadow, vec3 shadowPosition, vec3 worldPosition, vec2 dither, bool isSkyPixel, bool isWaterPixel) {
         shadowPosition.xy = DistortShadowPositionProj(shadowPosition.xy);
 
         float depthFront = texture2D(shadowtex0, shadowPosition.xy).x;
 
         visibility.x = float(texture2D(shadowtex1, shadowPosition.xy).x > shadowPosition.z);
         visibility.y = float(depthFront > shadowPosition.z);
+
+        #if CAUSTICS_MODEL == 3
+            visibility.x *= CalculateCaustics(worldPosition, dither);
+        #endif
 
         if(isSkyPixel && ( any(greaterThan(shadowPosition.xy, vec2(1.0))) || any(lessThan(shadowPosition.xy, vec2(0.0))) ))
             visibility = vec2(1.0);
@@ -95,8 +99,10 @@
               waterDepth = waterDepth * shadowProjectionInverse[2].z + shadowProjectionInverse[3].z;
               waterDepth = (transMAD(shadowModelView, worldPosition)).z - waterDepth;
 
-        if(waterDepth < 0.0)
+        if(waterDepth < 0.0) {
+            //shadowColour = min(pow(shadowColour, vec3(max(1.0e-3, abs(waterDepth) * 0.5))), 1000.0) * exp2(waterDepth * 0.7);
             shadowColour *= exp2(waterAbsorption * waterDepth);
+        }
     }
 
     // Optical Depth Functions.
@@ -156,7 +162,14 @@
             opticalDepth += exp(-abs(seaLevelHeight) / ATMOSPHERICS_GROUND_FOG_HEIGHT) * fogGroundDensity * groundFogNoise;
         #endif
 
-        opticalDepth += saturate(exp(-worldPosition.y / ATMOSPHERICS_RAIN_FOG_HEIGHT)) * ATMOSPHERICS_RAIN_FOG_DENSITY * rainStrength;
+        #ifdef ATMOSPHERICS_RAIN_FOG
+            if(rainStrength > 0.01)
+                opticalDepth += saturate(exp(-worldPosition.y / ATMOSPHERICS_RAIN_FOG_HEIGHT)) * ATMOSPHERICS_RAIN_FOG_DENSITY * rainStrength;
+        #endif
+
+        #ifdef ATMOSPHERICS_NIGHT_FOG
+            opticalDepth += saturate(exp(-worldPosition.y / ATMOSPHERICS_HEIGHT_FOG_HEIGHT)) * ATMOSPHERICS_NIGHT_FOG_DENSITY * timeNight;
+        #endif
 
         return opticalDepth;
     }
@@ -183,7 +196,7 @@
 
         vec2 phaseWater = vec2(PhaseG(VoL, 0.8) * 4.0 + 1.0, PhaseG0());
         vec3 phaseAir = vec3(phaseRayleigh(VoL), PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8), PhaseG0());
-        vec2 phaseFog = vec2(PhaseG(VoL, 0.6) + PhaseG(VoL, -0.8) + PhaseG(VoL, 0.2), 1.0);
+        vec2 phaseFog = vec2(PhaseG(VoL, 0.8) + PhaseG(VoL, -0.8) + PhaseG(VoL, 0.2), 1.0);
 
         vec3 worldStep     = (end - start) * stepsRCP;
         vec3 worldPosition = worldStep * dither.x + start;
@@ -209,7 +222,7 @@
             float materialID = 0.0;
             bool isTransparentShadow = false;
 
-            CalculateVolumeLighting(visibility, shadowColour, materialID, isTransparentShadow, shadowPosition, worldPosition - cameraPosition, isSkyPixel, isWaterPixel);
+            CalculateVolumeLighting(visibility, shadowColour, materialID, isTransparentShadow, shadowPosition, worldPosition - cameraPosition, dither, isSkyPixel, isWaterPixel);
 
             light[0] *= shadowColour * visibility.x * CalculateCloudShadow(worldPosition, lightDirectionWorld, CLOUDS_SHADOW_DENSITY_MULT);
             light[1] *= shadowColour;

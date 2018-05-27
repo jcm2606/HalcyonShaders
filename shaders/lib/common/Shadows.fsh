@@ -71,7 +71,7 @@
                       waterDepth = shadowWorldPosition.z - waterDepth;
 
                 if(isWaterShadow && waterDepth < 0.0) {
-                    //shadowColourSample  = clamp(pow(shadowColourSample, vec3(2.0) * abs(waterDepth)), 0.0, 1000.0) * exp2(waterDepth * 1.2);
+                    //shadowColourSample = min(pow(shadowColourSample, vec3(max(1.0e-3, abs(waterDepth) * 0.5))), 1000.0) * exp2(waterDepth * 0.7);
                     shadowColourSample *= exp2(waterAbsorption * waterDepth);
                 }
 
@@ -79,7 +79,7 @@
             #elif PROGRAM == COMPOSITE0
                 vec3 coordFront = vec3(DistortShadowPositionProj(offset * spread.y + shadowPosition.xy), shadowPosition.z);
 
-                float shadowFront = cutShadow(CompareShadowDepth(coordFront.z, texture2D(shadowtex0, coordFront.xy).x));
+                float shadowFront = float(texture2D(shadowtex0, coordFront.xy).x > coordFront.z);
 
                 shadowColour += shadowFront;
             #endif
@@ -89,7 +89,7 @@
     }
 
     vec3 CalculateShadows(const vec3 viewPosition, const vec2 dither) {
-        const float spread = 200.0 * shadowDepthMult * shadowDistanceScale;
+        const float spread = 400.0 * shadowDepthMult * shadowDistanceScale;
 
         const float minWidth = 0.0;
         const float maxWidth = 64.0;
