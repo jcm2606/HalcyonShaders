@@ -278,17 +278,44 @@
     }
 
     float PhaseG(float theta, const float G) {
-        const float G2 = G * G;
-        const float p1 = (0.75 * (1.0 - G2)) / (tau * (2.0 + G2));
+        float G2 = G * G;
+        float p1 = (0.75 * (1.0 - G2)) / (tau * (2.0 + G2));
 
-        const float G2_p2 = 1.0 + G2;
-        const float G_p2  = 2.0 * G;
+        float G2_p2 = 1.0 + G2;
+        float G_p2  = 2.0 * G;
 
         float p2 = (theta * theta + 1.0) * pow(G2_p2 - G_p2 * theta, -1.5);
 
         return p1 * p2;
     }
     #define PhaseG0() ( 0.25 )
+
+    const float c = 0.7;
+    const float mixer = 0.8;
+
+    float PhaseG8(float x) {
+	    const float g = 0.8 * c;
+        const float g2 = g * g;
+        const float g3 = log2((g2 * -0.25 + 0.25) * mixer);
+        const float g4 = 1.0 + g2;
+        const float g5 = -2.0 * g;
+
+        return exp2(log2(g5 * x + g4) * -1.5 + g3);
+    }
+
+    float PhaseGM5(float x) {
+        const float g = -0.5 * c;
+        const float g2 = g * g;
+        const float g3 = log2((g2 * -0.25 + 0.25) * (1.0 - mixer));
+        const float g4 = 1.0 + g2;
+        const float g5 = -2.0 * g;
+
+        return exp2(log2(g5 * x + g4) * -1.5 + g3);
+    }
+
+    float Phase2Lobes(float x) {
+        return PhaseG8(x) + PhaseGM5(x);
+    }
 
     // Jitter Ops.
     #define DitherJitter(dither, size) fract((dither * size + frameCounter * 7.0) / size)

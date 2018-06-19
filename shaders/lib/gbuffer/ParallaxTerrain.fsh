@@ -21,11 +21,14 @@
     }
 
     vec2 CalculateParallaxCoord(out vec2 parallaxCoord, const vec2 uvCoord, const vec3 viewDirection, const mat2 texD) {
-        #ifndef PARALLAX_TERRAIN
-            parallaxCoord = uvCoord;
+        parallaxCoord = uvCoord;
 
+        #ifndef PARALLAX_TERRAIN
             return uvCoord;
         #endif
+
+        if(texture2DGradARB(normals, WrapTexture(uvCoord), texD[0], texD[1]).a <= 0.0)
+            return uvCoord;
         
         const float quality = -1.0e-6 * 1.0;
 

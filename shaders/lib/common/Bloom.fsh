@@ -77,7 +77,7 @@
         }
 
         vec3 CalculateBloom(vec3 image, vec2 screenCoord) {
-            #if !defined BLOOM || defined CAMERA_FOCUS_PREVIEW
+            #if !defined BLOOM || defined CAMERA_FOCUS_PREVIEW || defined LENS_PREVIEW
                 return image;
             #endif
 
@@ -89,7 +89,7 @@
             const float scale7 = exp2(7.0);
 
             float screenLuma = ReadFromTile(colortex3, TILE_COORD_TEMPORAL_LUMA, TILE_WIDTH_TEMPORAL).a;
-                  screenLuma = max(0.0, 0.7 / (screenLuma + mix(1.0, 0.1, timeNight)));
+                  screenLuma = max(0.0, 0.7 / (screenLuma + mix(1.0, 0.01, timeNight)));
                   screenLuma = pow(screenLuma, 3.0);
 
             vec3 bloom  = vec3(0.0);
@@ -101,7 +101,7 @@
                  bloom += GetBloomTile(screenCoord, vec2(0.3, 0.3), scale7, 7);
                  bloom *= min(300.0, screenLuma) * luma(bloom) * 10.0;
 
-            return mix(image, bloom, 0.01);
+            return mix(image, bloom, 0.02);
         }
     #endif
 

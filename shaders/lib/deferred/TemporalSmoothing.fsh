@@ -13,7 +13,8 @@
         // Average Luma.
         const float lumaSpeed = 1.0;
 
-        float prevLuma = ReadFromTile(colortex3, TILE_COORD_TEMPORAL_LUMA, TILE_WIDTH_TEMPORAL).a;
+        float prevLuma = min(10.0, ReadFromTile(colortex3, TILE_COORD_TEMPORAL_LUMA, TILE_WIDTH_TEMPORAL).a);
+
         float currLuma = luma(DecodeColour(texture2DLod(colortex4, vec2(0.5), 10).rgb));
               avgLuma  = mix(prevLuma, currLuma, saturate(frameTime * lumaSpeed));
 

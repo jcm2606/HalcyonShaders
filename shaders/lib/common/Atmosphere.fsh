@@ -94,7 +94,7 @@
     mat2x3 CalculateAtmosphereLighting() {
         return mat2x3(
             CalculateLightScatter(lightDirection),
-            CalculateScatter(vec3(0.0), viewDirectionUp, 1) * 2.0
+            CalculateScatter(vec3(0.0), viewDirectionUp, 1) * 4.0
         );
     }
 

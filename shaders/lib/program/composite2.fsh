@@ -37,6 +37,8 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
+uniform sampler2D shadowcolor0;
+
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
@@ -77,6 +79,8 @@ void main() {
     #ifdef LENS_PREVIEW
          image = texture2D(colortex5, screenCoord * vec2(1.0, 0.55) + vec2(0.3, 0.2)).rgb;
     #endif
+
+    //if(all(lessThan(screenCoord * 3.0, vec2(1.0)))) image = texture2D(shadowcolor0, screenCoord * 3.0).rgb;
     
     /* DRAWBUFFERS:342 */
     gl_FragData[0] = temporalBuffer;
